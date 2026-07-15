@@ -1,26 +1,149 @@
 # Repository Guidance
 
-## Product Context
-- The story takes place at New York University, primarily around Bobst Library and Washington Square.
-- The first screen is a playable case library. Every published case must include a normal task, an unmarked choice, a delayed consequence when applicable, individual recovery actions, and a causal debrief.
-- The course platform is NYU Brightspace. Use `brightspace.nyu.edu` and familiar concepts such as Course Home, Content, Assignments, Discussions, Grades, submission history, and allowed file extensions.
-- Additional chapters may use current NYU services such as NYU Drive, NYU Email, and Duo MFA only after verifying their current use from official NYU sources.
-- Official wireless network names are lowercase `nyu`, `nyuguest`, and `eduroam`. A suspicious network may imitate them, but the interface must not label it as risky before the debrief.
-- Use NYU Violet (`#57068c`) as a restrained brand accent, supported by neutrals and semantic status colors. Do not turn the whole interface into a one-color purple theme.
+## Mission
 
-## Immersion Rules
-- Never show in-game meta disclaimers such as "this is only a simulation", "this will not affect your computer", or "no data is collected".
-- Enforce privacy and device safety in code, tests, and documentation: use fixed read-only credentials, no network requests, no persistence, no downloads, and no device APIs.
-- Do not use quizzes, safe/risky labels, or scores before the debrief.
-- The convenient path should feel faster, consequences should arrive later, and recovery should happen through individual actions.
+`one-step-wrong` is a playable digital-safety story collection set at New York University. It teaches cause and effect through ordinary student tasks, believable pressure, unmarked choices, delayed consequences, individual recovery actions, and a causal debrief.
 
-## Learning Experience
-- Teach cause and effect instead of warning players before a choice.
-- The debrief should connect convenience cues, missed evidence, granted permissions, delayed consequences, and recovery actions.
-- Reinforce transferable checks: exact SSID, registrable domain, unrelated permissions, and separate containment of account, device, and social impact.
-- Keep instructional copy concise, factual, and nonjudgmental.
+The first screen is always the playable case library. Do not replace it with a landing page, feature tour, or marketing introduction.
+
+## Non-Negotiable Product Rules
+
+- Do not present the experience as a quiz.
+- Do not label choices safe, risky, correct, recommended, or suspicious before the outcome.
+- Do not show a score before the debrief.
+- Let the convenient path feel genuinely faster or easier.
+- Delay consequences when that delay is part of the lesson.
+- Model recovery as separate actions instead of one generic “fix everything” button.
+- Make the debrief explain the chain from pressure and evidence to permissions, consequences, response, and transferable behavior.
+- Keep instructional copy concise, factual, nonjudgmental, and tied to what the player actually did.
+
+Every published case must include:
+
+1. A normal student objective.
+2. At least one unmarked decision inside the task.
+3. A credible outcome and delayed consequence where appropriate.
+4. Individual containment or recovery actions for each affected layer.
+5. Multiple endings derived from behavior, not a single score threshold.
+6. A causal debrief and a replay path.
+7. State/component tests and at least one critical browser flow.
+
+## Architecture Boundaries
+
+```text
+src/
+  product/                     Case library, session progress, case registry
+  cases/                       Case-owned content, UI, state, and tests
+  engine/decision/             Generic short-chapter state and shared views
+  components/ui/               Domain-neutral UI primitives
+  styles/                      Global tokens and product-level styles
+  tests/e2e/                   Cross-module browser and layout checks
+```
+
+### Product layer
+
+- `src/product/Game.tsx` owns only active-case selection and session completion.
+- `src/product/CaseLibrary.tsx` renders registry metadata; it must not contain story logic.
+- `src/product/caseRegistry.ts` is the only published-case registry.
+- Do not branch on concrete case IDs in the product shell.
+
+### Case modules
+
+- Put every case in `src/cases/<case-id>/`.
+- A case owns its copy, scene-specific UI, state model, recovery rules, and focused tests.
+- Export a runner implementing `CaseRunnerProps` and a `CaseSummary`.
+- Register the resulting `CaseModule` once in `src/product/caseRegistry.ts`.
+- Do not move case-specific concepts into `components/ui` or the product layer for convenience.
+
+### Decision engine
+
+- Use `src/engine/decision/` for focused chapters that follow `intro → decision → outcome → response? → debrief`.
+- Keep `reducer.ts` pure and deterministic. Derive endings from state rather than setting them opportunistically in views.
+- Shared views may depend on the decision contract, but must not import concrete case definitions or case-owned scenes.
+- Prefer adding declarative copy to `DecisionCaseDefinition` over adding new `definition.id === ...` branches.
+- A new decision case should normally require a definition, an intro scene, a decision scene, a runner wrapper, and tests. It should not require edits to `DecisionCaseRunner.tsx`.
+
+### Deep simulations
+
+- Use a dedicated reducer only when a story needs multiple tools, free navigation, notifications, timers, or a long incident chain.
+- Keep the reducer, selectors, provider, components, and tests inside that case directory.
+- Initial state and replay checkpoints must come from factory functions so state from a previous route cannot leak into a replay.
+- Give one-time events stable IDs and make repeated actions idempotent.
+
+## NYU Story World
+
+- The story takes place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
+- The course platform is NYU Brightspace. Display `brightspace.nyu.edu` and use familiar concepts such as Course Home, Content, Assignments, Discussions, Grades, submission history, and allowed file extensions.
+- Official wireless names are lowercase `nyu`, `nyuguest`, and `eduroam`.
+- A suspicious service may imitate a real name, but the interface must not reveal that judgment before the debrief.
+- Additional cases may use current NYU services such as NYU Drive, NYU Email, or Duo MFA only after verifying their current use from official NYU sources.
+- Use NYU Violet (`#57068c`) as a restrained accent with neutrals and semantic status colors. Do not make the entire product monochrome purple.
+- Do not recreate official logo assets unless an appropriate licensed asset is provided. A text mark is sufficient.
 
 ## Source Discipline
-- Verify changeable NYU and Brightspace details against official sources before updating them.
-- Never call real school services. Real domains may appear only as inert display text.
-- Do not recreate official logo assets unless supplied and licensed; a text mark is sufficient.
+
+- Verify changeable NYU, Brightspace, Google Workspace, Duo, wireless, reporting, and support details against official sources before changing story facts.
+- Prefer official NYU documentation and primary vendor documentation.
+- Record sources in the relevant definition, planning document, or pull request when a change depends on current service behavior.
+- Never call a real school service from the application. Real domains may appear only as inert display text.
+- Do not turn uncertain service behavior into a story mechanic until it is verified.
+
+## Immersion, Safety, and Privacy
+
+- Never show in-game meta disclaimers such as “this is only a simulation,” “this will not affect your computer,” or “no data is collected.”
+- Enforce safety in implementation and tests instead of narrating it to the player.
+- Use fixed, read-only story credentials and personal details.
+- Do not add application network requests, analytics, persistence, downloads, file writes, or device APIs.
+- Do not access real Wi-Fi, accounts, sessions, certificates, cameras, microphones, notifications, or location.
+- Do not write story inputs to `localStorage`, cookies, logs, URLs, or telemetry.
+- A device-compatibility state may explain that a chapter needs a wider screen, but it must provide a working route back to the case library.
+
+## Interaction and Visual Quality
+
+- Preserve the quiet, utilitarian, work-focused interface. Avoid marketing layouts, oversized hero copy, decorative gradients, or card-within-card composition.
+- Use Lucide icons for familiar actions and provide accessible labels for icon-only buttons.
+- Keep primary choices reachable by keyboard and visibly focused.
+- Do not rely on color alone for incident, success, or completion state.
+- Text and controls must not overflow at supported viewport sizes.
+- Decision chapters must remain usable at 390 px wide. The deep desktop case may require 1100 px, but its small-screen gate must let the player return.
+- Keep NYU Violet restrained; preserve semantic green, amber, red, blue, and neutral contrast.
+- Update accepted screenshots when a user-facing flow changes materially.
+
+## Testing Expectations
+
+Run the smallest relevant tests while iterating, then run the complete gate before committing:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run test:e2e
+```
+
+Test requirements scale with the change:
+
+- Reducer changes need direct transition and ending tests.
+- New choices need verified, caution, and incident coverage where those routes exist.
+- Recovery flows need both fully contained and incomplete endings.
+- UI changes need keyboard-accessible queries rather than brittle text-position selectors.
+- Layout changes need screenshots and overflow checks at relevant desktop and mobile sizes.
+- Privacy rules need negative tests proving forbidden disclaimer copy and real side effects remain absent.
+
+The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.
+
+## Documentation
+
+- `README.md` is the English canonical README.
+- `README.zh-CN.md` is the Simplified Chinese counterpart.
+- Keep their structure, commands, screenshots, architecture, test counts, and limitations synchronized.
+- Use relative paths for repository screenshots so they render on GitHub and in forks.
+- Do not claim a deployment, integration, license, or compatibility level that the repository does not provide.
+
+## Change Discipline
+
+- Follow existing module ownership before introducing a new abstraction.
+- Keep refactors behavior-preserving unless the task explicitly includes a product change.
+- Avoid unrelated formatting churn and generated metadata changes.
+- Do not commit `.next`, Playwright reports, test results, coverage, or TypeScript build caches.
+- Treat `artifacts/screenshots/` as reviewed product evidence: keep useful checkpoints and remove obsolete duplicates.
+- Before finishing, inspect `git diff --check`, run the required quality gates, and confirm the worktree contains only intentional changes.

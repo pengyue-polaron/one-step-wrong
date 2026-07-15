@@ -1,0 +1,75 @@
+import type { ScenarioDefinition } from "@/cases/final-submission/types";
+import { endingDefinitions } from "@/cases/final-submission/endings";
+
+export const finalSubmissionScenario: ScenarioDefinition = {
+  id: "final-submission",
+  title: "最后一次提交",
+  subtitle: "作业提交成功了。但你刚才连上的，真的是 NYU 网络吗？",
+  courseName: "Media, Culture, and Society",
+  fileName: "Final_Assignment.pdf",
+  fileSize: "8.6 MB",
+  networks: [
+    {
+      id: "campus-secure",
+      name: "nyu",
+      signal: 1,
+      security: "需要认证",
+      summary: "使用 NYU NetID 完成设备验证。",
+      operator: "NYU IT",
+      connectionTime: "约 10 秒",
+    },
+    {
+      id: "campus-guest",
+      name: "nyuguest",
+      signal: 2,
+      security: "访客认证",
+      summary: "通过短信验证码临时接入。",
+      operator: "NYU Guest Wireless",
+      connectionTime: "约 20 秒",
+    },
+    {
+      id: "campus-free-5g",
+      name: "NYU_Free_5G",
+      signal: 3,
+      security: "开放网络",
+      summary: "无需密码，可立即连接。",
+      connectionTime: "立即",
+    },
+    {
+      id: "mobile-hotspot",
+      name: "Maya 的 iPhone",
+      signal: 3,
+      security: "个人热点",
+      summary: "预计消耗约 10 MB 流量。",
+      operator: "附近设备",
+      connectionTime: "约 6 秒",
+    },
+  ],
+  endings: endingDefinitions,
+  debrief: {
+    clueLabels: {
+      "network-details": "NYU 官方网络有明确的运营方说明，NYU_Free_5G 没有。",
+      "naming-mismatch": "官方网络名称是小写 nyu、nyuguest 或 eduroam，不含 Free 或 5G。",
+      "portal-address": "接入页来自 nyu-access.test，而不是 nyu.edu 域名。",
+      "profile-publisher": "网络配置的发布者显示为“无法验证”。",
+      "login-ignored": "未知设备登录提醒没有被及时处理。",
+    },
+    actionLabels: {
+      sessionsRevoked: "退出未知设备会话",
+      passwordChanged: "修改校园账号密码",
+      mfaEnabled: "开启二次验证",
+      profileRemoved: "删除来源不明的网络配置",
+      unsafeNetworkForgotten: "忘记 NYU_Free_5G",
+      maliciousMessageDeleted: "删除冒名发送的消息",
+      classmatesWarned: "向同学发送明确提醒",
+      itReported: "向学校 IT 提交事件报告",
+    },
+    correctPath: [
+      "核对 Bobst Library 提示卡中的官方网络名称。",
+      "选择 nyu、nyuguest、eduroam 或可信的个人热点。",
+      "确认登录页的根域名确实是 nyu.edu，再输入 NYU NetID。",
+      "不安装发布者无法验证、会更改代理或证书的网络配置。",
+      "出现未知登录后，先终止会话，再清理配置并通知可能受影响的人。",
+    ],
+  },
+};

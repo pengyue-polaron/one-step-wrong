@@ -9,15 +9,15 @@ export function SecurityCenterWindow() {
   const { state, dispatch } = useGame();
   const hasIncident = state.suspiciousLoginTriggered || state.phase === "response";
   return (
-    <WindowFrame id="security" title="账号安全" icon={<ShieldCheck size={15} />} address="https://auth.northbridge.edu/security">
+    <WindowFrame id="security" title="NYU NetID Security" icon={<ShieldCheck size={15} />} address="https://start.nyu.edu/security">
       <div className="settings-page">
         <aside className="settings-nav"><strong>账号设置</strong><span className="is-active">登录设备</span><span>密码</span><span>二次验证</span><span>最近活动</span></aside>
         <main className="settings-main">
-          <header><div><span className="step-label">校园账号</span><h2>登录设备</h2><p>查看当前仍保持登录的设备与会话。</p></div><span className="account-chip">student@northbridge.edu</span></header>
+          <header><div><span className="step-label">NYU NetID</span><h2>登录设备</h2><p>查看当前仍保持登录的设备与会话。</p></div><span className="account-chip">ls2841@nyu.edu</span></header>
           <section className="device-list">
             <article className="device-card">
               <span className="device-icon"><Laptop size={20} /></span>
-              <div><strong>当前设备</strong><p>Northbridge Browser · 当前会话</p><small><MapPin size={12} /> 校园公共学习区</small></div>
+              <div><strong>当前设备</strong><p>NYU Study Desk · 当前会话</p><small><MapPin size={12} /> Bobst Library</small></div>
               <span className="current-label">本机</span>
             </article>
             {hasIncident ? (

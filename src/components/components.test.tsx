@@ -14,9 +14,9 @@ import { createIncidentReplayState, createInitialState, gameReducer } from "@/st
 describe("interactive components", () => {
   it("shows all primary networks without safety labels", () => {
     render(<GameProvider><NetworkPanel /></GameProvider>);
-    expect(screen.getByText("Campus-Secure")).toBeInTheDocument();
-    expect(screen.getByText("Campus-Guest")).toBeInTheDocument();
-    expect(screen.getByText("Campus_Free_5G")).toBeInTheDocument();
+    expect(screen.getByText("nyu")).toBeInTheDocument();
+    expect(screen.getByText("nyuguest")).toBeInTheDocument();
+    expect(screen.getByText("NYU_Free_5G")).toBeInTheDocument();
     expect(screen.queryByText("危险网络")).not.toBeInTheDocument();
     expect(screen.queryByText("推荐")).not.toBeInTheDocument();
   });
@@ -41,7 +41,7 @@ describe("interactive components", () => {
       uploadProgress: 100,
     };
     render(<GameProvider initialState={initialState}><CourseSystemWindow /></GameProvider>);
-    const submit = screen.getByRole("button", { name: "最终提交" });
+    const submit = screen.getByRole("button", { name: "提交至 Brightspace" });
     expect(submit).toBeDisabled();
     await user.click(screen.getByRole("checkbox", { name: /本人完成的作业/ }));
     expect(submit).toBeEnabled();

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, LockKeyhole, Radio, Smartphone, Wifi, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Radio, Smartphone, Wifi, X } from "lucide-react";
 import { useState } from "react";
 import type { NetworkDefinition } from "@/scenarios/types";
 import { useGame } from "@/state/GameContext";
@@ -76,7 +76,6 @@ export function NetworkPanel() {
         <span>其他连接方式</span>
         <WifiItem network={hotspot} />
       </div>
-      <footer><LockKeyhole size={13} /> 所有连接均为游戏内模拟</footer>
     </aside>
   );
 }

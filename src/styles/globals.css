@@ -66,8 +66,8 @@ svg { flex: 0 0 auto; }
   width: 20px;
   height: 20px;
   place-items: center;
-  color: var(--ink-950);
-  background: var(--amber-500);
+  color: var(--white);
+  background: var(--nyu-violet);
   border: 2px solid var(--paper-100);
   font-size: 10px;
   line-height: 1;
@@ -311,11 +311,13 @@ svg { flex: 0 0 auto; }
 .intro-task { display: flex; align-items: center; gap: 9px; margin-bottom: 23px; padding: 11px; color: var(--amber-200); background: #212f42; border-left: 3px solid var(--amber-500); font-size: 12px; }
 
 /* Course system */
-.course-layout { display: grid; height: 100%; grid-template-columns: 136px 1fr; background: var(--white); }
-.course-nav { padding: 18px 12px; color: var(--paper-100); background: #1d3845; border-right: 2px solid #10242c; }
-.university-seal { display: grid; width: 38px; height: 38px; margin-bottom: 9px; place-items: center; color: #17313c; background: var(--paper-100); border: 3px double #65808a; font: 700 12px var(--font-pixel); }
-.course-nav > strong { font: 700 11px var(--font-pixel); }.course-nav nav { display: grid; gap: 4px; margin-top: 23px; }
-.course-nav nav span { padding: 8px; color: #b7c6cb; font-size: 11px; border-left: 2px solid transparent; }.course-nav nav span.is-active { color: var(--white); background: #294b56; border-color: var(--amber-500); }
+.course-layout { display: grid; height: 100%; grid-template-rows: 68px minmax(0, 1fr); background: var(--white); }
+.course-nav { display: grid; grid-template-columns: 42px minmax(145px, 0.65fr) minmax(340px, 1.35fr) 32px; align-items: center; gap: 12px; padding: 0 16px; color: var(--white); background: var(--nyu-violet); border-bottom: 3px solid var(--nyu-violet-deep); }
+.university-seal { display: grid; width: 40px; height: 40px; place-items: center; color: var(--nyu-violet); background: var(--white); border: 3px double var(--nyu-violet-light); font: 700 10px var(--font-pixel); }
+.brightspace-brand { display: grid; min-width: 0; gap: 3px; }.brightspace-brand strong { font: 700 11px var(--font-pixel); }.brightspace-brand small { overflow: hidden; color: #eadff0; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.course-nav nav { display: flex; min-width: 0; height: 100%; align-items: stretch; justify-content: flex-end; }
+.course-nav nav span { display: flex; min-width: 0; align-items: center; padding: 0 9px; color: #e6d9ec; border-bottom: 4px solid transparent; font-size: 9px; white-space: nowrap; }.course-nav nav span.is-active { color: var(--white); background: rgba(255, 255, 255, 0.11); border-color: var(--white); font-weight: 700; }
+.student-avatar { display: grid; width: 30px; height: 30px; place-items: center; color: var(--nyu-violet); background: var(--white); border: 2px solid var(--nyu-violet-light); font: 700 9px var(--font-pixel); }
 .course-main { overflow: auto; padding: 22px clamp(20px, 3vw, 42px); }
 .course-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--paper-200); }
 .course-heading h2 { margin: 6px 0 4px; font: 700 22px var(--font-pixel); }.course-heading p { margin: 0; color: var(--ink-500); }
@@ -335,7 +337,10 @@ svg { flex: 0 0 auto; }
 .integrity-check input, .report-checks input { position: absolute; opacity: 0; }.integrity-check > span, .report-checks label > span { display: grid; width: 17px; height: 17px; flex: 0 0 17px; place-items: center; color: transparent; border: 1px solid var(--ink-500); }
 .integrity-check input:checked + span, .report-checks input:checked + span { color: var(--white); background: var(--teal-700); }
 .submission-actions { min-height: 34px; justify-content: flex-end; gap: 6px; }
+.course-layout .pixel-button--primary { background: var(--nyu-violet); border-color: var(--nyu-violet-deep); }
+.course-layout .upload-track span, .course-layout .integrity-check input:checked + span { background: var(--nyu-violet); }
 .receipt-status { display: flex; align-items: center; gap: 11px; color: var(--green-700); }.receipt-status span { font: 700 9px var(--font-pixel); }.receipt-status h3 { margin: 2px 0 0; color: var(--ink-900); font: 700 19px var(--font-pixel); }
+.submission-history-title { margin: 16px 0 0; color: var(--nyu-violet); font: 700 10px var(--font-pixel); }
 .receipt-card dl { display: grid; grid-template-columns: 1fr 1fr; margin: 16px 0 10px; border-top: 1px solid var(--paper-200); border-left: 1px solid var(--paper-200); }
 .receipt-card dl div { padding: 10px; border-right: 1px solid var(--paper-200); border-bottom: 1px solid var(--paper-200); }.receipt-card dt { margin-bottom: 4px; color: var(--ink-500); font-size: 9px; }.receipt-card dd { margin: 0; font-size: 11px; font-weight: 700; }
 .received-label { color: var(--green-700); }.receipt-card > p { color: var(--ink-500); font-size: 10px; }
@@ -345,7 +350,7 @@ svg { flex: 0 0 auto; }
 /* Auth and captive portal */
 .auth-page, .portal-page { width: min(100%, 650px); min-height: 100%; margin: auto; padding: clamp(20px, 4vh, 38px) 52px; background: var(--white); }
 .auth-brand, .portal-brand { display: flex; align-items: center; gap: 9px; padding-bottom: 15px; border-bottom: 1px solid var(--paper-200); }
-.auth-brand > span, .portal-brand > span, .support-mark { display: grid; width: 38px; height: 38px; place-items: center; color: var(--white); background: var(--teal-700); border: 3px double var(--paper-100); box-shadow: 0 0 0 2px var(--teal-700); font: 700 11px var(--font-pixel); }
+.auth-brand > span, .portal-brand > span, .support-mark { display: grid; width: 38px; height: 38px; place-items: center; color: var(--white); background: var(--nyu-violet); border: 3px double var(--paper-100); box-shadow: 0 0 0 2px var(--nyu-violet); font: 700 9px var(--font-pixel); }
 .auth-brand div, .portal-brand div { display: grid; gap: 2px; }.auth-brand strong, .portal-brand strong { font: 700 11px var(--font-pixel); }.auth-brand small, .portal-brand small { color: var(--ink-500); font-size: 9px; }
 .auth-copy, .portal-copy { margin: 23px 0 16px; }.auth-copy h2, .portal-copy h2, .hotspot-page h2, .settings-main h2, .network-settings h2, .support-page h2 { margin: 5px 0 7px; font: 700 21px var(--font-pixel); }.auth-copy p, .portal-copy p, .hotspot-page p { margin: 0; color: var(--ink-500); line-height: 1.6; }
 .simulated-form { display: grid; gap: 11px; }.simulated-form > label { display: grid; gap: 5px; color: var(--ink-700); font-size: 10px; }.simulated-form > label > div { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 10px; background: var(--paper-150); border: 1px solid var(--paper-300); }
@@ -395,6 +400,9 @@ svg { flex: 0 0 auto; }
 .clue-list { display: grid; gap: 7px; margin: 14px 0 0; padding: 0; list-style: none; }.clue-list li { display: flex; gap: 8px; align-items: flex-start; color: #c2cbd5; font-size: 10px; line-height: 1.5; }.clue-list svg { color: var(--amber-500); margin-top: 1px; }.effective-actions { margin-top: 15px; padding-top: 13px; border-top: 1px dashed #4c5a6c; }.effective-actions h3 { margin: 0 0 8px; color: #9eabb8; font: 9px var(--font-pixel); }.effective-actions ul { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }.effective-actions li { display: flex; align-items: center; gap: 4px; padding: 5px 7px; color: #bdd4c2; background: #253b33; border: 1px solid #456655; font-size: 9px; }.effective-actions p { margin: 0; color: #9aa6b3; font-size: 10px; }
 .decision-path { display: flex; align-items: stretch; margin-top: 14px; }.decision-path > i { width: 18px; height: 2px; align-self: center; background: #596678; }.decision-path button { display: grid; min-width: 0; flex: 1; grid-template-columns: 28px 1fr 14px; align-items: center; gap: 7px; padding: 9px; text-align: left; color: var(--paper-100); background: #223144; border: 1px solid #566579; }.decision-path button:hover { background: #2b3c51; border-color: var(--amber-500); }.decision-path button > span { display: grid; width: 27px; height: 27px; place-items: center; color: var(--amber-200); background: #141e2c; }.decision-path button > div { display: grid; min-width: 0; gap: 3px; }.decision-path strong { font-size: 9px; }.decision-path small { overflow: hidden; color: #8f9cab; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 .correct-path { margin-top: 16px; padding: 18px 22px; color: var(--ink-900); background: var(--paper-100); border: 2px solid var(--amber-500); box-shadow: 5px 5px 0 rgba(4, 8, 14, 0.5); }.correct-path header { display: flex; gap: 9px; }.correct-path h2 { margin: 0; font: 700 14px var(--font-pixel); }.correct-path p { margin: 3px 0 0; color: var(--ink-500); font-size: 10px; }.correct-path ol { display: grid; gap: 5px; margin: 13px 0 0; padding-left: 22px; font-size: 10px; line-height: 1.5; }
+.learning-transfer { margin-top: 20px; padding: 20px 0; border-top: 1px solid #526074; border-bottom: 1px solid #526074; }.learning-transfer > header { display: flex; gap: 10px; padding: 0 4px 15px; }.learning-transfer > header > span { color: var(--nyu-violet-light); font: 700 11px var(--font-pixel); }.learning-transfer h2 { margin: 0; color: var(--white); font: 700 14px var(--font-pixel); }.learning-transfer header p { margin: 3px 0 0; color: #8e9aa8; font-size: 9px; }
+.cause-chain { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #415064; border-bottom: 1px solid #415064; }.cause-step { position: relative; min-width: 0; padding: 14px 25px 14px 13px; }.cause-step:not(:last-child) { border-right: 1px solid #415064; }.cause-step > svg { position: absolute; top: 50%; right: 5px; color: var(--nyu-violet-light); transform: translateY(-50%); }.cause-step span { display: block; margin-bottom: 5px; color: #8e9aa8; font: 8px var(--font-pixel); }.cause-step strong { display: block; color: #d9dfe6; font-size: 10px; line-height: 1.5; }
+.transfer-rules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 17px; }.transfer-rules article { min-width: 0; padding: 0 14px; }.transfer-rules article:first-child { padding-left: 4px; }.transfer-rules article + article { border-left: 1px solid #415064; }.transfer-rules span { color: var(--nyu-violet-light); font: 700 9px var(--font-pixel); }.transfer-rules h3 { margin: 6px 0 5px; color: var(--white); font: 700 10px var(--font-pixel); }.transfer-rules p { margin: 0; color: #9ba7b4; font-size: 9px; line-height: 1.55; }
 .debrief-actions { justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
 .small-screen-note { display: none; }

@@ -8,7 +8,7 @@ import { WindowFrame } from "@/components/windows/WindowFrame";
 export function NetworkSettingsWindow() {
   const { state, dispatch } = useGame();
   const unsafe = state.selectedNetwork === "campus-free-5g";
-  const currentName = state.selectedNetwork === "mobile-hotspot" ? "Penny 的手机" : state.selectedNetwork === "campus-secure" ? "Campus-Secure" : state.selectedNetwork === "campus-guest" ? "Campus-Guest" : unsafe ? "Campus_Free_5G" : "未连接";
+  const currentName = state.selectedNetwork === "mobile-hotspot" ? "Maya 的 iPhone" : state.selectedNetwork === "campus-secure" ? "nyu" : state.selectedNetwork === "campus-guest" ? "nyuguest" : unsafe ? "NYU_Free_5G" : "未连接";
   return (
     <WindowFrame id="network" title="网络设置" icon={<Router size={15} />} tone="system">
       <div className="network-settings">
@@ -28,7 +28,7 @@ export function NetworkSettingsWindow() {
             <h3>已安装的网络配置</h3>
             <article className={`network-setting-row profile-row ${state.profileRemoved ? "is-removed" : ""}`}>
               <span><FileKey2 size={18} /></span>
-              <div><strong>Campus Network Access</strong><p>{state.profileRemoved ? "已删除" : "发布者：无法验证 · 安装于 23:49"}</p></div>
+              <div><strong>NYU Network Access</strong><p>{state.profileRemoved ? "已删除" : "发布者：无法验证 · 安装于 23:49"}</p></div>
               <PixelButton disabled={state.profileRemoved} icon={state.profileRemoved ? <Check size={13} /> : <Trash2 size={13} />} onClick={() => dispatch({ type: "RESPONSE_ACTION", action: "remove-profile" })}>{state.profileRemoved ? "配置已删除" : "删除配置"}</PixelButton>
             </article>
           </section>

@@ -22,6 +22,19 @@ export function DebriefScreen() {
   const actions = selectEffectiveActions(state, scenario);
   const safe = state.endingId === "verified-path";
   const contained = state.endingId === "contained";
+  const causeChain = safe
+    ? [
+        ["现场线索", "先核对 Bobst Library 的官方名称"],
+        ["来源验证", "登录页根域名是 nyu.edu"],
+        ["权限边界", "没有安装无关的代理或证书"],
+        ["结果", "只完成了 Brightspace 提交"],
+      ]
+    : [
+        ["诱因", "截止压力与满格信号压缩了判断时间"],
+        ["证据", "登录页根域名不是 nyu.edu"],
+        ["权限", "配置要求更改网络代理与证书"],
+        ["后果", "账号会话与已发送消息出现异常"],
+      ];
 
   return (
     <main className={`debrief-screen debrief-screen--${state.endingId}`}>
@@ -87,6 +100,23 @@ export function DebriefScreen() {
             </div>
           </section>
         </div>
+
+        <section className="learning-transfer" aria-labelledby="learning-transfer-title">
+          <header><span>05</span><div><h2 id="learning-transfer-title">把这次判断带到下一次</h2><p>先还原因果，再提炼可迁移的检查动作</p></div></header>
+          <div className="cause-chain">
+            {causeChain.map(([label, text], index) => (
+              <div className="cause-step" key={label}>
+                <span>{label}</span><strong>{text}</strong>{index < causeChain.length - 1 ? <ArrowRight size={14} /> : null}
+              </div>
+            ))}
+          </div>
+          <div className="transfer-rules">
+            <article><span>01</span><h3>核对网络全名</h3><p>不要凭“像学校”或信号强判断，逐字核对现场公布的 SSID。</p></article>
+            <article><span>02</span><h3>看根域名</h3><p>在输入账号前，确认真正控制页面的是 nyu.edu，而不只是网址里含有 NYU。</p></article>
+            <article><span>03</span><h3>质疑额外权限</h3><p>普通联网若要求安装代理、证书或设备配置，应停下并换可信连接。</p></article>
+            <article><span>04</span><h3>分层止损</h3><p>分别处理账号会话、设备配置、冒名消息和学校 IT 上报，避免遗漏。</p></article>
+          </div>
+        </section>
 
         {state.correctPathVisible ? (
           <section className="correct-path" aria-label="更可靠的做法">

@@ -12,7 +12,7 @@ export function SystemBar() {
     <header className="system-bar">
       <div className="system-brand">
         <span className="brand-mark" aria-hidden="true">N</span>
-        <span>Northbridge OS</span>
+        <span>NYU Study Desk</span>
       </div>
       <div className="system-status">
         <IconButton

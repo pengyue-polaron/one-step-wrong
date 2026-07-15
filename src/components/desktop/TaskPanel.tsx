@@ -49,13 +49,13 @@ export function TaskPanel() {
             <strong aria-label={`截止剩余 ${formatCountdown(state.deadlineSeconds)}`}>
               {formatCountdown(state.deadlineSeconds)}
             </strong>
-            {state.countdownPaused ? <small>演示暂停</small> : null}
+            {state.countdownPaused ? <small>倒计时已暂停</small> : null}
           </div>
         </>
       )}
       <div className="official-note">
-        <span>学习区网络提示</span>
-        <p>官方网络：Campus-Secure / Campus-Guest</p>
+        <span>Bobst Library Wi-Fi</span>
+        <p>官方网络：nyu / nyuguest / eduroam</p>
       </div>
     </aside>
   );

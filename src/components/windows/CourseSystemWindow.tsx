@@ -9,7 +9,7 @@ function AssignmentHeader({ courseName }: { courseName: string }) {
   return (
     <div className="course-heading">
       <div>
-        <span className="course-code">MDS 102 · WEEK 12</span>
+        <span className="course-code">MCC 102 · WEEK 12</span>
         <h2>Final Assignment</h2>
         <p>{courseName}</p>
       </div>
@@ -23,13 +23,14 @@ export function CourseSystemWindow() {
   const isDangerRoute = state.selectedNetwork === "campus-free-5g";
 
   return (
-    <WindowFrame id="course" title="Northbridge Courses" icon={<BookOpen size={15} />} address="https://courses.northbridge.edu/assignments/final">
+    <WindowFrame id="course" title="NYU Brightspace" icon={<BookOpen size={15} />} address="https://brightspace.nyu.edu/d2l/le/assignments/final">
       <div className="course-layout">
-        <aside className="course-nav">
-          <span className="university-seal">NB</span>
-          <strong>课程空间</strong>
-          <nav><span>概览</span><span>材料</span><span className="is-active">作业</span><span>成绩</span></nav>
-        </aside>
+        <header className="course-nav">
+          <span className="university-seal">NYU</span>
+          <div className="brightspace-brand"><strong>NYU Brightspace</strong><small>{scenario.courseName}</small></div>
+          <nav><span>Course Home</span><span>Content</span><span className="is-active">Assignments</span><span>Discussions</span><span>Grades</span></nav>
+          <span className="student-avatar" aria-label="当前用户 LS">LS</span>
+        </header>
         <main className="course-main">
           <AssignmentHeader courseName={scenario.courseName} />
           {state.sessionExpired && (state.phase === "incident" || state.phase === "response") ? (
@@ -82,11 +83,11 @@ export function CourseSystemWindow() {
                   </>
                 ) : !state.assignmentUploaded ? (
                   <PixelButton variant="primary" icon={<FileText size={15} />} onClick={() => dispatch({ type: "SET_UPLOAD_PROGRESS", progress: 7 })}>
-                    上传文件
+                    添加文件
                   </PixelButton>
                 ) : (
                   <PixelButton variant="primary" disabled={!state.integrityAccepted} onClick={() => dispatch({ type: "FINAL_SUBMIT" })}>
-                    最终提交
+                    提交至 Brightspace
                   </PixelButton>
                 )}
               </div>
@@ -94,11 +95,12 @@ export function CourseSystemWindow() {
           ) : (
             <section className="receipt-card" data-testid="submission-success">
               <div className="receipt-status"><CheckCircle2 size={25} /><div><span>提交成功</span><h3>文件已接收</h3></div></div>
+              <h3 className="submission-history-title">Submission History</h3>
               <dl>
                 <div><dt>文件</dt><dd>{scenario.fileName}</dd></div>
                 <div><dt>提交时间</dt><dd>{state.eventLog.find((item) => item.id === "assignment-submitted")?.time ?? "23:54"}</dd></div>
                 <div><dt>状态</dt><dd><span className="received-label">已接收</span></dd></div>
-                <div><dt>回执编号</dt><dd>NB-MDS102-2841</dd></div>
+                <div><dt>回执编号</dt><dd>NYU-MCC102-2841</dd></div>
               </dl>
               <p>你可以在截止前替换提交内容。</p>
               {isDangerRoute ? (
@@ -121,7 +123,7 @@ export function CourseSystemWindow() {
               )}
             </section>
           )}
-          <footer className="course-requirements"><span>允许提交：PDF</span><span>最大文件：20 MB</span><span>可重交至截止时间</span></footer>
+          <footer className="course-requirements"><span>Allowed File Extensions: PDF</span><span>Maximum File Size: 20 MB</span><span>可重交至截止时间</span></footer>
         </main>
       </div>
     </WindowFrame>

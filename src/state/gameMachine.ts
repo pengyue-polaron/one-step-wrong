@@ -280,9 +280,9 @@ export function createIncidentReplayState(): GameState {
     assignmentSubmitted: true,
     openWindows: ["course", "chat"],
   };
-  state = addEvent(state, { id: "connected-campus-free-5g", title: "连接 Campus_Free_5G" });
+  state = addEvent(state, { id: "connected-campus-free-5g", title: "连接 NYU_Free_5G" });
   state = addEvent(state, { id: "credentials", title: "在网络接入页完成身份验证" });
-  state = addEvent(state, { id: "profile-installed", title: "安装 Campus Network Access 配置" });
+  state = addEvent(state, { id: "profile-installed", title: "安装 NYU Network Access 配置" });
   state = addEvent(state, { id: "assignment-submitted", title: "作业提交成功", tone: "success" });
   return triggerLoginIncident(state);
 }
@@ -342,17 +342,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         },
       );
       if (action.network === "campus-free-5g") {
-        next = addEvent(next, { id: "connected-campus-free-5g", title: "连接 Campus_Free_5G", minutes: 0 });
+        next = addEvent(next, { id: "connected-campus-free-5g", title: "连接 NYU_Free_5G", minutes: 0 });
       }
       return openWindow({ ...next, phase: "captive-portal", portalStep: "identity" }, "portal");
     }
     case "AUTHENTICATE_NETWORK": {
-      if (state.selectedNetwork === "campus-secure") return connectNetwork(state, "Campus-Secure");
-      if (state.selectedNetwork === "campus-guest") return connectNetwork(state, "Campus-Guest");
+      if (state.selectedNetwork === "campus-secure") return connectNetwork(state, "nyu");
+      if (state.selectedNetwork === "campus-guest") return connectNetwork(state, "nyuguest");
       return state;
     }
     case "ENABLE_HOTSPOT":
-      return connectNetwork({ ...state, hotspotEnabled: true }, "Penny 的手机");
+      return connectNetwork({ ...state, hotspotEnabled: true }, "Maya 的 iPhone");
     case "PORTAL_IDENTITY": {
       const next = addEvent(state, {
         id: "credentials",
@@ -379,7 +379,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CONFIRM_INSTALL": {
       let next = addEvent(state, {
         id: "profile-installed",
-        title: "安装 Campus Network Access 配置",
+        title: "安装 NYU Network Access 配置",
         detail: "发布者：无法验证",
         tone: "notice",
       });

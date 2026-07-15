@@ -2,7 +2,9 @@
 
 ## Product Context
 - The story takes place at New York University, primarily around Bobst Library and Washington Square.
+- The first screen is a playable case library. Every published case must include a normal task, an unmarked choice, a delayed consequence when applicable, individual recovery actions, and a causal debrief.
 - The course platform is NYU Brightspace. Use `brightspace.nyu.edu` and familiar concepts such as Course Home, Content, Assignments, Discussions, Grades, submission history, and allowed file extensions.
+- Additional chapters may use current NYU services such as NYU Drive, NYU Email, and Duo MFA only after verifying their current use from official NYU sources.
 - Official wireless network names are lowercase `nyu`, `nyuguest`, and `eduroam`. A suspicious network may imitate them, but the interface must not label it as risky before the debrief.
 - Use NYU Violet (`#57068c`) as a restrained brand accent, supported by neutrals and semantic status colors. Do not turn the whole interface into a one-color purple theme.
 

@@ -28,14 +28,14 @@ const windows = {
   calendar: <CalendarWindow />,
 };
 
-export function DesktopShell() {
+export function DesktopShell({ onExit }: { onExit?: () => void }) {
   const { state } = useGame();
   const activeWindow = state.openWindows.includes(state.activeWindow) ? windows[state.activeWindow] : null;
   const hasSidePanel = state.networkPanelOpen || state.notificationCenterOpen;
   return (
     <main className={`desktop-shell ${state.reducedMotion ? "reduce-motion" : ""} ${hasSidePanel ? "has-side-panel" : ""}`}>
       <div className="desktop-wallpaper" aria-hidden="true" />
-      <SystemBar />
+      <SystemBar onExit={onExit} />
       {state.started ? <TaskPanel /> : null}
       <div className="window-stage">{activeWindow}</div>
       {state.networkPanelOpen ? <NetworkPanel /> : null}

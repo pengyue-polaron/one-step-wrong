@@ -2,12 +2,51 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function begin(page: Page, captureIntro = false) {
   await page.goto("/");
+  if (captureIntro) await page.screenshot({ path: "artifacts/screenshots/case-library.png" });
+  await page.getByTestId("case-final-submission").click();
   if (captureIntro) await page.screenshot({ path: "artifacts/screenshots/intro.png" });
   await page.getByRole("button", { name: "查看提交状态" }).click();
   await page.getByRole("button", { name: "重新上传" }).click();
   await expect(page.getByRole("heading", { name: "可用网络" })).toBeVisible();
   await expect(page.getByText(/游戏内模拟|不会修改设备设置|不采集或发送|不会保存或发送/)).toHaveCount(0);
 }
+
+test("case library exposes three complete chapters", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "选择一个案例" })).toBeVisible();
+  await expect(page.getByTestId("case-final-submission")).toBeVisible();
+  await expect(page.getByTestId("case-shared-draft")).toBeVisible();
+  await expect(page.getByTestId("case-unexpected-push")).toBeVisible();
+});
+
+test("Drive public link route can be contained through scoped actions", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("case-shared-draft").click();
+  await page.getByRole("button", { name: "打开共享设置" }).click();
+  await expect(page.getByLabel("NYU Drive 共享设置")).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/drive-sharing.png" });
+  await page.getByTestId("choice-public-link").click();
+  await expect(page.getByRole("heading", { name: "出现不在小组名单里的访问者" })).toBeVisible();
+  await page.getByRole("button", { name: "处理共享异常" }).click();
+  for (const id of ["restrict-link", "remove-outsider", "restore-version", "notify-team"]) await page.getByTestId(`response-${id}`).click();
+  await page.getByRole("button", { name: "完成处理并复盘" }).click();
+  await expect(page.getByRole("heading", { name: "访问已收回" })).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/drive-debrief.png", fullPage: true });
+  await page.locator(".debrief-actions").getByRole("button", { name: "返回案例库" }).click();
+  await expect(page.getByText("1 / 3 已完成")).toBeVisible();
+});
+
+test("Duo chapter binds approval to a player-initiated login", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("case-unexpected-push").click();
+  await page.getByRole("button", { name: "查看登录请求" }).click();
+  await expect(page.getByLabel("NYU Duo 登录确认")).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/duo-request.png" });
+  await page.getByTestId("choice-verify-browser").click();
+  await page.getByRole("button", { name: "查看本次复盘" }).click();
+  await expect(page.getByRole("heading", { name: "先绑定自己的动作" })).toBeVisible();
+  await expect(page.getByText("先问是否由我发起")).toBeVisible();
+});
 
 async function connectDangerousNetwork(page: Page) {
   await page.getByTestId("network-campus-free-5g").click();

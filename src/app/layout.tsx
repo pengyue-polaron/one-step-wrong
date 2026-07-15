@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "一步之差 | One Step Wrong",
-  description: "一场发生在作业截止前的校园网络安全互动故事。",
+  description: "三个发生在 NYU 的数字安全互动故事：连接、共享与登录确认。",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

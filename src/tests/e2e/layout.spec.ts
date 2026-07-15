@@ -10,6 +10,7 @@ for (const viewport of viewports) {
   test(`desktop layout remains stable at ${viewport.width}x${viewport.height}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/");
+    await page.getByTestId("case-final-submission").click();
     await page.getByRole("button", { name: "查看提交状态" }).click();
     await page.getByRole("button", { name: "重新上传" }).click();
     await expect(page.getByRole("heading", { name: "可用网络" })).toBeVisible();

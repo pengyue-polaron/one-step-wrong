@@ -1,10 +1,10 @@
 "use client";
 
-import { Bell, BatteryMedium, Pause, Play, Volume2, VolumeX, Wifi, Zap } from "lucide-react";
+import { Bell, BatteryMedium, LayoutGrid, Pause, Play, Volume2, VolumeX, Wifi, Zap } from "lucide-react";
 import { IconButton } from "@/components/ui/IconButton";
 import { useGame } from "@/state/GameContext";
 
-export function SystemBar() {
+export function SystemBar({ onExit }: { onExit?: () => void }) {
   const { state, dispatch } = useGame();
   const connected = state.connectionReady;
   const unread = state.notifications.filter((item) => !item.read).length;
@@ -15,6 +15,7 @@ export function SystemBar() {
         <span>NYU Study Desk</span>
       </div>
       <div className="system-status">
+        {onExit ? <IconButton label="返回案例库" icon={<LayoutGrid size={15} />} onClick={onExit} /> : null}
         <IconButton
           label={state.countdownPaused ? "继续倒计时" : "暂停倒计时"}
           icon={state.countdownPaused ? <Play size={15} /> : <Pause size={15} />}

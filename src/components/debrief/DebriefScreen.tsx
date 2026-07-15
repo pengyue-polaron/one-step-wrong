@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, CheckCircle2, Lightbulb, RefreshCcw, RotateCcw, ShieldCheck, TriangleAlert, Wifi } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, LayoutGrid, Lightbulb, RefreshCcw, RotateCcw, ShieldCheck, TriangleAlert, Wifi } from "lucide-react";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { useGame } from "@/state/GameContext";
 import { selectClues, selectEffectiveActions, selectEnding, selectScore } from "@/state/selectors";
@@ -14,7 +14,7 @@ function ScoreMeter({ label, value }: { label: string; value: number }) {
   );
 }
 
-export function DebriefScreen() {
+export function DebriefScreen({ onExit }: { onExit?: () => void }) {
   const { state, scenario, dispatch } = useGame();
   const ending = selectEnding(state, scenario);
   const score = selectScore(state);
@@ -126,6 +126,7 @@ export function DebriefScreen() {
         ) : null}
 
         <footer className="debrief-actions">
+          {onExit ? <PixelButton icon={<LayoutGrid size={15} />} onClick={onExit}>返回案例库</PixelButton> : null}
           <PixelButton icon={<Lightbulb size={15} />} onClick={() => dispatch({ type: "SHOW_CORRECT_PATH" })}>{state.correctPathVisible ? "收起正确做法" : "查看正确做法"}</PixelButton>
           <PixelButton icon={<RotateCcw size={15} />} onClick={() => dispatch({ type: safe ? "REPLAY_NETWORK" : "REPLAY_INCIDENT" })}>重试关键节点</PixelButton>
           <PixelButton variant="primary" icon={<RefreshCcw size={15} />} onClick={() => dispatch({ type: "RESET_FULL" })}>重新体验完整案例</PixelButton>

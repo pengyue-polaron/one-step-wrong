@@ -1,0 +1,75 @@
+import type { ScenarioDefinition } from "@/scenarios/types";
+import { endingDefinitions } from "@/scenarios/final-submission/endings";
+
+export const finalSubmissionScenario: ScenarioDefinition = {
+  id: "final-submission",
+  title: "最后一次提交",
+  subtitle: "作业提交成功了。但你刚才连上的，真的是校园网吗？",
+  courseName: "Media and Society",
+  fileName: "Final_Assignment.pdf",
+  fileSize: "8.6 MB",
+  networks: [
+    {
+      id: "campus-secure",
+      name: "Campus-Secure",
+      signal: 1,
+      security: "需要认证",
+      summary: "使用校园账号完成设备验证。",
+      operator: "Northbridge University IT",
+      connectionTime: "约 10 秒",
+    },
+    {
+      id: "campus-guest",
+      name: "Campus-Guest",
+      signal: 2,
+      security: "访客认证",
+      summary: "通过短信验证码临时接入。",
+      operator: "Northbridge University IT",
+      connectionTime: "约 20 秒",
+    },
+    {
+      id: "campus-free-5g",
+      name: "Campus_Free_5G",
+      signal: 3,
+      security: "开放网络",
+      summary: "无需密码，可立即连接。",
+      connectionTime: "立即",
+    },
+    {
+      id: "mobile-hotspot",
+      name: "Penny 的手机",
+      signal: 3,
+      security: "个人热点",
+      summary: "预计消耗约 10 MB 流量。",
+      operator: "附近设备",
+      connectionTime: "约 6 秒",
+    },
+  ],
+  endings: endingDefinitions,
+  debrief: {
+    clueLabels: {
+      "network-details": "官方网络有统一运营方说明，Campus_Free_5G 没有。",
+      "naming-mismatch": "假网络使用下划线，官方网络名称使用连字符。",
+      "portal-address": "接入页来自 campus-connect.local，而不是学校认证域名。",
+      "profile-publisher": "网络配置的发布者显示为“无法验证”。",
+      "login-ignored": "未知设备登录提醒没有被及时处理。",
+    },
+    actionLabels: {
+      sessionsRevoked: "退出未知设备会话",
+      passwordChanged: "修改校园账号密码",
+      mfaEnabled: "开启二次验证",
+      profileRemoved: "删除来源不明的网络配置",
+      unsafeNetworkForgotten: "忘记 Campus_Free_5G",
+      maliciousMessageDeleted: "删除冒名发送的消息",
+      classmatesWarned: "向同学发送明确提醒",
+      itReported: "向学校 IT 提交事件报告",
+    },
+    correctPath: [
+      "核对环境说明卡中的官方网络名称。",
+      "选择 Campus-Secure、Campus-Guest 或个人热点。",
+      "只在 northbridge.edu 的虚构官方页面完成模拟验证。",
+      "不安装发布者无法验证、会更改代理或证书的网络配置。",
+      "出现未知登录后，先终止会话，再清理配置并通知可能受影响的人。",
+    ],
+  },
+};

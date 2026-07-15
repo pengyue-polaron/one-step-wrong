@@ -1,0 +1,31 @@
+:root {
+  --ink-950: #101725;
+  --ink-900: #172131;
+  --ink-850: #1d2a3b;
+  --ink-800: #253447;
+  --ink-700: #394b5e;
+  --ink-500: #69798a;
+  --paper-100: #f6f1e7;
+  --paper-150: #eee8dc;
+  --paper-200: #e1dacd;
+  --paper-300: #c6bdae;
+  --white: #fffdf8;
+  --teal-700: #276a69;
+  --teal-600: #347d79;
+  --teal-200: #b8d6ce;
+  --amber-700: #8b6632;
+  --amber-500: #c09654;
+  --amber-200: #ead7aa;
+  --red-700: #8b4143;
+  --red-500: #b75c59;
+  --red-200: #e8c1b9;
+  --green-700: #456b52;
+  --green-200: #c7d8c6;
+  --blue-700: #3b617d;
+  --blue-200: #c7d9e6;
+  --border-dark: #172131;
+  --shadow-dark: rgba(7, 11, 18, 0.48);
+  --font-ui: Inter, "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-pixel: "SFMono-Regular", Consolas, "Liberation Mono", "Noto Sans Mono CJK SC", monospace;
+  --pixel-shadow: 4px 4px 0 var(--shadow-dark);
+}

@@ -5,7 +5,7 @@
 > Deadline: July 21, 2026 at 5:00 PM Pacific Time  
 > Product thesis: **Security judgment is a skill. Skills are learned through practice, not reminders.**
 
-This document is the canonical implementation brief for adapting One Step Wrong to OpenAI Build Week. Preserve the original product principles in \`PLAN.md\`, but use this plan for hackathon scope, AI architecture, validation, demo preparation, and submission evidence.
+This document is the canonical implementation brief for adapting One Step Wrong to OpenAI Build Week. Preserve the original product principles in `PLAN.md`, but use this plan for hackathon scope, AI architecture, validation, demo preparation, and submission evidence.
 
 ## North Star
 
@@ -241,13 +241,13 @@ This migration is part of submission safety, not the core AI feature. Keep it bo
 
 Recommended ownership:
 
-- \`src/app/studio/\`: Scenario Studio route and page composition.
-- \`src/app/api/scenarios/generate/\`: server-only GPT-5.6 generation endpoint.
-- \`src/app/api/debrief/\`: server-only personalized-debrief endpoint.
-- \`src/ai/\`: prompts, OpenAI client, schemas, validation, sanitization, and typed adapters.
-- \`src/engine/decision/\`: deterministic runner, reducer, selectors, and canonical trace.
-- \`src/cases/generated/\` or an in-memory preview adapter: validated generated case wrapper.
-- \`src/fixtures/\`: reviewed last-known-good generated examples for tests and demo fallback.
+- `src/app/studio/`: Scenario Studio route and page composition.
+- `src/app/api/scenarios/generate/`: server-only GPT-5.6 generation endpoint.
+- `src/app/api/debrief/`: server-only personalized-debrief endpoint.
+- `src/ai/`: prompts, OpenAI client, schemas, validation, sanitization, and typed adapters.
+- `src/engine/decision/`: deterministic runner, reducer, selectors, and canonical trace.
+- `src/cases/generated/` or an in-memory preview adapter: validated generated case wrapper.
+- `src/fixtures/`: reviewed last-known-good generated examples for tests and demo fallback.
 
 Exact filenames may follow the existing conventions. Do not place OpenAI calls inside React components, reducers, selectors, or case definitions.
 
@@ -258,7 +258,7 @@ The Build Week version permits narrowly scoped server-side OpenAI requests. All 
 Required:
 
 - Keep the API key server-side.
-- Never expose it through \`NEXT_PUBLIC_*\`, client code, browser storage, URLs, or logs.
+- Never expose it through `NEXT_PUBLIC_*`, client code, browser storage, URLs, or logs.
 - Do not send real credentials, personal data, student records, or real incident reports.
 - Use fictional or deliberately sanitized authoring examples.
 - Do not call real campus services.
@@ -329,7 +329,7 @@ Do not spend Build Week on:
 - README distinguishes pre-existing foundations from Build Week work.
 - Setup instructions include required environment variables without including secrets.
 - A deployed demo or frictionless test path exists.
-- The primary Codex build thread has a \`/feedback\` Session ID.
+- The primary Codex build thread has a `/feedback` Session ID.
 - The final video is public, no longer than three minutes, and includes English narration or an English translation.
 - Repository access matches the event rules.
 
@@ -352,11 +352,11 @@ Add tests proportional to the new risk:
 
 Before completion:
 
-- \`npm run lint\`
-- \`npm run typecheck\`
-- \`npm test\`
-- \`npm run build\`
-- \`npm run test:e2e\`
+- `npm run lint`
+- `npm run typecheck`
+- `npm test`
+- `npm run build`
+- `npm run test:e2e`
 
 ## Implementation Order
 

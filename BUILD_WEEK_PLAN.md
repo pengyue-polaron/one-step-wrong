@@ -21,17 +21,19 @@ Most cybersecurity training asks whether students know the correct answer. One S
 
 **AI writes the simulation; code keeps it honest.**
 
-GPT-5.6 turns an educator's threat brief, learning objective, or security policy into a structured simulation. A deterministic engine validates and runs the scenario, owns facts and outcomes, and records the learner's actions. GPT-5.6 then produces an evidence-grounded debrief without inventing scores or security facts.
+Give One Step Wrong a school name or official domain. A GPT-5.6 research agent searches public official sources and builds a cited Institution Profile covering the school's learning platform, identity and MFA flow, file-sharing tools, wireless environment, security guidance, and reporting channels. After educator review, GPT-5.6 turns that approved profile plus a learning objective into a structured simulation. A deterministic engine validates and runs the scenario, owns facts and outcomes, and records the learner's actions. GPT-5.6 then produces an evidence-grounded debrief without inventing scores or security facts.
 
 ## Award Story
 
-AI is making digital deception evolve faster than schools can update static cybersecurity lessons. One Step Wrong closes that gap by turning emerging threats and school security guidance into playable, consequence-driven simulations.
+AI is making digital deception evolve faster than schools can update static cybersecurity lessons. Generic training also misses an important truth: every institution has its own learning platform, login flow, sharing tools, wireless names, support channels, and language for reporting an incident.
+
+One Step Wrong turns a school name into a source-grounded, school-aware simulation. Its Institution Research Agent searches public official pages, extracts only verified operational context, attaches citations and confidence, and asks an educator to approve the profile before generation. The Scenario Agent then combines that profile with an emerging threat and learning objective to create a playable, consequence-driven exercise.
 
 Students are not told they are taking a security test. They complete ordinary work under realistic pressure: submit an assignment before a deadline, share a research folder, approve a login, or delegate a task to an AI agent. The convenient choice often works at first. Only later do the consequences surface.
 
 Rather than showing a red X or ending the game, One Step Wrong asks students to investigate what happened, contain the incident, communicate with affected people, and recover safely. Students learn not only how to avoid an incident, but how to respond when prevention fails.
 
-A teacher gives GPT-5.6 a threat brief, learning objective, or school policy. GPT-5.6 converts it into a structured simulation containing realistic decisions, evidence, delayed consequences, recovery actions, and multiple endings. The deterministic simulation engine validates and runs the result. Afterward, GPT-5.6 creates a personalized debrief grounded only in the learner's action trace and canonical scenario facts.
+An educator can start with only an institution name and a threat topic. GPT-5.6 first creates a cited Institution Profile from official public sources. After human approval, it converts the profile, threat brief, and learning objective into a structured simulation containing institution-appropriate tools, realistic decisions, evidence, delayed consequences, recovery actions, and multiple endings. The deterministic simulation engine validates and runs the result. Afterward, GPT-5.6 creates a personalized debrief grounded only in the learner's action trace, canonical scenario facts, and approved sources.
 
 The current prototype proves the interaction model with unsafe Wi-Fi, oversharing, and MFA fatigue. The Build Week version must prove the AI loop by generating and immediately playing a new scenario, ideally involving an AI-era risk such as deepfake impersonation, unsafe agent delegation, prompt injection, or sensitive-data disclosure.
 
@@ -47,7 +49,7 @@ Every scenario must preserve the following learning model:
 6. Reconstruct the causal chain without shaming the learner.
 7. Connect the experience to a transferable judgment rule.
 
-The product differentiator is not "AI plus cybersecurity." It is the combination of consequential simulation, delayed effects, recoverable failure, AI-assisted scenario creation, evidence-grounded personalization, and deterministic safety.
+The product differentiator is not "AI plus cybersecurity." It is the combination of cited institution research, school-aware scenario compilation, consequential simulation, delayed effects, recoverable failure, evidence-grounded personalization, human approval, and deterministic safety.
 
 ## Current Baseline
 
@@ -67,6 +69,8 @@ The current product does **not** yet provide:
 
 - An OpenAI SDK dependency.
 - A server-side GPT-5.6 integration.
+- A source-grounded Institution Research Agent.
+- A cited, reviewable Institution Profile.
 - A teacher-facing scenario studio.
 - Runtime validation for AI-generated definitions.
 - An AI-generated personalized debrief.
@@ -77,27 +81,60 @@ The current product does **not** yet provide:
 
 The minimum convincing product loop is:
 
-1. An educator opens **Scenario Studio**.
-2. The educator supplies a threat topic, audience, ordinary task, learning objective, and optional policy text.
-3. A server-only endpoint calls GPT-5.6.
-4. GPT-5.6 returns a structured scenario matching a strict schema.
-5. The application validates the result and reports actionable validation failures.
-6. The educator previews the generated scenario in the existing decision engine.
-7. A learner plays it and completes or partially completes recovery actions.
-8. The deterministic engine selects the ending and produces a canonical action trace.
-9. A server-only endpoint asks GPT-5.6 for a personalized debrief grounded in that trace.
-10. The UI clearly distinguishes deterministic facts from AI-authored coaching.
+1. An educator opens **Scenario Studio** and enters a school name or official domain.
+2. A server-only GPT-5.6 research agent searches public official sources.
+3. The agent returns a structured Institution Profile with source URLs, access dates, confidence, and explicit unknowns.
+4. The application verifies source domains, validates the profile, and asks the educator to approve or edit it.
+5. The educator adds a threat topic, audience, ordinary task, and learning objective.
+6. A server-only GPT-5.6 scenario agent combines the approved profile and teaching brief.
+7. GPT-5.6 returns a structured scenario matching a strict schema and carrying relevant source references.
+8. The application validates the result and reports actionable validation failures.
+9. The educator previews the generated scenario in the existing decision engine.
+10. A learner plays it and completes or partially completes recovery actions.
+11. The deterministic engine selects the ending and produces a canonical action trace.
+12. A server-only endpoint asks GPT-5.6 for a personalized debrief grounded in that trace and the approved profile.
+13. The UI clearly distinguishes sourced institution facts, deterministic simulation facts, and AI-authored coaching.
 
 The three-minute demo must show this loop working. Do not submit a fixed case while describing generation as future work.
 
 ## P0 Scope
 
-### 1. Scenario Studio
+### 1. Institution Research Agent
+
+The educator may begin with an institution name and, when known, one or more official domains. GPT-5.6 may use web search to locate current public official information.
+
+The research output must be a runtime-validated `InstitutionProfile` containing:
+
+- Institution display name and official domains.
+- Learning-management platform.
+- Identity, login, and MFA terminology.
+- File-sharing and collaboration tools.
+- Wireless names and public connection guidance.
+- Security support and incident-reporting routes.
+- Relevant student-facing policy language.
+- Source URL, title, publisher, access time, and the fact each source supports.
+- Confidence and unresolved fields.
+
+Research rules:
+
+- Prefer the institution's official domains, then primary vendor documentation.
+- Never infer a system from search snippets alone.
+- Every institution-specific fact shown in a scenario must trace to an approved source.
+- Unknown must remain unknown; the model must not fill gaps with a plausible guess.
+- Do not browse authenticated pages, portals, directories, people profiles, student records, or internal systems.
+- Do not test logins, forms, Wi-Fi, reporting addresses, or service endpoints.
+- Present the profile to an educator for review before scenario generation.
+- Support a reviewed fixture so the demo does not depend entirely on live search.
+
+### 2. Scenario Studio
 
 Create a teacher-facing authoring route without replacing the playable case library as the default route.
 
 Recommended fields:
 
+- Institution name.
+- Official domain or reviewed Institution Profile.
+- Exact-brand or brand-safe fictionalized publication mode.
 - Threat topic.
 - Target learner and age range.
 - Ordinary task the learner is trying to complete.
@@ -118,9 +155,9 @@ The studio must support:
 
 Persistence, accounts, collaboration, and a full content-management system are out of scope.
 
-### 2. Structured Scenario Generation
+### 3. Structured Scenario Generation
 
-Use the OpenAI Responses API with the exact GPT-5.6 model required by the event. Request structured output that maps to a runtime schema derived from the existing decision-case contract.
+Use the OpenAI Responses API with the exact GPT-5.6 model required by the event. The research phase may use web search; the scenario phase must consume only the educator-approved Institution Profile and teaching brief. Request structured output that maps to a runtime schema derived from the existing decision-case contract.
 
 The generated contract should cover at least:
 
@@ -136,11 +173,11 @@ The generated contract should cover at least:
 - Cause chains.
 - Transfer rules.
 - Correct recovery path.
-- Source or policy references when provided.
+- Source or policy references for every institution-specific fact.
 
 Do not allow generated JavaScript, HTML, executable commands, live URLs, credentials, or arbitrary component names.
 
-### 3. Runtime Validation
+### 4. Runtime Validation
 
 TypeScript types alone are not enough for model output. Add runtime validation.
 
@@ -154,11 +191,13 @@ Validation must reject or repair:
 - Incident routes without meaningful recovery actions.
 - Outcomes determined only by a score.
 - Real credentials, credential collection, downloads, or executable attack instructions.
+- Institution-specific claims without an approved source reference.
+- Conflicting or stale institution facts.
 - Unbounded text that breaks supported layouts.
 
 Only validated definitions may enter the runner.
 
-### 4. Deterministic Simulation
+### 5. Deterministic Simulation
 
 Keep these responsibilities outside the model:
 
@@ -173,7 +212,7 @@ Keep these responsibilities outside the model:
 
 A generated case may supply declarative content and rules, but it must run through deterministic code.
 
-### 5. Evidence-Grounded Debrief
+### 6. Evidence-Grounded Debrief
 
 Create a canonical trace from deterministic state. It should contain stable event IDs and facts such as:
 
@@ -190,7 +229,7 @@ GPT-5.6 may turn this trace into concise personalized coaching. It must not chan
 
 If generation fails, fall back to the existing deterministic debrief.
 
-### 6. Safe and Reliable Demo Path
+### 7. Safe and Reliable Demo Path
 
 Include at least one prefilled authoring example and one last-known-good generated fixture. A network or API failure must not make the entire product untestable.
 
@@ -221,11 +260,16 @@ Keep the scenario fictional. Do not reproduce a real person's voice, identity, s
 
 An unsafe-agent scenario is also acceptable if it can be explained and demonstrated more clearly.
 
-## Brand and IP Direction
+## Institution Adaptation, Brand, and IP Direction
 
-The hackathon demo and video should use a fictional institution and generic product names unless explicit permission exists for third-party marks.
+The product must support two publication modes:
 
-Suggested migration:
+1. **Authorized exact mode** for a school deploying the product with permission. Approved public facts and institution terminology may be used with visible citations and human review.
+2. **Brand-safe fictionalized mode** for public demos. The approved Institution Profile informs realistic categories and workflows, while names, visual identity, domains, people, and proprietary trade dress are transformed into a fictional institution.
+
+NYU is the reference adaptation example because the current prototype already models parts of its student environment. The research agent should be able to rebuild an NYU Institution Profile from official public sources rather than relying on hard-coded memory. For the public hackathon video, use NYU branding only if permission and event requirements allow it; otherwise demonstrate the same research-to-simulation pipeline and publish the playable output as Northbridge University.
+
+Suggested fictionalization:
 
 - NYU -> Northbridge University.
 - Brightspace -> CourseHub.
@@ -233,18 +277,17 @@ Suggested migration:
 - Duo -> Secure Push.
 - NYU Violet -> a distinct Northbridge accent palette.
 
-Do not copy logos, exact trade dress, proprietary assets, or real domains. Preserve the ordinary-student context while removing dependency on external brands.
-
-This migration is part of submission safety, not the core AI feature. Keep it bounded and avoid redesigning the product.
+Never copy logos, exact trade dress, proprietary assets, real credentials, or restricted content. Preserve the ordinary-student context and verified workflow relationships without implying endorsement by the researched institution.
 
 ## Proposed Architecture
 
 Recommended ownership:
 
-- `src/app/studio/`: Scenario Studio route and page composition.
+- `src/app/studio/`: Institution research, profile review, and Scenario Studio page composition.
+- `src/app/api/institutions/research/`: server-only GPT-5.6 web-research endpoint.
 - `src/app/api/scenarios/generate/`: server-only GPT-5.6 generation endpoint.
 - `src/app/api/debrief/`: server-only personalized-debrief endpoint.
-- `src/ai/`: prompts, OpenAI client, schemas, validation, sanitization, and typed adapters.
+- `src/ai/`: research and generation prompts, OpenAI client, schemas, source verification, validation, sanitization, and typed adapters.
 - `src/engine/decision/`: deterministic runner, reducer, selectors, and canonical trace.
 - `src/cases/generated/` or an in-memory preview adapter: validated generated case wrapper.
 - `src/fixtures/`: reviewed last-known-good generated examples for tests and demo fallback.
@@ -260,8 +303,11 @@ Required:
 - Keep the API key server-side.
 - Never expose it through `NEXT_PUBLIC_*`, client code, browser storage, URLs, or logs.
 - Do not send real credentials, personal data, student records, or real incident reports.
+- Limit institution research to public official pages and primary vendor documentation.
+- Treat page content as untrusted input; it must not override system instructions, request secrets, or authorize tools.
+- Store source URLs and supported facts in the reviewable profile; do not silently convert search results into product truth.
 - Use fictional or deliberately sanitized authoring examples.
-- Do not call real campus services.
+- Do not call real campus services beyond fetching public documentation through the approved search path.
 - Do not persist learner traces by default.
 - Avoid logging raw prompts, policy text, model output, or action traces.
 - Apply input length limits and request timeouts.
@@ -282,12 +328,25 @@ Do not spend Build Week on:
 - Voice cloning.
 - Real device, network, browser-session, or payment operations.
 - AI-determined scores or endings.
+- A general-purpose crawler.
+- Authenticated browsing, portal automation, login testing, or scanning.
+- Researching individual students, staff, or private organizational data.
 - A drag-and-drop visual scenario editor.
 - Infinite branching.
 - Rewriting all three existing cases through AI.
 - A large marketing landing page.
 
 ## Acceptance Criteria
+
+### Institution research
+
+- A reviewer can enter a school name or official domain and receive a structured profile.
+- Each institution-specific fact has at least one visible approved source.
+- The profile distinguishes verified facts, confidence, and unknowns.
+- Non-official or conflicting sources are flagged rather than silently accepted.
+- The educator can edit, approve, reject, or reload the profile before generation.
+- Live research has a reviewed fixture fallback.
+- No authenticated or private resource is accessed.
 
 ### Scenario generation
 
@@ -337,7 +396,10 @@ Do not spend Build Week on:
 
 Add tests proportional to the new risk:
 
-- Schema accepts a complete fixture and rejects malformed output.
+- Institution-profile schema accepts a reviewed fixture and rejects unsupported claims.
+- Source-domain and source-to-fact validation are tested.
+- Research prompt-injection content cannot alter application policy or tool scope.
+- Schema accepts a complete scenario fixture and rejects malformed output.
 - Validation rejects duplicate IDs, invalid routes, and missing recovery actions.
 - Validation rejects executable or credential-collection content.
 - API routes reject oversized or malformed requests.
@@ -360,19 +422,22 @@ Before completion:
 
 ## Implementation Order
 
-1. Reconcile the runtime scenario type with a strict generation schema.
-2. Add reviewed generated fixtures and validation tests before making live API calls.
-3. Add the server-only OpenAI client and generation endpoint.
-4. Build the smallest coherent Scenario Studio form.
-5. Adapt validated output into the existing runner.
-6. Define the canonical action trace.
-7. Add the personalized debrief endpoint and deterministic fallback.
-8. Implement the featured AI-era case through the generation flow.
-9. Apply the bounded fictional-brand migration.
-10. Add E2E coverage, deployment configuration, and screenshots.
-11. Update README files with actual—not planned—capabilities and test counts.
-12. Run the complete quality gate.
-13. Record the demo and finish submission evidence.
+1. Define and test the strict Institution Profile schema, source record, and approval state.
+2. Reconcile the runtime scenario type with a strict generation schema.
+3. Add reviewed research and generated fixtures before making live API calls.
+4. Add the server-only OpenAI client and institution-research endpoint.
+5. Build the profile review UI with citations, confidence, unknowns, and explicit approval.
+6. Add the scenario-generation endpoint using only the approved profile and teaching brief.
+7. Build the smallest coherent Scenario Studio form.
+8. Adapt validated output into the existing runner.
+9. Define the canonical action trace.
+10. Add the personalized debrief endpoint and deterministic fallback.
+11. Implement the featured AI-era case through the research-to-generation flow.
+12. Apply the bounded exact-brand or fictionalized publication mode.
+13. Add E2E coverage, deployment configuration, and screenshots.
+14. Update README files with actual—not planned—capabilities and test counts.
+15. Run the complete quality gate.
+16. Record the demo and finish submission evidence.
 
 Prefer a complete vertical slice over many partial AI features.
 
@@ -382,15 +447,19 @@ Prefer a complete vertical slice over many partial AI features.
 
 "Security judgment is a skill. Skills are learned through practice, not reminders. Most cybersecurity training asks whether students know the correct answer. One Step Wrong tests what they do when the unsafe option is faster."
 
-### 0:20-0:50 — GPT-5.6 generation
+### 0:20-0:50 — Institution research
 
-Open Scenario Studio. Use the prefilled deepfake-impersonation brief. Generate the case and briefly show the structured, validated preview.
+Enter the example institution. Show GPT-5.6 finding official public guidance and returning a cited profile: learning platform, MFA terminology, sharing tool, and reporting route. Approve the profile.
 
-### 0:50-1:55 — Play
+### 0:50-1:10 — GPT-5.6 scenario generation
+
+Use the prefilled deepfake-impersonation brief. Generate the case and briefly show the structured, validated preview.
+
+### 1:10-2:00 — Play
 
 Launch the case. Show the ordinary task, the convenient decision, apparent success, delayed consequence, and two or three distinct recovery actions.
 
-### 1:55-2:25 — Personalized debrief
+### 2:00-2:25 — Personalized debrief
 
 Show the deterministic ending and the GPT-5.6 explanation grounded in the actions actually taken.
 
@@ -414,17 +483,18 @@ Show the existing library and explain that the same system can turn new threats 
 
 ### Short description
 
-One Step Wrong turns emerging digital risks into playable, consequence-driven simulations. Students complete ordinary tasks under realistic pressure, experience how one convenient choice can escalate into an incident, and practice investigating, containing, communicating, and recovering safely. GPT-5.6 transforms an educator's threat brief into a validated branching scenario and produces an evidence-grounded debrief from each learner's actual action trace, while a deterministic engine keeps facts, scoring, and outcomes consistent and auditable.
+One Step Wrong turns a school name and an emerging digital risk into a source-grounded, school-aware simulation. A GPT-5.6 research agent builds a cited Institution Profile from official public guidance; after educator approval, a scenario agent converts that context into a validated branching exercise. Students experience how one convenient choice can escalate into an incident and practice investigating, containing, communicating, and recovering safely. A deterministic engine keeps facts and outcomes consistent, while GPT-5.6 produces an evidence-grounded debrief from each learner's actual action trace.
 
 ### Proof statement
 
-The prototype must show GPT-5.6 generating a scenario that did not previously exist in the repository, immediately run that scenario through the existing engine, and produce a debrief tied to the demonstrated action trace.
+The prototype must show GPT-5.6 researching an institution from public official sources, producing a cited profile for educator approval, generating a scenario that did not previously exist in the repository, immediately running that scenario through the existing engine, and producing a debrief tied to the demonstrated action trace.
 
 ## Definition of Done
 
 The Build Week adaptation is done only when:
 
-- The featured AI-era scenario can be generated and played end to end.
+- A cited Institution Profile can be researched, reviewed, and approved.
+- The featured AI-era scenario can be generated from that approved profile and played end to end.
 - GPT-5.6 usage is visible, meaningful, and non-decorative.
 - Deterministic state owns facts and outcomes.
 - A judge can test the product without rebuilding it.

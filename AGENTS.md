@@ -123,6 +123,7 @@ src/
 - Institution research must prefer the institution's official public domains, then primary vendor documentation.
 - Treat user-supplied official domains as authoritative. Model output may discover domains only when none were supplied; it must never replace or broaden an explicit domain boundary.
 - Require HTTPS for every approved source and assign access timestamps on the server rather than trusting model-authored dates.
+- Request `web_search_call.action.sources` from Responses and require every structured citation URL to match the tool evidence from that same research call.
 - `authorized-exact` mode requires explicit permission confirmation stored in the validated Institution Profile. UI state alone is not authorization evidence.
 - Every institution-specific fact used by generation must have an approved source record. Search snippets are discovery aids, not evidence.
 - Record source URL, title, publisher, access time, supported fact, confidence, and unresolved conflicts in the Institution Profile.

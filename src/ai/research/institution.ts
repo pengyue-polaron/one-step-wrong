@@ -73,6 +73,53 @@ const researchOutputSchema = z.object({
 
 export type InstitutionResearchProvider = Pick<OpenAI, "responses">;
 
+function canonicalEvidenceUrl(value: string) {
+  const url = new URL(value);
+  const path = url.pathname.replace(/\/+$/, "") || "/";
+  return `${url.hostname.toLowerCase()}${path}`;
+}
+
+export function validateSourcesAgainstWebSearch(
+  sources: Array<{ url: string }>,
+  output: unknown,
+) {
+  const evidenceUrls = new Set<string>();
+  if (Array.isArray(output)) {
+    output.forEach((item) => {
+      if (!item || typeof item !== "object") return;
+      const record = item as Record<string, unknown>;
+      const action = record.action;
+      if (record.type === "web_search_call" && action && typeof action === "object") {
+        const actionRecord = action as Record<string, unknown>;
+        if (typeof actionRecord.url === "string") {
+          evidenceUrls.add(canonicalEvidenceUrl(actionRecord.url));
+        }
+        if (Array.isArray(actionRecord.sources)) {
+          actionRecord.sources.forEach((source) => {
+            if (source && typeof source === "object" && typeof (source as Record<string, unknown>).url === "string") {
+              evidenceUrls.add(canonicalEvidenceUrl((source as Record<string, string>).url));
+            }
+          });
+        }
+      }
+      if (record.type === "message" && Array.isArray(record.content)) {
+        record.content.forEach((content) => {
+          if (!content || typeof content !== "object" || !Array.isArray((content as Record<string, unknown>).annotations)) return;
+          ((content as Record<string, unknown>).annotations as unknown[]).forEach((annotation) => {
+            if (annotation && typeof annotation === "object" && typeof (annotation as Record<string, unknown>).url === "string") {
+              evidenceUrls.add(canonicalEvidenceUrl((annotation as Record<string, string>).url));
+            }
+          });
+        });
+      }
+    });
+  }
+  const missing = sources.filter((source) => !evidenceUrls.has(canonicalEvidenceUrl(source.url)));
+  if (missing.length > 0) {
+    throw new Error(`Research cited URLs not returned by Web Search: ${missing.map((source) => source.url).join(", ")}`);
+  }
+}
+
 export async function researchInstitution(
   request: InstitutionResearchRequest,
   provider: InstitutionResearchProvider | null = getOpenAIClient(),
@@ -91,11 +138,13 @@ export async function researchInstitution(
         ...(domains.length ? { filters: { allowed_domains: domains } } : {}),
       },
     ],
+    include: ["web_search_call.action.sources"],
     text: { format: zodTextFormat(researchOutputSchema, "institution_research") },
   });
 
   if (!response.output_parsed) throw new Error("Institution research returned no structured profile.");
   const raw = response.output_parsed;
+  validateSourcesAgainstWebSearch(raw.sources, response.output);
   const officialDomains = domains.length ? domains : raw.officialDomains.map(normalizeDomain);
   const accessedAt = new Date().toISOString();
   const profile = institutionProfileSchema.parse({

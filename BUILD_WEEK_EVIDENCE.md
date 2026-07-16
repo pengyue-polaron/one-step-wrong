@@ -6,7 +6,7 @@ This document maps the Build Week product claims to reproducible evidence. It do
 
 | Requirement | Reproducible evidence | Status |
 | --- | --- | --- |
-| Cited institution profile with human approval | `/studio`, source approval/conflict-resolution tests, exact-brand authorization, authoritative-domain, HTTPS, and research route tests | Verified offline |
+| Cited institution profile with human approval | `/studio`, source review tests, exact-brand authorization, authoritative-domain, HTTPS, and same-call Web Search URL evidence tests | Verified offline |
 | Runtime-validated scenario compilation | `src/ai/schemas/scenario.ts`, `src/ai/scenarios/generate.ts`, malformed-output tests | Verified offline |
 | Bounded Director and role performance | `src/ai/simulation/turn.ts`, minimum-context, leakage, invalid-event, and timeout tests | Verified with mocked model output |
 | Free text cannot mutate canonical state | Studio browser tests and simulation physics tests | Verified |

@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-77%20unit%20%2B%2013%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-78%20unit%20%2B%2013%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
@@ -49,7 +49,7 @@ GPT-5.6 在演练前负责学校研究和场景编译，演练中负责有边界
 
 审核过的离线画像使用 NYU 官方公开页面作为来源，覆盖 [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system)、[Duo 与文件共享](https://tisch.nyu.edu/cit/information-technology/faq)、[Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu)、[校园无线网络](https://library.nyu.edu/services/computing/on-campus/wifi/)、[钓鱼特征与上报](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/)和[学生报销材料](https://www.stern.nyu.edu/portal-partners/budget/students)。画像明确把“全校统一的付款信息变更回拨规则”保留为未知；品牌安全编译随后转换受保护的校名、域名与平台名，同时保留来源事实 ID。
 
-默认发布方式是品牌安全虚构化。使用精确学校品牌前必须明确确认已获授权，而且确认会写入通过验证的 Institution Profile。用户提供官方域名后，模型不能把它替换为其他域名；学校来源必须位于该域名、使用 HTTPS，并由服务器写入访问时间。
+默认发布方式是品牌安全虚构化。使用精确学校品牌前必须明确确认已获授权，而且确认会写入通过验证的 Institution Profile。用户提供官方域名后，模型不能把它替换为其他域名；学校来源必须位于该域名、使用 HTTPS、由服务器写入访问时间，而且 URL 必须出现在同一次 Responses Web Search 返回的工具证据中。
 
 ## 可玩案例
 
@@ -249,7 +249,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 77 个 schema、API、状态与组件测试，以及 13 个浏览器测试。覆盖范围包括可操作的画像审核、精确品牌授权、权威 hostname 校验、HTTPS 来源、服务端访问时间、fixture/画像原子归因、动作前置条件、受影响层恢复、异常模型输出、prompt/凭据诱导拒绝、确定性结局、离线回退、安全与事故完整路线、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
+当前测试集包含 78 个 schema、API、状态与组件测试，以及 13 个浏览器测试。覆盖范围包括可操作的画像审核、精确品牌授权、权威 hostname 校验、Web Search URL 证据、HTTPS 来源、服务端访问时间、fixture/画像原子归因、动作前置条件、受影响层恢复、异常模型输出、prompt/凭据诱导拒绝、确定性结局、离线回退、安全与事故完整路线、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
 
 ## Build Week 开发说明
 

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   institutionResearchRequestSchema,
   researchInstitution,
+  validateSourcesAgainstWebSearch,
   type InstitutionResearchProvider,
 } from "@/ai/research/institution";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
@@ -27,7 +28,18 @@ describe("Institution Research Agent adapter", () => {
       unresolvedFields: reviewedNyuInstitutionProfile.unresolvedFields,
       researchWarnings: reviewedNyuInstitutionProfile.researchWarnings,
     };
-    const parse = vi.fn().mockResolvedValue({ output_parsed: raw });
+    const parse = vi.fn().mockResolvedValue({
+      output_parsed: raw,
+      output: [{
+        id: "search-1",
+        type: "web_search_call",
+        status: "completed",
+        action: {
+          type: "search",
+          sources: raw.sources.map((source) => ({ type: "url", url: source.url })),
+        },
+      }],
+    });
     const provider = { responses: { parse } } as unknown as InstitutionResearchProvider;
     const request = institutionResearchRequestSchema.parse({
       institutionName: "New York University",
@@ -44,6 +56,7 @@ describe("Institution Research Agent adapter", () => {
     expect(call.model).toBe("gpt-5.6");
     expect(call.tools[0].type).toBe("web_search");
     expect(call.tools[0].filters.allowed_domains).toEqual(["nyu.edu"]);
+    expect(call.include).toEqual(["web_search_call.action.sources"]);
   });
 
   it("keeps prompt-injection text in the untrusted input plane", () => {
@@ -70,5 +83,18 @@ describe("Institution Research Agent adapter", () => {
     if (!result.success) {
       expect(result.error.issues[0].path).toEqual(["authorizationConfirmed"]);
     }
+  });
+
+  it("rejects a structured citation that was not returned by Web Search", () => {
+    expect(() => validateSourcesAgainstWebSearch(
+      [{ url: "https://nyu.edu/invented-policy" }],
+      [{
+        type: "web_search_call",
+        action: {
+          type: "search",
+          sources: [{ type: "url", url: "https://nyu.edu/real-policy" }],
+        },
+      }],
+    )).toThrow("not returned by Web Search");
   });
 });

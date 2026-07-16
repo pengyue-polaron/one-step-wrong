@@ -77,6 +77,7 @@ src/
 - The Build Week demo must migrate to a fictional institution and generic product names as specified in `BUILD_WEEK_PLAN.md`, unless explicit permission exists for a third-party mark.
 - Treat the current NYU implementation as a behavioral reference during migration; preserve task pressure, decision structure, delayed consequences, recovery mechanics, and tests rather than retaining the brand.
 - New AI-generated cases must be fictional and must not contain real people, credentials, payment details, domains, logos, or proprietary trade dress.
+- The remaining NYU-specific rules below apply only to the unmigrated legacy prototype. Do not use them for new Build Week surfaces or generated cases, and remove them once the bounded migration is complete.
 - The course platform is NYU Brightspace. Display `brightspace.nyu.edu` and use familiar concepts such as Course Home, Content, Assignments, Discussions, Grades, submission history, and allowed file extensions.
 - Official wireless names are lowercase `nyu`, `nyuguest`, and `eduroam`.
 - A suspicious service may imitate a real name, but the interface must not reveal that judgment before the debrief.
@@ -113,7 +114,7 @@ src/
 - Do not rely on color alone for incident, success, or completion state.
 - Text and controls must not overflow at supported viewport sizes.
 - Decision chapters must remain usable at 390 px wide. The deep desktop case may require 1100 px, but its small-screen gate must let the player return.
-- Keep NYU Violet restrained; preserve semantic green, amber, red, blue, and neutral contrast.
+- Keep NYU Violet restrained only on unmigrated legacy screens. New Build Week surfaces must use the distinct fictional-institution palette defined during the bounded migration, while preserving semantic green, amber, red, blue, and neutral contrast.
 - Update accepted screenshots when a user-facing flow changes materially.
 
 ## Testing Expectations

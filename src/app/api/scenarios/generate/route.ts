@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { scenarioGenerationRequestSchema, generateScenario } from "@/ai/scenarios/generate";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { readBoundedJson } from "@/app/api/request";
 
 export const runtime = "nodejs";
@@ -26,10 +27,11 @@ export async function POST(request: Request) {
   if (parsed.data.useFixture || !process.env.OPENAI_API_KEY) {
     return NextResponse.json({
       scenario: voiceYouKnowScenario,
+      profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
       notice: parsed.data.useFixture
-        ? "Compiled the reviewed flagship scenario."
-        : "OpenAI is not configured, so the reviewed flagship scenario was compiled.",
+        ? "Loaded the reviewed NYU source profile and compiled its brand-safe flagship scenario."
+        : "OpenAI is not configured, so the reviewed NYU source profile and its flagship scenario were loaded together.",
     });
   }
 
@@ -39,8 +41,9 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({
       scenario: voiceYouKnowScenario,
+      profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
-      notice: "Live generation was unavailable or failed validation. The reviewed flagship scenario was compiled instead.",
+      notice: "Live generation was unavailable or failed validation. The reviewed NYU source profile and its flagship scenario were loaded together.",
     });
   }
 }

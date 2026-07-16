@@ -31,6 +31,9 @@ const criticalActionSchema = z.object({
   description: bodyTextSchema,
   kind: z.enum(["verify", "pause", "approve", "share", "preserve", "revoke", "notify", "report"]),
   phase: z.enum(["containment", "recovery", "either"]),
+  availableAfterAllActionIds: z.array(idSchema).max(10),
+  availableAfterAnyActionIds: z.array(idSchema).max(10),
+  requiredAfterActionIds: z.array(idSchema).max(10),
   stateChanges: z.array(stateChangeSchema).min(1).max(4),
 });
 
@@ -64,7 +67,9 @@ const endingSchema = z.object({
   summary: bodyTextSchema,
   causeChain: z.array(bodyTextSchema).min(2).max(6),
   requiredActionIds: z.array(idSchema).max(12),
+  requiredAnyActionIds: z.array(idSchema).max(12),
   forbiddenActionIds: z.array(idSchema).max(12),
+  requiresTriggeredRecoveryComplete: z.boolean(),
 });
 
 export const scenarioPackageOutputSchema = z
@@ -91,6 +96,7 @@ export const scenarioPackageOutputSchema = z
           z.object({
             id: idSchema,
             statement: bodyTextSchema,
+            audience: z.enum(["public", "hidden"]),
             institutionSpecific: z.boolean(),
             sourceFactIds: z.array(idSchema).max(8),
           }),
@@ -171,6 +177,23 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       report: ["not-reported", "reported"],
     };
     scenario.criticalActions.forEach((action, actionIndex) => {
+      const prerequisiteGroups = [
+        ["availableAfterAllActionIds", action.availableAfterAllActionIds],
+        ["availableAfterAnyActionIds", action.availableAfterAnyActionIds],
+        ["requiredAfterActionIds", action.requiredAfterActionIds],
+      ] as const;
+      prerequisiteGroups.forEach(([field, ids]) => ids.forEach((id, index) => {
+        assertAction(id, ["criticalActions", actionIndex, field, index]);
+        if (id === action.id) {
+          context.addIssue({ code: "custom", path: ["criticalActions", actionIndex, field, index], message: "An action cannot depend on itself." });
+        }
+        if (field === "requiredAfterActionIds" && scenario.criticalActions.find((candidate) => candidate.id === id)?.phase === "recovery") {
+          context.addIssue({ code: "custom", path: ["criticalActions", actionIndex, field, index], message: "Recovery must be triggered by a non-recovery action." });
+        }
+      }));
+      if (action.phase !== "recovery" && action.requiredAfterActionIds.length > 0) {
+        context.addIssue({ code: "custom", path: ["criticalActions", actionIndex, "requiredAfterActionIds"], message: "Only recovery actions may declare incident triggers." });
+      }
       action.stateChanges.forEach((change, changeIndex) => {
         if (!stateValues[change.field].includes(change.value)) {
           context.addIssue({
@@ -181,7 +204,36 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
         }
       });
     });
-    scenario.recoveryActionIds.forEach((id, index) => assertAction(id, ["recoveryActionIds", index]));
+    const reachableActionIds = new Set<string>();
+    let foundReachableAction = true;
+    while (foundReachableAction) {
+      foundReachableAction = false;
+      scenario.criticalActions.forEach((action) => {
+        if (reachableActionIds.has(action.id)) return;
+        const allReachable = action.availableAfterAllActionIds.every((id) => reachableActionIds.has(id));
+        const anyReachable = action.availableAfterAnyActionIds.length === 0
+          || action.availableAfterAnyActionIds.some((id) => reachableActionIds.has(id));
+        if (allReachable && anyReachable) {
+          reachableActionIds.add(action.id);
+          foundReachableAction = true;
+        }
+      });
+    }
+    scenario.criticalActions.forEach((action, index) => {
+      if (!reachableActionIds.has(action.id)) {
+        context.addIssue({ code: "custom", path: ["criticalActions", index], message: "Action prerequisites are unreachable." });
+      }
+    });
+    scenario.recoveryActionIds.forEach((id, index) => {
+      assertAction(id, ["recoveryActionIds", index]);
+      const action = scenario.criticalActions.find((candidate) => candidate.id === id);
+      if (action && action.phase !== "recovery") {
+        context.addIssue({ code: "custom", path: ["recoveryActionIds", index], message: "Recovery catalog entries must be recovery-phase actions." });
+      }
+      if (action && action.requiredAfterActionIds.length === 0) {
+        context.addIssue({ code: "custom", path: ["recoveryActionIds", index], message: "Recovery actions must declare the incident actions that require them." });
+      }
+    });
     if (!scenario.recoveryActionIds.some((id) => scenario.criticalActions.find((action) => action.id === id)?.phase === "recovery")) {
       context.addIssue({ code: "custom", path: ["recoveryActionIds"], message: "At least one recovery-phase action is required." });
     }
@@ -198,7 +250,21 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
     });
     scenario.endings.forEach((ending, index) => {
       ending.requiredActionIds.forEach((id) => assertAction(id, ["endings", index, "requiredActionIds"]));
+      ending.requiredAnyActionIds.forEach((id) => assertAction(id, ["endings", index, "requiredAnyActionIds"]));
       ending.forbiddenActionIds.forEach((id) => assertAction(id, ["endings", index, "forbiddenActionIds"]));
+      if (ending.requiresTriggeredRecoveryComplete && ending.requiredAnyActionIds.length === 0) {
+        context.addIssue({ code: "custom", path: ["endings", index], message: "Recovery-complete endings need at least one incident trigger." });
+      }
+      if (ending.requiresTriggeredRecoveryComplete) {
+        ending.requiredAnyActionIds.forEach((triggerId) => {
+          const hasRecovery = scenario.recoveryActionIds.some((recoveryId) =>
+            scenario.criticalActions.find((action) => action.id === recoveryId)?.requiredAfterActionIds.includes(triggerId),
+          );
+          if (!hasRecovery) {
+            context.addIssue({ code: "custom", path: ["endings", index, "requiredAnyActionIds"], message: `Incident trigger has no required recovery: ${triggerId}` });
+          }
+        });
+      }
     });
     if (new Set(scenario.endings.map((ending) => ending.id)).size !== 4) {
       context.addIssue({ code: "custom", path: ["endings"], message: "Provide safe, caution, contained, and expanded endings." });

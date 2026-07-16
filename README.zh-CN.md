@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-61%20unit%20%2B%2013%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-71%20unit%20%2B%2013%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
@@ -35,10 +35,10 @@
 **这不是一棵固定分支的剧情树，而是一场会呼吸的安全演练。** 打开 [`/studio`](http://localhost:3000/studio) 可以体验已经实现的 Build Week 完整链路：
 
 1. 从官方公开来源研究一所学校，或载入审核过的 NYU 来源画像。
-2. 查看引用、置信度、冲突和明确未知项；编辑并批准 Institution Profile。
+2. 查看引用、置信度、冲突、研究警告和明确未知项；解决事实问题，逐项批准或拒绝来源，再批准 Institution Profile。
 3. 向 Scenario Architect 提交一份有长度与范围限制的教学简报。
 4. 对生成的世界设定、关键动作、证据、恢复步骤、结局与最多三个角色执行运行时验证。
-5. 与有知识和频道边界的角色自然对话；所有高影响行为仍须通过明确的界面动作完成。
+5. 与有知识和频道边界的角色自然对话；学习者不会提前看到隐藏身份，所有高影响行为仍须通过明确的界面动作完成。
 6. 到达确定性结局，并获得只依据规范化动作轨迹生成的复盘。
 
 GPT-5.6 在演练前负责学校研究和场景编译，演练中负责有边界的角色表演，演练后负责基于轨迹的辅导文案。Zod schema、来源校验、事件白名单、类型化状态转换和确定性结局选择拥有最终解释权。每条 OpenAI 路径都有审核过的离线回退，因此没有 API key 也能完整体验旗舰案例。
@@ -247,7 +247,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 61 个 schema、API、状态与组件测试，以及 13 个浏览器测试。覆盖范围包括异常模型输出、来源域名、prompt/凭据诱导拒绝、确定性结局、离线回退、安全与事故完整路线、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
+当前测试集包含 71 个 schema、API、状态与组件测试，以及 13 个浏览器测试。覆盖范围包括可操作的画像审核、fixture/画像原子归因、动作前置条件、受影响层恢复、异常模型输出、来源域名、prompt/凭据诱导拒绝、确定性结局、离线回退、安全与事故完整路线、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
 
 ## Build Week 开发说明
 

@@ -29,6 +29,7 @@ import type { InstitutionProfile } from "@/ai/schemas/institution";
 import { validateProfileForApproval } from "@/ai/schemas/institution";
 import type { ScenarioPackage } from "@/ai/schemas/scenario";
 import {
+  actionIsAvailable,
   applyCriticalAction,
   createSimulationState,
   type CanonicalTrace,
@@ -37,12 +38,14 @@ import {
 
 type StudioStage = "research" | "profile" | "brief" | "preview" | "live" | "debrief";
 type Provenance = "live-research" | "live-generation" | "reviewed-fixture" | "live-role" | "reviewed-fallback" | "live-debrief" | "deterministic-fallback";
-type DialogueLine = { id: string; roleId: string; roleName: string; content: string; provenance: Provenance };
+type DialogueLine = { id: string; roleId: string; roleName: string; content: string; provenance: Provenance | null };
 type Debrief = {
   trace: CanonicalTrace;
   coaching: { headline: string; summary: string; nextTime: string };
   provenance: Provenance;
 };
+
+type ApiIssue = { path?: string; message?: string };
 
 const workflow: Array<{ id: StudioStage; label: string; meta: string }> = [
   { id: "research", label: "Research", meta: "Public sources" },
@@ -67,8 +70,26 @@ const initialBrief = {
 function ProvenanceBadge({ value }: { value: Provenance | null }) {
   if (!value) return null;
   const isLive = value.startsWith("live");
-  const label = value === "deterministic-fallback" ? "Deterministic" : isLive ? "GPT-5.6 live" : "Reviewed fallback";
+  const labels: Record<Provenance, string> = {
+    "live-research": "GPT-5.6 research",
+    "live-generation": "GPT-5.6 architect",
+    "reviewed-fixture": "Reviewed fixture",
+    "live-role": "GPT-5.6 role",
+    "reviewed-fallback": "Reviewed dialogue",
+    "live-debrief": "GPT-5.6 debrief",
+    "deterministic-fallback": "Deterministic debrief",
+  };
+  const label = labels[value];
   return <span className={`studio-provenance ${isLive ? "is-live" : ""}`}><span />{label}</span>;
+}
+
+function formatApiError(payload: { error?: string; issues?: ApiIssue[] }, fallback: string) {
+  const heading = payload.error || fallback;
+  const details = payload.issues
+    ?.filter((issue) => issue.message)
+    .slice(0, 4)
+    .map((issue) => `${issue.path || "request"}: ${issue.message}`);
+  return details?.length ? `${heading}\n${details.join("\n")}` : heading;
 }
 
 function StageRail({ stage }: { stage: StudioStage }) {
@@ -110,6 +131,16 @@ export function ScenarioStudio() {
   const [busy, setBusy] = useState(false);
 
   const sourceById = useMemo(() => new Map(profile?.sources.map((source) => [source.id, source]) ?? []), [profile]);
+  const latestRoleProvenance = useMemo(
+    () => messages.slice().reverse().find((line) => line.roleId !== "learner")?.provenance ?? null,
+    [messages],
+  );
+  const visibleTaskActions = useMemo(() => scenario && simulation
+    ? scenario.criticalActions.filter((action) => action.phase !== "recovery" && (simulation.actionIds.includes(action.id) || actionIsAvailable(scenario, action.id, simulation.actionIds)))
+    : [], [scenario, simulation]);
+  const visibleResponseActions = useMemo(() => scenario && simulation
+    ? scenario.criticalActions.filter((action) => action.phase === "recovery" && (simulation.actionIds.includes(action.id) || actionIsAvailable(scenario, action.id, simulation.actionIds)))
+    : [], [scenario, simulation]);
 
   async function research(useFixture: boolean) {
     setBusy(true); setError(""); setNotice("");
@@ -125,7 +156,7 @@ export function ScenarioStudio() {
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Institution research failed.");
+      if (!response.ok) throw new Error(formatApiError(result, "Institution research failed."));
       setProfile(result.profile); setProfileProvenance(result.provenance); setNotice(result.notice); setStage("profile");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Institution research failed.");
@@ -136,15 +167,44 @@ export function ScenarioStudio() {
     if (!profile) return;
     const approved: InstitutionProfile = {
       ...profile,
-      sources: profile.sources.map((source) => ({ ...source, reviewStatus: source.reviewStatus === "rejected" ? "rejected" : "approved" })),
       approval: { status: "approved", reviewedAt: new Date().toISOString(), reviewerNote: "Reviewed in Scenario Studio." },
     };
     const validation = validateProfileForApproval(approved);
     if (!validation.success) {
-      setError(validation.issues[0]?.message ?? "Resolve profile issues before approval.");
+      setError(validation.issues.slice(0, 4).map((issue) => `${issue.path}: ${issue.message}`).join("\n") || "Resolve profile issues before approval.");
       return;
     }
     setProfile(approved); setError(""); setNotice("Institution Profile approved for scenario compilation."); setStage("brief");
+  }
+
+  function updateFactStatus(factIndex: number, status: InstitutionProfile["facts"][number]["status"]) {
+    setProfile((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        approval: { status: "review-required" },
+        facts: current.facts.map((fact, index) => {
+          if (index !== factIndex) return fact;
+          if (status === "unknown") {
+            return { ...fact, status, value: null, confidence: "unknown", sourceIds: [] };
+          }
+          return {
+            ...fact,
+            status,
+            value: fact.value ?? "",
+            confidence: fact.confidence === "unknown" ? "medium" : fact.confidence,
+          };
+        }),
+      };
+    });
+  }
+
+  function updateSourceReview(sourceId: string, reviewStatus: InstitutionProfile["sources"][number]["reviewStatus"]) {
+    setProfile((current) => current ? {
+      ...current,
+      approval: { status: "review-required" },
+      sources: current.sources.map((source) => source.id === sourceId ? { ...source, reviewStatus } : source),
+    } : current);
   }
 
   async function generateScenario(useFixture: boolean) {
@@ -157,7 +217,11 @@ export function ScenarioStudio() {
         body: JSON.stringify({ profile, brief, useFixture }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Scenario generation failed.");
+      if (!response.ok) throw new Error(formatApiError(result, "Scenario generation failed."));
+      if (result.profile) {
+        setProfile(result.profile);
+        setProfileProvenance("reviewed-fixture");
+      }
       setScenario(result.scenario); setScenarioProvenance(result.provenance); setNotice(result.notice); setStage("preview");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Scenario generation failed.");
@@ -175,15 +239,19 @@ export function ScenarioStudio() {
 
   function performAction(actionId: string) {
     if (!scenario || !simulation) return;
-    setSimulation(applyCriticalAction(scenario, simulation, actionId));
-    if (suggestedActionId === actionId) setSuggestedActionId(null);
+    try {
+      setSimulation(applyCriticalAction(scenario, simulation, actionId));
+      if (suggestedActionId === actionId) setSuggestedActionId(null);
+    } catch {
+      setError("That action is not available in the current deterministic state.");
+    }
   }
 
   async function sendMessage(event: FormEvent) {
     event.preventDefault();
     if (!scenario || !simulation || !messageDraft.trim()) return;
     const learnerContent = messageDraft.trim();
-    setMessages((current) => [...current, { id: `learner-${Date.now()}`, roleId: "learner", roleName: "You", content: learnerContent, provenance: "reviewed-fallback" }]);
+    setMessages((current) => [...current, { id: `learner-${Date.now()}`, roleId: "learner", roleName: "You", content: learnerContent, provenance: null }]);
     setMessageDraft(""); setBusy(true); setError("");
     try {
       const response = await fetch("/api/simulation/turn", {
@@ -202,7 +270,7 @@ export function ScenarioStudio() {
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Role response failed.");
+      if (!response.ok) throw new Error(formatApiError(result, "Role response failed."));
       const turn = result.turn;
       const role = scenario.roleCards.find((item) => item.id === turn.roleId)!;
       setMessages((current) => [...current, { id: `role-${Date.now()}`, roleId: turn.roleId, roleName: role.displayName, content: turn.content, provenance: turn.provenance }]);
@@ -222,7 +290,7 @@ export function ScenarioStudio() {
         body: JSON.stringify({ scenario, actionIds: simulation.actionIds }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Debrief failed.");
+      if (!response.ok) throw new Error(formatApiError(result, "Debrief failed."));
       setDebrief(result); setStage("debrief");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Debrief failed.");
@@ -266,15 +334,25 @@ export function ScenarioStudio() {
               <div className="profile-table" role="table" aria-label="Institution facts">
                 {profile.facts.map((fact, factIndex) => (
                   <div className="profile-row" role="row" key={fact.id}>
-                    <div className="profile-fact-meta"><span>{fact.category.replaceAll("-", " ")}</span><strong>{fact.label}</strong><small className={`fact-status is-${fact.status}`}>{fact.status} · {fact.confidence}</small></div>
+                    <div className="profile-fact-meta"><span>{fact.category.replaceAll("-", " ")}</span><strong>{fact.label}</strong><label className="fact-review-status"><span>Review status</span><select aria-label={`Status for ${fact.label}`} className={`fact-status is-${fact.status}`} value={fact.status} onChange={(event) => updateFactStatus(factIndex, event.target.value as InstitutionProfile["facts"][number]["status"])}><option value="verified">Verified</option><option value="conflicting">Conflicting</option><option value="unknown">Unknown</option></select></label><small>{fact.confidence} confidence</small></div>
                     <div className="profile-fact-value">
-                      {fact.status === "unknown" ? <p className="unknown-value">Unknown remains unknown</p> : <textarea aria-label={`${fact.label} value`} value={fact.value ?? ""} maxLength={700} onChange={(event) => setProfile((current) => current ? { ...current, facts: current.facts.map((item, index) => index === factIndex ? { ...item, value: event.target.value } : item) } : current)} />}
-                      <div className="source-chips">{fact.sourceIds.map((sourceId) => { const source = sourceById.get(sourceId); return source ? <a href={source.url} target="_blank" rel="noreferrer" key={sourceId}><ExternalLink size={11} />{source.title}</a> : null; })}</div>
+                      {fact.status === "unknown" ? <p className="unknown-value">Unknown remains unknown</p> : <textarea aria-label={`${fact.label} value`} value={fact.value ?? ""} maxLength={700} placeholder="Enter a source-supported value." onChange={(event) => setProfile((current) => current ? { ...current, approval: { status: "review-required" }, facts: current.facts.map((item, index) => index === factIndex ? { ...item, value: event.target.value } : item) } : current)} />}
+                      <div className="source-chips">{fact.sourceIds.map((sourceId) => { const source = sourceById.get(sourceId); return source ? <a className={`is-${source.reviewStatus}`} href={source.url} target="_blank" rel="noreferrer" key={sourceId}><ExternalLink size={11} />{source.title}<small>{source.reviewStatus}</small></a> : null; })}</div>
                     </div>
                   </div>
                 ))}
               </div>
               {profile.unresolvedFields.length > 0 && <div className="profile-unknowns"><CircleAlert size={16} /><div><strong>Explicit unknowns</strong><p>{profile.unresolvedFields.join(" · ")}</p></div></div>}
+              {profile.researchWarnings.length > 0 && <div className="profile-unknowns profile-warnings"><CircleAlert size={16} /><div><strong>Research warnings</strong>{profile.researchWarnings.map((warning) => <p key={warning}>{warning}</p>)}</div></div>}
+              <section className="profile-sources" aria-label="Source review">
+                <header><div><strong>Source review</strong><small>Approve the evidence that may support verified facts.</small></div><span>{profile.sources.filter((source) => source.reviewStatus === "approved").length} / {profile.sources.length} approved</span></header>
+                {profile.sources.map((source) => (
+                  <article key={source.id}>
+                    <div><a href={source.url} target="_blank" rel="noreferrer"><ExternalLink size={13} />{source.title}</a><p>{source.publisher} · {source.authority.replace("-", " ")} · accessed {source.accessedAt.slice(0, 10)}</p><small>Supports {source.supportsFactIds.map((factId) => profile.facts.find((fact) => fact.id === factId)?.label ?? factId).join(" · ")}</small></div>
+                    <div className="source-review-actions"><button aria-label={`Approve source ${source.title}`} className={source.reviewStatus === "approved" ? "is-approved" : ""} onClick={() => updateSourceReview(source.id, "approved")} type="button"><Check size={13} />Approve</button><button aria-label={`Reject source ${source.title}`} className={source.reviewStatus === "rejected" ? "is-rejected" : ""} onClick={() => updateSourceReview(source.id, "rejected")} type="button"><X size={13} />Reject</button></div>
+                  </article>
+                ))}
+              </section>
               <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={approveProfile}><UserRoundCheck size={16} />Approve profile</button><button className="studio-button" onClick={() => research(profileProvenance === "reviewed-fixture")} disabled={busy}><RefreshCw size={16} />Reload</button><button className="studio-button studio-button-danger" onClick={() => { setProfile(null); setStage("research"); }}><X size={16} />Reject</button></div>
             </div>
           )}
@@ -297,7 +375,7 @@ export function ScenarioStudio() {
 
           {stage === "preview" && scenario && (
             <div className="studio-section" data-testid="studio-preview">
-              <header className="studio-section-heading studio-heading-row"><div><span>04 / VALIDATED PACKAGE</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes</p></div><div className="validation-passed"><ShieldCheck size={18} /><span><strong>VALID</strong><small>Runtime schema passed</small></span></div></header>
+              <header className="studio-section-heading studio-heading-row"><div><span>04 / VALIDATED PACKAGE</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {profile?.displayName} · {scenario.publicationMode.replaceAll("-", " ")}</p></div><div className="validation-passed"><ShieldCheck size={18} /><span><strong>VALID</strong><small>Runtime schema passed</small></span></div></header>
               <div className="scenario-summary-band"><div><span>Ordinary task</span><p>{scenario.intro.ordinaryTask}</p></div><div><span>Pressure</span><p>{scenario.intro.pressure}</p></div></div>
               <div className="scenario-columns">
                 <section><header><Users size={15} /><strong>Bounded cast</strong><ProvenanceBadge value={scenarioProvenance} /></header>{scenario.roleCards.map((role) => <div className="role-line" key={role.id}><span className={`role-dot is-${role.identityStatus}`} /><div><strong>{role.displayName}</strong><small>{role.identityStatus} · {role.allowedChannels[0]}</small></div></div>)}</section>
@@ -313,17 +391,17 @@ export function ScenarioStudio() {
               <header className="studio-section-heading studio-heading-row"><div><span>05 / LIVE REHEARSAL</span><h1>{scenario.title}</h1><p>{scenario.intro.ordinaryTask}</p></div><div className="rehearsal-clock"><span>EVENT STARTS</span><strong>00:20:00</strong></div></header>
               <div className="rehearsal-grid">
                 <section className="dialogue-workspace">
-                  <header><MessageSquareText size={16} /><strong>Conversation</strong><ProvenanceBadge value={messages.at(-1)?.provenance ?? null} /></header>
-                  <div className="dialogue-log" aria-live="polite">{messages.map((line) => <article className={line.roleId === "learner" ? "is-learner" : ""} key={line.id}><div><strong>{line.roleName}</strong><small>{line.roleId === "learner" ? "learner" : scenario.roleCards.find((role) => role.id === line.roleId)?.identityStatus}</small></div><p>{line.content}</p></article>)}</div>
-                  <div className="role-picker">{scenario.roleCards.map((role) => <button className={selectedRoleId === role.id ? "is-active" : ""} key={role.id} onClick={() => setSelectedRoleId(role.id)}><span className={`role-dot is-${role.identityStatus}`} />{role.displayName}</button>)}</div>
+                  <header><MessageSquareText size={16} /><strong>Conversation</strong><ProvenanceBadge value={latestRoleProvenance} /></header>
+                  <div className="dialogue-log" aria-live="polite">{messages.map((line) => { const role = scenario.roleCards.find((candidate) => candidate.id === line.roleId); return <article className={line.roleId === "learner" ? "is-learner" : ""} key={line.id}><div><strong>{line.roleName}</strong><small>{line.roleId === "learner" ? "learner" : role?.allowedChannels[0]}</small></div><p>{line.content}</p></article>; })}</div>
+                  <div className="role-picker">{scenario.roleCards.map((role) => <button className={selectedRoleId === role.id ? "is-active" : ""} key={role.id} onClick={() => setSelectedRoleId(role.id)} title={role.allowedChannels[0]}><span className="role-dot" />{role.displayName}</button>)}</div>
                   <form className="dialogue-compose" onSubmit={sendMessage}><textarea aria-label="Message a role" maxLength={500} placeholder="Ask a natural question…" value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} /><button aria-label="Send message" disabled={busy || !messageDraft.trim()}>{busy ? <LoaderCircle className="is-spinning" size={17} /> : <Send size={17} />}</button></form>
                 </section>
                 <aside className="action-console">
                   <header><ShieldCheck size={16} /><div><strong>Decision console</strong><small>{simulation.actionIds.length} actions recorded</small></div></header>
                   <div className="canonical-state"><span>PAYMENT <strong>{simulation.canonical.payment}</strong></span><span>IDENTITY <strong>{simulation.canonical.identity}</strong></span><span>ACCESS <strong>{simulation.canonical.access}</strong></span></div>
                   <div className="action-groups">
-                    <ActionGroup title="Containment" actions={scenario.criticalActions.filter((action) => action.phase === "containment")} performed={simulation.actionIds} suggested={suggestedActionId} onAction={performAction} />
-                    <ActionGroup title="Recovery" actions={scenario.criticalActions.filter((action) => action.phase === "recovery")} performed={simulation.actionIds} suggested={suggestedActionId} onAction={performAction} />
+                    <ActionGroup title="Task actions" actions={visibleTaskActions} performed={simulation.actionIds} suggested={suggestedActionId} onAction={performAction} />
+                    {visibleResponseActions.length > 0 && <ActionGroup title="Response actions" actions={visibleResponseActions} performed={simulation.actionIds} suggested={suggestedActionId} onAction={performAction} />}
                   </div>
                   <button className="studio-button studio-button-primary finish-button" disabled={simulation.actionIds.length === 0 || busy} onClick={finishScenario}><Flag size={16} />Resolve and debrief</button>
                 </aside>

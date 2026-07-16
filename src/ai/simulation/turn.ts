@@ -3,7 +3,7 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { containsUnsafeInstruction, idSchema } from "@/ai/schemas/common";
 import { scenarioPackageSchema, type ScenarioPackage } from "@/ai/schemas/scenario";
-import { eventIsAllowed } from "@/engine/simulation/physics";
+import { actionIsAvailable, eventIsAllowed } from "@/engine/simulation/physics";
 import { getOpenAIClient, OPENAI_MODEL } from "@/ai/openai/server";
 
 export const simulationTurnRequestSchema = z
@@ -25,8 +25,17 @@ export const simulationTurnRequestSchema = z
   })
   .superRefine((request, context) => {
     const actionIds = new Set(request.scenario.criticalActions.map((action) => action.id));
+    const performed: string[] = [];
     request.completedActionIds.forEach((id, index) => {
-      if (!actionIds.has(id)) context.addIssue({ code: "custom", path: ["completedActionIds", index], message: `Unknown action: ${id}` });
+      if (!actionIds.has(id)) {
+        context.addIssue({ code: "custom", path: ["completedActionIds", index], message: `Unknown action: ${id}` });
+        return;
+      }
+      if (!actionIsAvailable(request.scenario, id, performed)) {
+        context.addIssue({ code: "custom", path: ["completedActionIds", index], message: `Action is unavailable or repeated: ${id}` });
+        return;
+      }
+      performed.push(id);
     });
   });
 
@@ -75,9 +84,9 @@ export function fallbackTurn(
   const line = scenario.fallbackDialogue.find((candidate) => candidate.eventId === event.id && candidate.roleId === event.roleId)
     ?? scenario.fallbackDialogue[0];
   const suggestedActionId = scenario.criticalActions.find(
-    (action) => !completedActionIds.includes(action.id) && action.phase === "containment" && action.kind === "verify",
+    (action) => actionIsAvailable(scenario, action.id, completedActionIds) && action.phase !== "recovery" && action.kind === "verify",
   )?.id ?? scenario.criticalActions.find(
-    (action) => !completedActionIds.includes(action.id) && action.phase === "containment" && action.kind === "pause",
+    (action) => actionIsAvailable(scenario, action.id, completedActionIds) && action.phase !== "recovery" && action.kind === "pause",
   )?.id ?? null;
   return { ...line, suggestedActionId, provenance: "reviewed-fallback" };
 }
@@ -123,15 +132,19 @@ export async function createSimulationTurn(
   const availableRoleIds = new Set(available.map((event) => event.roleId));
   const directorRoleSummaries = request.scenario.roleCards
     .filter((role) => availableRoleIds.has(role.id))
-    .map(({ id, displayName, identityStatus, simulationGoal, allowedChannels, allowedMoves }) => ({
+    .map(({ id, displayName, simulationGoal, allowedChannels, allowedMoves }) => ({
       id,
       displayName,
-      identityStatus,
       simulationGoal,
       allowedChannels,
       allowedMoves,
     }));
-  const publicFacts = request.scenario.worldBible.immutableFacts.map(({ id, statement }) => ({ id, statement }));
+  const publicFacts = request.scenario.worldBible.immutableFacts
+    .filter((fact) => fact.audience === "public")
+    .map(({ id, statement }) => ({ id, statement }));
+  const availableActionIds = request.scenario.criticalActions
+    .filter((action) => actionIsAvailable(request.scenario, action.id, request.completedActionIds))
+    .map((action) => action.id);
   try {
     const directorResponse = await provider.responses.parse({
       model: OPENAI_MODEL,
@@ -141,7 +154,7 @@ export async function createSimulationTurn(
         completedActionIds: request.completedActionIds,
         availableEvents: available,
         roleSummaries: directorRoleSummaries,
-        allowedActionIds: request.scenario.criticalActions.map((action) => action.id),
+        allowedActionIds: availableActionIds,
         conversationHistory: request.conversationHistory,
         preferredRoleId: request.preferredRoleId,
         learnerMessage: request.learnerMessage,
@@ -151,9 +164,7 @@ export async function createSimulationTurn(
     const decision = directorResponse.output_parsed;
     if (!decision) throw new Error("No structured Director decision.");
     const event = available.find((candidate) => candidate.id === decision.eventId);
-    const validSuggestion = !decision.suggestedActionId || request.scenario.criticalActions.some(
-      (action) => action.id === decision.suggestedActionId && !request.completedActionIds.includes(action.id),
-    );
+    const validSuggestion = !decision.suggestedActionId || availableActionIds.includes(decision.suggestedActionId);
     if (!event || event.roleId !== decision.roleId || !validSuggestion) {
       throw new Error("Director decision exceeded its allowlist.");
     }

@@ -38,5 +38,25 @@ describe("POST /api/scenarios/generate", () => {
     expect(response.status).toBe(200);
     expect(result.scenario.id).toBe("the-voice-you-know");
     expect(result.scenario.roleCards).toHaveLength(3);
+    expect(result.profile.id).toBe(result.scenario.sourceProfileId);
+    expect(result.profile.publicationMode).toBe(result.scenario.publicationMode);
+  });
+
+  it("returns the reviewed profile with the fixture instead of misattributing it to another profile", async () => {
+    const profile: InstitutionProfile = structuredClone(reviewedNyuInstitutionProfile);
+    profile.id = "another-approved-profile";
+    profile.displayName = "Another Approved Institution";
+    const response = await POST(
+      new Request("http://localhost/api/scenarios/generate", {
+        method: "POST",
+        body: JSON.stringify({ profile, brief, useFixture: true }),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(result.profile.id).toBe("new-york-university");
+    expect(result.scenario.sourceProfileId).toBe(result.profile.id);
+    expect(result.notice).toContain("reviewed NYU source profile");
   });
 });

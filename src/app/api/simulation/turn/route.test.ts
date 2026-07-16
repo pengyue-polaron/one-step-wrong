@@ -37,4 +37,18 @@ describe("POST /api/simulation/turn", () => {
     );
     expect(response.status).toBe(400);
   });
+
+  it("rejects a completed action trace that bypasses deterministic prerequisites", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/simulation/turn", {
+        method: "POST",
+        body: JSON.stringify({
+          scenario: voiceYouKnowScenario,
+          learnerMessage: "Continue",
+          completedActionIds: ["revoke-access"],
+        }),
+      }),
+    );
+    expect(response.status).toBe(400);
+  });
 });

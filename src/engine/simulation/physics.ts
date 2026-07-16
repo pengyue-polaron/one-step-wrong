@@ -27,6 +27,24 @@ export function createSimulationState(scenario: ScenarioPackage): SimulationStat
   };
 }
 
+export function actionIsAvailable(scenario: ScenarioPackage, actionId: string, performedActionIds: string[]) {
+  const action = scenario.criticalActions.find((candidate) => candidate.id === actionId);
+  if (!action || performedActionIds.includes(action.id)) return false;
+  const performed = new Set(performedActionIds);
+  const allSatisfied = action.availableAfterAllActionIds.every((id) => performed.has(id));
+  const anySatisfied = action.availableAfterAnyActionIds.length === 0
+    || action.availableAfterAnyActionIds.some((id) => performed.has(id));
+  return allSatisfied && anySatisfied;
+}
+
+export function requiredRecoveryActionIds(scenario: ScenarioPackage, performedActionIds: string[]) {
+  const performed = new Set(performedActionIds);
+  return scenario.recoveryActionIds.filter((id) => {
+    const action = scenario.criticalActions.find((candidate) => candidate.id === id);
+    return Boolean(action?.requiredAfterActionIds.some((triggerId) => performed.has(triggerId)));
+  });
+}
+
 export function applyCriticalAction(
   scenario: ScenarioPackage,
   state: SimulationState,
@@ -35,6 +53,9 @@ export function applyCriticalAction(
   const action = scenario.criticalActions.find((candidate) => candidate.id === actionId);
   if (!action) throw new Error(`Unknown critical action: ${actionId}`);
   if (state.actionIds.includes(actionId)) return state;
+  if (!actionIsAvailable(scenario, actionId, state.actionIds)) {
+    throw new Error(`Critical action is not available: ${actionId}`);
+  }
 
   const canonical = { ...state.canonical };
   for (const change of action.stateChanges) {
@@ -49,11 +70,15 @@ export function applyCriticalAction(
 
 export function selectEnding(scenario: ScenarioPackage, state: SimulationState): CanonicalTrace["endingId"] {
   const performed = new Set(state.actionIds);
+  const requiredRecovery = requiredRecoveryActionIds(scenario, state.actionIds);
   const matched = [...scenario.endings]
     .sort((left, right) => right.priority - left.priority)
     .find(
       (ending) =>
         ending.requiredActionIds.every((id) => performed.has(id)) &&
+        (ending.requiredAnyActionIds.length === 0 || ending.requiredAnyActionIds.some((id) => performed.has(id))) &&
+        (!ending.requiresTriggeredRecoveryComplete
+          || (requiredRecovery.length > 0 && requiredRecovery.every((id) => performed.has(id)))) &&
         ending.forbiddenActionIds.every((id) => !performed.has(id)),
     );
   return matched?.id ?? "expanded";
@@ -61,9 +86,8 @@ export function selectEnding(scenario: ScenarioPackage, state: SimulationState):
 
 export function createCanonicalTrace(scenario: ScenarioPackage, state: SimulationState): CanonicalTrace {
   const completedRecoveryActionIds = scenario.recoveryActionIds.filter((id) => state.actionIds.includes(id));
-  const recoveryRequired = scenario.criticalActions.some(
-    (action) => state.actionIds.includes(action.id) && (action.kind === "approve" || action.kind === "share"),
-  );
+  const requiredRecovery = requiredRecoveryActionIds(scenario, state.actionIds);
+  const recoveryRequired = requiredRecovery.length > 0;
   return {
     scenarioId: scenario.id,
     objective: scenario.intro.learningObjective,
@@ -75,7 +99,7 @@ export function createCanonicalTrace(scenario: ScenarioPackage, state: Simulatio
     recoveryRequired,
     completedRecoveryActionIds,
     missedRecoveryActionIds: recoveryRequired
-      ? scenario.recoveryActionIds.filter((id) => !completedRecoveryActionIds.includes(id))
+      ? requiredRecovery.filter((id) => !completedRecoveryActionIds.includes(id))
       : [],
     endingId: selectEnding(scenario, state),
     transferRules: [...scenario.transferRules],

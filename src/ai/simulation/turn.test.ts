@@ -68,8 +68,12 @@ describe("bounded simulation turns", () => {
     const roleInput = JSON.parse(parse.mock.calls[1][0].input);
     expect(directorInput.roleSummaries).toHaveLength(2);
     expect(directorInput.roleSummaries[0]).not.toHaveProperty("privateFacts");
+    expect(directorInput.roleSummaries[0]).not.toHaveProperty("identityStatus");
+    expect(directorInput.allowedActionIds).not.toContain("revoke-access");
     expect(roleInput.roleCard.id).toBe("impersonator");
     expect(JSON.stringify(roleInput)).not.toContain('"id":"teammate"');
+    expect(JSON.stringify(directorInput.publicFacts)).not.toContain("sent by an impersonator");
+    expect(JSON.stringify(roleInput.publicFacts)).not.toContain("sent by an impersonator");
   });
 
   it("discards role output that reveals a forbidden fact", async () => {
@@ -89,6 +93,23 @@ describe("bounded simulation turns", () => {
     } as unknown as SimulationTurnProvider;
     const turn = await createSimulationTurn(baseRequest, provider);
     expect(turn.provenance).toBe("reviewed-fallback");
+  });
+
+  it("discards a Director suggestion that bypasses action prerequisites", async () => {
+    const provider = {
+      responses: {
+        parse: vi.fn().mockResolvedValue({
+          output_parsed: {
+            eventId: "urgent-request",
+            roleId: "impersonator",
+            suggestedActionId: "revoke-access",
+          },
+        }),
+      },
+    } as unknown as SimulationTurnProvider;
+    const turn = await createSimulationTurn(baseRequest, provider);
+    expect(turn.provenance).toBe("reviewed-fallback");
+    expect(turn.suggestedActionId).not.toBe("revoke-access");
   });
 
   it("rejects claims that an unrecorded typed action already occurred", () => {

@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-61%20unit%20%2B%2013%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-71%20unit%20%2B%2013%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
@@ -35,10 +35,10 @@ Most security training explains the answer before learners feel the pressure tha
 **Not a branching story. A living security rehearsal.** Open [`/studio`](http://localhost:3000/studio) to run the implemented Build Week loop:
 
 1. Research a school from public official sources, or load the reviewed NYU source profile.
-2. Inspect citations, confidence, conflicts, and explicit unknowns; edit and approve the profile.
+2. Inspect citations, confidence, conflicts, warnings, and explicit unknowns; resolve facts and approve or reject each source before approving the profile.
 3. Give the Scenario Architect a bounded teaching brief.
 4. Validate the generated world bible, critical actions, evidence, recovery, endings, and up to three role cards at runtime.
-5. Exchange natural messages with bounded roles while explicit application controls record every high-impact action.
+5. Exchange natural messages with bounded roles while explicit application controls record every high-impact action without exposing hidden role identity.
 6. Reach a deterministic ending and receive coaching grounded in the canonical trace.
 
 GPT-5.6 is used before play for institution research and scenario compilation, during play for bounded role performance, and after play for trace-grounded coaching. Zod schemas, source checks, allowlisted events, typed state transitions, and deterministic ending selection remain authoritative. Every OpenAI path has a reviewed offline fallback, so the complete flagship case works without an API key.
@@ -247,7 +247,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 61 schema, API, state, and component tests plus 13 browser tests. Coverage includes malformed AI output, source-domain checks, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
+The current suite contains 71 schema, API, state, and component tests plus 13 browser tests. Coverage includes actionable profile review, atomic fixture/profile attribution, action prerequisites, affected-layer recovery, malformed AI output, source-domain checks, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
 
 ## Build Week Development
 

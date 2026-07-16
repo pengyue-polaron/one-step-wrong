@@ -6,11 +6,11 @@ This document maps the Build Week product claims to reproducible evidence. It do
 
 | Requirement | Reproducible evidence | Status |
 | --- | --- | --- |
-| Cited institution profile with human approval | `/studio`, `src/fixtures/institutionProfile.ts`, profile schema and research route tests | Verified offline |
+| Cited institution profile with human approval | `/studio`, source approval/conflict-resolution component tests, profile schema and research route tests | Verified offline |
 | Runtime-validated scenario compilation | `src/ai/schemas/scenario.ts`, `src/ai/scenarios/generate.ts`, malformed-output tests | Verified offline |
 | Bounded Director and role performance | `src/ai/simulation/turn.ts`, minimum-context, leakage, invalid-event, and timeout tests | Verified with mocked model output |
 | Free text cannot mutate canonical state | Studio browser tests and simulation physics tests | Verified |
-| Deterministic actions, endings, and replay | `src/engine/simulation/physics.ts` and all-ending tests | Verified |
+| Deterministic actions, affected-layer recovery, endings, and replay | `src/engine/simulation/physics.ts`, prerequisite/API tests, and all-ending tests | Verified |
 | Trace-grounded debrief with fallback | `src/ai/debrief/createDebrief.ts` and route tests | Verified with mocked model output and fixture fallback |
 | Complete no-key judging path | **Load reviewed example** in `/studio` | Verified locally |
 | Desktop and mobile product quality | `artifacts/screenshots/` and Playwright layout tests | Verified locally and in CI |
@@ -44,7 +44,7 @@ Show the case library, then open `/studio`.
 
 ### 0:20-0:50 - Research and human approval
 
-Select **Load reviewed example**. Show the official source links, confidence labels, protected terms, and explicit unknown, then approve the profile.
+Select **Load reviewed example**. Show the official source links, confidence labels, research warning, explicit unknown, and source-review controls, then approve the profile.
 
 > The Institution Research Agent produces a structured, cited profile from official public guidance. Unknowns stay unknown, and an educator reviews the facts before generation. Public demos compile into a fictional institution to protect brand and identity.
 

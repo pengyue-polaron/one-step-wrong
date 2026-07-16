@@ -86,10 +86,16 @@ src/
 - Define every role with a stable identity, allowed knowledge, forbidden facts, allowed channels, conversational moves, and disclosure policy.
 - Keep canonical facts, critical actions, evidence, consequences, recovery, and ending selection in deterministic code.
 - Runtime agents receive a minimal read-only state projection and may return only validated conversational proposals or allowed event IDs.
+- Mark immutable facts as `public` or `hidden`. Hidden incident truth stays in the validated world bible and deterministic engine; it must not be included in Director public facts or role-agent context.
 - Free-form learner text may affect dialogue, pressure, and pacing, but it must never directly mutate payment, file, account, access, report, recovery, score, or ending state.
 - High-impact actions must remain explicit typed UI actions handled by a pure reducer.
+- Keep role identity status, private facts, and adversarial classification out of learner-facing rehearsal UI. Those fields may appear in the educator's validated-package preview and server-side agent context only.
+- Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
+- Derive missed recovery from affected layers. Do not require access, account, payment, evidence, notification, or reporting work when that layer was never affected by the demonstrated trace.
 - Reject role leakage, invented institution facts, out-of-scope events, prompt injection, executable instructions, and claims that unrecorded actions occurred.
 - On invalid output, timeout, or model failure, use a reviewed fallback dialogue line and preserve the deterministic path.
+- Treat a reviewed fixture scenario and its approved Institution Profile as one atomic fallback. Never display or launch a fixture under an unrelated profile ID or publication mode.
+- Keep conflicting facts blocked until an educator resolves them, and require at least one explicitly approved source for every verified fact. Do not silently convert rejected or pending evidence into approved evidence.
 - Do not create an unconstrained agent swarm, dynamically invented roles or tools, real messages, real service calls, or autonomous side effects.
 
 ## Current Story Worlds
@@ -168,7 +174,7 @@ Test requirements scale with the change:
 - Layout changes need screenshots and overflow checks at relevant desktop and mobile sizes.
 - Privacy rules need negative tests proving forbidden disclaimer copy and real side effects remain absent.
 - Schema and API changes need malformed input, broken reference, oversized content, and offline fallback coverage.
-- Agent-turn changes need tests proving free text cannot mutate canonical state or unlock an event without its typed prerequisite action.
+- Agent-turn changes need tests proving free text cannot mutate canonical state, unlock an event, or suggest an action without its typed prerequisite action.
 
 The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.
 

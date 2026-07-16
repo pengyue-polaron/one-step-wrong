@@ -29,12 +29,30 @@ describe("deterministic simulation physics", () => {
     const contained = run([
       "approve-change",
       "preserve-evidence",
-      "revoke-access",
       "notify-team",
       "report-incident",
     ]);
-    expect(createCanonicalTrace(voiceYouKnowScenario, contained).endingId).toBe("contained");
-    expect(createCanonicalTrace(voiceYouKnowScenario, contained).recoveryRequired).toBe(true);
+    const trace = createCanonicalTrace(voiceYouKnowScenario, contained);
+    expect(trace.endingId).toBe("contained");
+    expect(trace.recoveryRequired).toBe(true);
+    expect(trace.missedRecoveryActionIds).toEqual([]);
+    expect(trace.completedRecoveryActionIds).not.toContain("revoke-access");
+  });
+
+  it("blocks premature recovery and requires only recovery for affected layers", () => {
+    expect(() => run(["revoke-access"])).toThrow("not available");
+
+    const exposedAccess = run(["share-folder", "preserve-evidence", "notify-team", "report-incident"]);
+    const incomplete = createCanonicalTrace(voiceYouKnowScenario, exposedAccess);
+    expect(incomplete.endingId).toBe("expanded");
+    expect(incomplete.missedRecoveryActionIds).toEqual(["revoke-access"]);
+
+    const contained = createCanonicalTrace(
+      voiceYouKnowScenario,
+      applyCriticalAction(voiceYouKnowScenario, exposedAccess, "revoke-access"),
+    );
+    expect(contained.endingId).toBe("contained");
+    expect(contained.missedRecoveryActionIds).toEqual([]);
   });
 
   it("covers the caution ending when useful friction is incomplete", () => {

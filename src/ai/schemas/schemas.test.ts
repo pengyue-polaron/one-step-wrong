@@ -45,6 +45,8 @@ describe("ScenarioPackage", () => {
       expect(role.allowedMoves.length).toBeGreaterThan(0);
       expect(voiceYouKnowScenario.allowedEvents.filter((event) => event.roleId === role.id).length).toBeGreaterThan(0);
     }
+    const hiddenTruth = voiceYouKnowScenario.worldBible.immutableFacts.find((fact) => fact.id === "false-request");
+    expect(hiddenTruth?.audience).toBe("hidden");
   });
 
   it("rejects invalid references and missing recovery", () => {
@@ -73,5 +75,24 @@ describe("ScenarioPackage", () => {
     const result = validateScenarioPackage(scenario);
     expect(result.success).toBe(false);
     expect(result.issues.some((issue) => issue.message.includes("source references"))).toBe(true);
+  });
+
+  it("rejects unreachable action prerequisites", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    const revoke = scenario.criticalActions.find((action) => action.id === "revoke-access")!;
+    const share = scenario.criticalActions.find((action) => action.id === "share-folder")!;
+    share.availableAfterAllActionIds = ["revoke-access"];
+    revoke.availableAfterAllActionIds = ["share-folder"];
+    const result = validateScenarioPackage(scenario);
+    expect(result.success).toBe(false);
+    expect(result.issues.some((issue) => issue.message.includes("unreachable"))).toBe(true);
+  });
+
+  it("requires recovery actions to identify the incident layers that trigger them", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    scenario.criticalActions.find((action) => action.id === "preserve-evidence")!.requiredAfterActionIds = [];
+    const result = validateScenarioPackage(scenario);
+    expect(result.success).toBe(false);
+    expect(result.issues.some((issue) => issue.message.includes("incident actions"))).toBe(true);
   });
 });

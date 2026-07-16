@@ -10,7 +10,7 @@ describe("canonical debrief", () => {
     );
     expect(result.trace.endingId).toBe("expanded");
     expect(result.trace.completedRecoveryActionIds).toEqual(["preserve-evidence"]);
-    expect(result.trace.missedRecoveryActionIds).toEqual(["revoke-access", "notify-team", "report-incident"]);
+    expect(result.trace.missedRecoveryActionIds).toEqual(["notify-team", "report-incident"]);
     expect(result.provenance).toBe("deterministic-fallback");
   });
 

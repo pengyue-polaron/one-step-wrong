@@ -17,6 +17,12 @@ This document is the canonical implementation brief for adapting One Step Wrong 
 
 Most cybersecurity training asks whether students know the correct answer. One Step Wrong tests what they do when the unsafe option is faster, familiar, and embedded in a real task.
 
+### Demonstration hook
+
+**One school name. One emerging threat. One source-grounded, playable simulation.**
+
+Give One Step Wrong an institution and a threat. Its GPT-5.6 agents research the school's official public guidance, build a cited profile for educator approval, compile that context into a simulation, and personalize the debrief after play.
+
 ### Technical promise
 
 **AI writes the simulation; code keeps it honest.**
@@ -479,7 +485,9 @@ Show the existing library and explain that the same system can turn new threats 
 
 ### Tagline
 
-**AI writes the simulation; code keeps it honest.**
+**One school name. One emerging threat. One source-grounded, playable simulation.**
+
+Technical trust line: **AI researches and writes the simulation; code keeps it honest.**
 
 ### Short description
 

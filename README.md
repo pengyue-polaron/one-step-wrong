@@ -30,11 +30,11 @@ Most security training explains the answer before learners feel the pressure tha
 
 ## OpenAI Build Week Direction
 
-**One Step Wrong is a flight simulator for digital judgment.** In the planned Build Week adaptation, an educator starts with a school name or official domain. A GPT-5.6 research agent searches public official sources and builds a cited Institution Profile covering the school's learning platform, login and MFA terminology, sharing tools, wireless environment, and incident-reporting routes. After educator approval, Scenario Studio turns that profile plus a threat and learning objective into a validated, school-aware simulation. The existing deterministic engine continues to own facts, state transitions, recovery requirements, and endings; GPT-5.6 also produces a personalized debrief grounded in the learner's canonical action trace and approved sources.
+**Not a branching story. A living security rehearsal.** In the planned Build Week adaptation, an educator starts with a school name or official domain. A GPT-5.6 Institution Research Agent builds a cited profile from official public guidance; after educator approval, a Scenario Architect compiles a validated world with immutable facts, critical actions, recovery rules, and bounded roles. During play, a Simulation Director and up to three role agents adapt the people, pressure, and conversation to the learner's behavior. The deterministic engine still owns every high-impact action, consequence, and ending. A Debrief Analyst then produces coaching grounded in the learner's canonical action trace and approved sources.
 
-> **AI writes the simulation; code keeps it honest.**
+> **Agents perform the world; deterministic code defines its physics.**
 
-These AI capabilities are an implementation target and are not part of the current static prototype yet. See [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md) for the canonical product story, architecture, safety boundaries, acceptance criteria, demo outline, and implementation order.
+These AI capabilities are an implementation target and are not part of the current static prototype yet. See [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md) for the canonical product story, flagship case, architecture, safety boundaries, acceptance criteria, demo outline, and implementation order.
 
 ## Playable Cases
 

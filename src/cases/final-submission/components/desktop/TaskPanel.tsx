@@ -10,17 +10,17 @@ export function TaskPanel() {
   const { state, dispatch } = useGame();
   const isResponse = state.phase === "response" || (state.phase === "incident" && state.incidentStep >= 5);
   const checklist = [
-    [state.sessionsRevoked, "登录设备"],
-    [state.profileRemoved, "网络配置"],
-    [state.classmatesWarned, "已发送消息"],
-    [state.itReported, "IT 报告"],
+    [state.sessionsRevoked, "Signed-in devices"],
+    [state.profileRemoved, "Network profile"],
+    [state.classmatesWarned, "Sent messages"],
+    [state.itReported, "IT report"],
   ] as const;
 
   return (
     <aside className={`task-panel ${isResponse ? "task-panel--incident" : ""}`}>
       <div className="task-kicker">
         {isResponse ? <ShieldAlert size={14} /> : <Clock3 size={14} />}
-        <span>当前任务</span>
+        <span>CURRENT TASK</span>
       </div>
       <h1>{isResponse ? copy.task.response : copy.task.submission}</h1>
       <p>{isResponse ? copy.task.responseHint : copy.task.submissionHint}</p>
@@ -35,7 +35,7 @@ export function TaskPanel() {
             ))}
           </ul>
           <PixelButton variant="primary" onClick={() => dispatch({ type: "FINISH_RESPONSE" })}>
-            完成处理并复盘
+            Finish response and review
           </PixelButton>
         </>
       ) : (
@@ -45,17 +45,17 @@ export function TaskPanel() {
             <span>Final_Assignment.pdf</span>
           </div>
           <div className="deadline">
-            <span>截止剩余</span>
-            <strong aria-label={`截止剩余 ${formatCountdown(state.deadlineSeconds)}`}>
+            <span>Time remaining</span>
+            <strong aria-label={`Time remaining ${formatCountdown(state.deadlineSeconds)}`}>
               {formatCountdown(state.deadlineSeconds)}
             </strong>
-            {state.countdownPaused ? <small>倒计时已暂停</small> : null}
+            {state.countdownPaused ? <small>Countdown paused</small> : null}
           </div>
         </>
       )}
       <div className="official-note">
         <span>Bobst Library Wi-Fi</span>
-        <p>官方网络：nyu / nyuguest / eduroam</p>
+        <p>Official networks: nyu / nyuguest / eduroam</p>
       </div>
     </aside>
   );

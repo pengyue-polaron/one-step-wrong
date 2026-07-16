@@ -12,17 +12,17 @@ export function CertificateDialog() {
       <section className="system-dialog" role="dialog" aria-modal="true" aria-labelledby="install-title" data-testid="install-dialog">
         <div className="dialog-icon"><FileKey2 size={25} /></div>
         <div className="dialog-copy">
-          <span className="dialog-kicker">系统设置</span>
-          <h2 id="install-title">安装网络配置？</h2>
-          <p>“NYU Network Access”将更改这台设备的网络设置。</p>
+          <span className="dialog-kicker">SYSTEM SETTINGS</span>
+          <h2 id="install-title">Install network profile?</h2>
+          <p>&ldquo;NYU Network Access&rdquo; will change this device&apos;s network settings.</p>
           <dl className="profile-meta">
-            <div><dt>发布者</dt><dd>无法验证</dd></div>
-            <div><dt>来源</dt><dd>nyu-access.test</dd></div>
-            <div><dt>包含</dt><dd>网络代理、受信任证书</dd></div>
+            <div><dt>Publisher</dt><dd>Unverified</dd></div>
+            <div><dt>Source</dt><dd>nyu-access.test</dd></div>
+            <div><dt>Includes</dt><dd>Network proxy, trusted certificate</dd></div>
           </dl>
           <div className="dialog-actions">
-            <PixelButton onClick={() => dispatch({ type: "CANCEL_INSTALL" })}>取消</PixelButton>
-            <PixelButton variant="primary" onClick={() => dispatch({ type: "CONFIRM_INSTALL" })}>继续安装</PixelButton>
+            <PixelButton onClick={() => dispatch({ type: "CANCEL_INSTALL" })}>Cancel</PixelButton>
+            <PixelButton variant="primary" onClick={() => dispatch({ type: "CONFIRM_INSTALL" })}>Continue installation</PixelButton>
           </div>
         </div>
       </section>

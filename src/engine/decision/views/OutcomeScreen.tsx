@@ -17,27 +17,27 @@ export function OutcomeScreen({
   const incident = choice.route === "incident";
   const caution = choice.route === "caution";
   const drive = definition.id === "shared-draft";
-  const title = incident ? definition.incident.title : drive ? "共享设置已更新" : caution ? "请求已拒绝" : "登录来源已核对";
+  const title = incident ? definition.incident.title : drive ? "Sharing settings updated" : caution ? "Request denied" : "Login source checked";
   const body = incident
     ? definition.incident.body
     : drive
-      ? choice.route === "verified" ? "三位组员已收到邀请，资料夹仍保持 Restricted。" : "NYU 社区链接已经生效，组员可以继续编辑。"
-      : choice.route === "verified" ? "当前手机请求与你的浏览器动作不匹配。你重新从 Zoom 发起了登录。" : "Duo 已记录这不是你发起的登录，当前请求未被批准。";
+      ? choice.route === "verified" ? "Three teammates received invitations, and the folder remains Restricted." : "The NYU community link is active, so the team can continue editing."
+      : choice.route === "verified" ? "The current phone request did not match your browser activity. You restarted sign-in from Zoom." : "Duo recorded that you did not initiate this login, and the request was not approved.";
   return (
     <main className={`chapter-shell chapter-shell--${definition.tone}`}>
       <ChapterTopbar definition={definition} onExit={onExit} />
       <section className={`chapter-outcome ${incident ? "chapter-outcome--incident" : caution ? "chapter-outcome--caution" : ""}`}>
-        <div className="outcome-status"><span>{incident ? <AlertTriangle size={30} /> : <CheckCircle2 size={30} />}</span><div><small>{incident ? definition.incident.delay : "任务状态"}</small><h1>{title}</h1><p>{body}</p></div></div>
+        <div className="outcome-status"><span>{incident ? <AlertTriangle size={30} /> : <CheckCircle2 size={30} />}</span><div><small>{incident ? definition.incident.delay : "Task status"}</small><h1>{title}</h1><p>{body}</p></div></div>
         <div className="outcome-evidence">
-          <header><History size={16} /><strong>{incident ? "活动记录" : "本次操作"}</strong></header>
+          <header><History size={16} /><strong>{incident ? "Activity record" : "This action"}</strong></header>
           {incident ? (
             <dl>{definition.incident.evidence.map((item) => <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl>
           ) : (
-            <dl><div><dt>选择</dt><dd>{choice.title}</dd></div><div><dt>范围</dt><dd>{choice.meta}</dd></div><div><dt>结果</dt><dd>{drive ? "协作可以继续" : "未授权登录未完成"}</dd></div></dl>
+            <dl><div><dt>Choice</dt><dd>{choice.title}</dd></div><div><dt>Scope</dt><dd>{choice.meta}</dd></div><div><dt>Result</dt><dd>{drive ? "Collaboration can continue" : "Unauthorized login blocked"}</dd></div></dl>
           )}
         </div>
         <PixelButton variant="primary" icon={incident ? <ShieldAlert size={16} /> : <ArrowRight size={16} />} onClick={onContinue}>
-          {incident ? (drive ? "处理共享异常" : "处理账号异常") : "查看本次复盘"}
+          {incident ? (drive ? "Respond to sharing incident" : "Respond to account incident") : "Review what happened"}
         </PixelButton>
       </section>
     </main>

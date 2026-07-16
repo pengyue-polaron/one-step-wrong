@@ -114,7 +114,7 @@ export type ResponseAction =
 const initialNotifications: GameNotification[] = [
   {
     id: "friend-initial",
-    title: "林晓",
+    title: "Lin Xiao",
     body: copy.messages.initial,
     tone: "info",
     read: false,
@@ -222,8 +222,8 @@ function openWindow(state: GameState, window: WindowId): GameState {
 function connectNetwork(state: GameState, label: string) {
   let next = addEvent(state, {
     id: `connected-${state.selectedNetwork}`,
-    title: `连接 ${label}`,
-    detail: state.selectedNetwork === "mobile-hotspot" ? "预计使用约 10 MB 流量" : undefined,
+    title: `Connected to ${label}`,
+    detail: state.selectedNetwork === "mobile-hotspot" ? "Estimated data use: about 10 MB" : undefined,
     minutes: 1,
   });
   next = openWindow(
@@ -242,15 +242,15 @@ function connectNetwork(state: GameState, label: string) {
 function triggerLoginIncident(state: GameState): GameState {
   let next = addEvent(state, {
     id: "suspicious-login",
-    title: "账号在新设备上登录",
-    detail: "未知位置 · Windows Browser",
+    title: "Account signed in on a new device",
+    detail: "Unknown location · Windows Browser",
     tone: "incident",
     minutes: 2,
   });
   next = pushNotification(next, {
     id: "suspicious-login",
-    title: "账号安全提醒",
-    body: "检测到校园账号在一台新设备上登录。位置：未知。",
+    title: "Account security alert",
+    body: "Your campus account signed in on a new device. Location: Unknown.",
     tone: "incident",
     read: false,
   });
@@ -280,10 +280,10 @@ export function createIncidentReplayState(): GameState {
     assignmentSubmitted: true,
     openWindows: ["course", "chat"],
   };
-  state = addEvent(state, { id: "connected-campus-free-5g", title: "连接 NYU_Free_5G" });
-  state = addEvent(state, { id: "credentials", title: "在网络接入页完成身份验证" });
-  state = addEvent(state, { id: "profile-installed", title: "安装 NYU Network Access 配置" });
-  state = addEvent(state, { id: "assignment-submitted", title: "作业提交成功", tone: "success" });
+  state = addEvent(state, { id: "connected-campus-free-5g", title: "Connected to NYU_Free_5G" });
+  state = addEvent(state, { id: "credentials", title: "Completed identity verification on the network page" });
+  state = addEvent(state, { id: "profile-installed", title: "Installed the NYU Network Access profile" });
+  state = addEvent(state, { id: "assignment-submitted", title: "Assignment submitted", tone: "success" });
   return triggerLoginIncident(state);
 }
 
@@ -337,12 +337,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         { ...state, selectedNetwork: action.network, networkPanelOpen: false },
         {
           id: `selected-${action.network}`,
-          title: `选择 ${networkLabels[action.network]}`,
+          title: `Selected ${networkLabels[action.network]}`,
           minutes: 0,
         },
       );
       if (action.network === "campus-free-5g") {
-        next = addEvent(next, { id: "connected-campus-free-5g", title: "连接 NYU_Free_5G", minutes: 0 });
+        next = addEvent(next, { id: "connected-campus-free-5g", title: "Connected to NYU_Free_5G", minutes: 0 });
       }
       return openWindow({ ...next, phase: "captive-portal", portalStep: "identity" }, "portal");
     }
@@ -352,11 +352,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return state;
     }
     case "ENABLE_HOTSPOT":
-      return connectNetwork({ ...state, hotspotEnabled: true }, "Maya 的 iPhone");
+      return connectNetwork({ ...state, hotspotEnabled: true }, "Maya's iPhone");
     case "PORTAL_IDENTITY": {
       const next = addEvent(state, {
         id: "credentials",
-        title: "在网络接入页完成身份验证",
+        title: "Completed identity verification on the network page",
         detail: copy.portal.address,
       });
       return { ...next, credentialsSimulated: true, portalStep: "profile" };
@@ -379,8 +379,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CONFIRM_INSTALL": {
       let next = addEvent(state, {
         id: "profile-installed",
-        title: "安装 NYU Network Access 配置",
-        detail: "发布者：无法验证",
+        title: "Installed the NYU Network Access profile",
+        detail: "Publisher: Unverified",
         tone: "notice",
       });
       next = {
@@ -406,15 +406,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!state.assignmentUploaded || !state.integrityAccepted) return state;
       let next = addEvent(state, {
         id: "assignment-submitted",
-        title: "作业提交成功",
-        detail: "Final_Assignment.pdf · 已接收",
+        title: "Assignment submitted",
+        detail: "Final_Assignment.pdf · Received",
         tone: "success",
         minutes: 2,
       });
       next = pushNotification(next, {
         id: "assignment-received",
-        title: "课程系统",
-        body: "Final_Assignment.pdf 已接收。",
+        title: "Course system",
+        body: "Final_Assignment.pdf was received.",
         tone: "success",
         read: false,
       });
@@ -444,8 +444,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (action.choice === "review") next = openWindow(next, "security");
       next = pushNotification(next, {
         id: "session-expired",
-        title: "课程系统",
-        body: "当前登录状态已失效，请重新验证身份。",
+        title: "Course system",
+        body: "Your current session expired. Verify your identity again.",
         tone: "notice",
         read: false,
       });
@@ -455,11 +455,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.incidentStep === 2) {
         let next = addEvent(
           { ...state, incidentStep: 3, sessionExpired: true },
-          { id: "session-expired", title: "课程系统会话失效", tone: "notice" },
+          { id: "session-expired", title: "Course system session expired", tone: "notice" },
         );
         next = pushNotification(next, {
           id: "friend-question",
-          title: "林晓",
+          title: "Lin Xiao",
           body: copy.messages.suspiciousQuestion,
           tone: "notice",
           read: false,
@@ -470,13 +470,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         let next = { ...state, incidentStep: 4, maliciousMessageSent: true };
         next = addEvent(next, {
           id: "forged-message",
-          title: "异常链接从你的账号发出",
-          detail: "发送给：林晓",
+          title: "Unexpected link sent from your account",
+          detail: "Sent to: Lin Xiao",
           tone: "incident",
         });
         next = pushNotification(next, {
           id: "friend-followup",
-          title: "林晓",
+          title: "Lin Xiao",
           body: copy.messages.suspiciousFollowup,
           tone: "incident",
           read: false,
@@ -486,14 +486,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.incidentStep === 4) {
         let next = addEvent(
           { ...state, incidentStep: 5, phase: "response" },
-          { id: "response-started", title: "开始处理账号与设备异常", tone: "notice", minutes: 1 },
+          { id: "response-started", title: "Started responding to account and device anomalies", tone: "notice", minutes: 1 },
         );
         next = pushNotification(
           next,
           {
             id: "incident-task",
-            title: "账号活动异常",
-            body: "检查登录设备、网络配置、已发送消息，并联系 IT。",
+            title: "Unexpected account activity",
+            body: "Check signed-in devices, network profiles, sent messages, and contact IT.",
             tone: "incident",
             read: false,
           },

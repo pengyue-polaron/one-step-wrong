@@ -25,7 +25,7 @@ export function IntroOverlay() {
           <p>{copy.intro.body}</p>
           <div className="intro-task"><FileText size={17} /><span>{copy.intro.prompt}</span></div>
           <PixelButton variant="primary" disabled={!ready} icon={<ArrowRight size={16} />} onClick={() => dispatch({ type: "START_GAME" })}>
-            {ready ? "查看提交状态" : "正在准备…"}
+            {ready ? "Check submission status" : "Preparing..."}
           </PixelButton>
         </div>
       </section>

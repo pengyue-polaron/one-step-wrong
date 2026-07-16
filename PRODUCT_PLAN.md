@@ -19,6 +19,7 @@ The product is not a quiz, a chatbot, or a collection of phishing examples. Its 
 - separate investigation, containment, communication, and recovery actions;
 - evidence gathered during play;
 - a causal review based on the learner's recorded actions;
+- evidence-grounded follow-up questions that explain what each completed check established;
 - a second situation that tests whether the judgment transfers.
 
 ## Target Users
@@ -53,6 +54,8 @@ The learner workflow has three stages:
 3. **Apply** the same judgment in a different situation.
 
 Authoring concepts and implementation terminology must not leak into the learner workflow.
+
+After the learner selects an action in the new situation, an optional **Facilitate** view summarizes the rehearsal result, transfer evidence, recorded actions, discovered evidence, discussion prompts, and approved institutional guidance. It remains transient and does not store learner identity.
 
 ## Learning Model
 
@@ -165,7 +168,9 @@ These guarantees belong in code and tests, not in immersion-breaking learner dis
 - Free text can influence conversation but cannot mutate high-impact state.
 - Recovery appears only for layers actually affected by completed actions.
 - The review accurately lists completed actions, evidence, outcome, and missed recovery.
+- Follow-up answers cite only evidence discovered in the current run and approved source facts.
 - The new situation evaluates only the explicit action selected there.
+- The facilitator report connects the rehearsal, transfer result, and approved guidance without storing learner identity.
 - Learner screens contain no provider, model, hackathon, fixture, fallback, schema, canonical, or deterministic terminology.
 
 ### Quality
@@ -179,7 +184,5 @@ These guarantees belong in code and tests, not in immersion-breaking learner dis
 
 1. Add more scenarios that test different judgment patterns, not just different attack skins.
 2. Improve educator editing so facts, actions, evidence, and transfer prompts can be refined without editing code.
-3. Add lightweight session summaries for classroom discussion without storing raw dialogue.
-4. Test whether learners can explain why one verification channel is stronger than another.
-5. Add accessibility checks for keyboard navigation, focus order, contrast, and reduced motion.
-
+3. Test whether learners can explain the strength and limits of a verification channel without guided prompts.
+4. Add accessibility checks for keyboard navigation, focus order, contrast, and reduced motion.

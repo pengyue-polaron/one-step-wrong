@@ -7,9 +7,9 @@ import type { DecisionCaseDefinition, DecisionOption } from "@/engine/decision/t
 export function ChapterTopbar({ definition, onExit }: { definition: DecisionCaseDefinition; onExit: () => void }) {
   return (
     <header className="chapter-topbar">
-      <div className="system-brand"><span className="brand-mark">N</span><span>一步之差</span></div>
+      <div className="system-brand"><span className="brand-mark">1</span><span>One Step Wrong</span></div>
       <div className="chapter-topbar-case"><span>CASE {definition.number}</span><strong>{definition.title}</strong></div>
-      <IconButton label="返回案例库" icon={<LayoutGrid size={16} />} onClick={onExit} />
+      <IconButton label="Return to case library" icon={<LayoutGrid size={16} />} onClick={onExit} />
     </header>
   );
 }
@@ -48,7 +48,7 @@ function MissionRail({ definition }: { definition: DecisionCaseDefinition }) {
       <span>{definition.decision.eyebrow}</span>
       <h1>{definition.decision.title}</h1>
       <p>{definition.decision.body}</p>
-      <div><Clock3 size={15} /><span>剩余时间</span><strong>{definition.decision.deadline}</strong></div>
+      <div><Clock3 size={15} /><span>Time remaining</span><strong>{definition.decision.deadline}</strong></div>
       <footer><MapPin size={13} /><span>{definition.location}</span></footer>
     </aside>
   );

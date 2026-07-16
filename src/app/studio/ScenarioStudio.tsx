@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -10,7 +10,9 @@ import {
   Check,
   CheckCircle2,
   CircleAlert,
+  ClipboardList,
   ExternalLink,
+  FileQuestion,
   FileSearch,
   Flag,
   GitCompareArrows,
@@ -19,6 +21,7 @@ import {
   MessageSquareText,
   Pause,
   Play,
+  Printer,
   RefreshCw,
   RotateCcw,
   Send,
@@ -40,14 +43,22 @@ import {
   type TransferProbeResult,
   evaluateTransferProbe,
 } from "@/engine/simulation/physics";
+import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
+import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 
-type StudioStage = "research" | "profile" | "brief" | "preview" | "live" | "debrief" | "transfer";
+type StudioStage = "research" | "profile" | "brief" | "preview" | "live" | "debrief" | "transfer" | "report";
 type Provenance = "live-research" | "live-generation" | "reviewed-fixture" | "live-role" | "reviewed-fallback" | "live-debrief" | "deterministic-fallback";
 type DialogueLine = { id: string; roleId: string; roleName: string; content: string; provenance: Provenance | null };
 type Debrief = {
   trace: CanonicalTrace;
   coaching: { headline: string; summary: string; nextTime: string };
   provenance: Provenance;
+};
+type CoachAnswer = {
+  question: string;
+  answer: string;
+  evidenceIds: string[];
+  sourceFactIds: string[];
 };
 
 type ApiIssue = { path?: string; message?: string };
@@ -68,6 +79,10 @@ const learnerWorkflow: Array<{ id: StudioStage; label: string; meta: string }> =
 function isLearnerStage(stage: StudioStage) {
   return stage === "live" || stage === "debrief" || stage === "transfer";
 }
+
+const facilitatorWorkflow: Array<{ id: StudioStage; label: string; meta: string }> = [
+  { id: "report", label: "Facilitate", meta: "Discuss the evidence" },
+];
 
 const initialBrief = {
   threatTopic: "Voice impersonation and urgent payment changes",
@@ -132,11 +147,12 @@ const transferOutcomeLabels = {
 } as const;
 
 function StageRail({ stage }: { stage: StudioStage }) {
-  const workflow = isLearnerStage(stage) ? learnerWorkflow : authoringWorkflow;
+  const workflow = stage === "report" ? facilitatorWorkflow : isLearnerStage(stage) ? learnerWorkflow : authoringWorkflow;
   const current = workflow.findIndex((item) => item.id === stage);
+  const title = stage === "report" ? "Facilitator" : isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio";
   return (
     <aside className="studio-rail" aria-label="Scenario workflow">
-      <div className="studio-rail-title"><Sparkles size={15} /><span>{isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio"}</span></div>
+      <div className="studio-rail-title"><Sparkles size={15} /><span>{title}</span></div>
       <ol>
         {workflow.map((item, index) => (
           <li className={index === current ? "is-current" : index < current ? "is-complete" : ""} key={item.id}>
@@ -150,26 +166,47 @@ function StageRail({ stage }: { stage: StudioStage }) {
   );
 }
 
-export function ScenarioStudio() {
-  const [stage, setStage] = useState<StudioStage>("research");
+function openingDialogue(scenario: ScenarioPackage) {
+  const opening = scenario.fallbackDialogue.find((line) => line.eventId === "urgent-request") ?? scenario.fallbackDialogue[0];
+  const role = scenario.roleCards.find((item) => item.id === opening.roleId)!;
+  return {
+    opening,
+    role,
+    message: {
+      id: opening.id,
+      roleId: opening.roleId,
+      roleName: role.displayName,
+      content: opening.content,
+      provenance: "reviewed-fallback" as const,
+    },
+  };
+}
+
+export function ScenarioStudio({ mode = "studio" }: { mode?: "studio" | "featured" }) {
+  const featured = mode === "featured";
+  const featuredDialogue = openingDialogue(voiceYouKnowScenario);
+  const [stage, setStage] = useState<StudioStage>(featured ? "live" : "research");
   const [institutionName, setInstitutionName] = useState("New York University");
   const [officialDomain, setOfficialDomain] = useState("nyu.edu");
   const [publicationMode, setPublicationMode] = useState<InstitutionProfile["publicationMode"]>("brand-safe-fictionalized");
   const [exactAuthorizationConfirmed, setExactAuthorizationConfirmed] = useState(false);
-  const [profile, setProfile] = useState<InstitutionProfile | null>(null);
-  const [profileProvenance, setProfileProvenance] = useState<Provenance | null>(null);
+  const [profile, setProfile] = useState<InstitutionProfile | null>(featured ? reviewedNyuInstitutionProfile : null);
+  const [profileProvenance, setProfileProvenance] = useState<Provenance | null>(featured ? "reviewed-fixture" : null);
   const [brief, setBrief] = useState(initialBrief);
-  const [scenario, setScenario] = useState<ScenarioPackage | null>(null);
-  const [scenarioProvenance, setScenarioProvenance] = useState<Provenance | null>(null);
-  const [simulation, setSimulation] = useState<SimulationState | null>(null);
-  const [messages, setMessages] = useState<DialogueLine[]>([]);
-  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
+  const [scenario, setScenario] = useState<ScenarioPackage | null>(featured ? voiceYouKnowScenario : null);
+  const [scenarioProvenance, setScenarioProvenance] = useState<Provenance | null>(featured ? "reviewed-fixture" : null);
+  const [simulation, setSimulation] = useState<SimulationState | null>(featured ? createSimulationState(voiceYouKnowScenario) : null);
+  const [messages, setMessages] = useState<DialogueLine[]>(featured ? [featuredDialogue.message] : []);
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(featured ? featuredDialogue.role.id : null);
   const [messageDraft, setMessageDraft] = useState("");
   const [debrief, setDebrief] = useState<Debrief | null>(null);
   const [transferResult, setTransferResult] = useState<TransferProbeResult | null>(null);
+  const [coachQuestion, setCoachQuestion] = useState("");
+  const [coachAnswers, setCoachAnswers] = useState<CoachAnswer[]>([]);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [coachBusy, setCoachBusy] = useState(false);
 
   const sourceById = useMemo(() => new Map(profile?.sources.map((source) => [source.id, source]) ?? []), [profile]);
   const visibleVerificationActions = useMemo(() => scenario && simulation
@@ -181,6 +218,14 @@ export function ScenarioStudio() {
   const visibleResponseActions = useMemo(() => scenario && simulation
     ? scenario.criticalActions.filter((action) => action.phase === "recovery" && (simulation.actionIds.includes(action.id) || actionIsAvailable(scenario, action.id, simulation.actionIds)))
     : [], [scenario, simulation]);
+  const reportFacts = useMemo(() => {
+    if (!profile || !scenario) return [];
+    return profile.facts.filter((fact) => fact.status === "verified" && scenario.sourceFactIds.includes(fact.id));
+  }, [profile, scenario]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+  }, [stage]);
 
   async function research(useFixture: boolean) {
     setBusy(true); setError(""); setNotice("");
@@ -277,11 +322,10 @@ export function ScenarioStudio() {
 
   function launchScenario() {
     if (!scenario) return;
-    const opening = scenario.fallbackDialogue.find((line) => line.eventId === "urgent-request") ?? scenario.fallbackDialogue[0];
-    const role = scenario.roleCards.find((item) => item.id === opening.roleId)!;
+    const dialogue = openingDialogue(scenario);
     setSimulation(createSimulationState(scenario));
-    setMessages([{ id: opening.id, roleId: opening.roleId, roleName: role.displayName, content: opening.content, provenance: "reviewed-fallback" }]);
-    setSelectedRoleId(opening.roleId); setDebrief(null); setTransferResult(null); setNotice(""); setStage("live");
+    setMessages([dialogue.message]);
+    setSelectedRoleId(dialogue.role.id); setDebrief(null); setTransferResult(null); setCoachAnswers([]); setCoachQuestion(""); setNotice(""); setStage("live");
   }
 
   function performAction(actionId: string) {
@@ -343,6 +387,37 @@ export function ScenarioStudio() {
     } finally { setBusy(false); }
   }
 
+  async function askEvidenceCoach(question: string) {
+    const trimmed = question.trim();
+    if (!scenario || !profile || !simulation || !debrief || trimmed.length < 3) return;
+    setCoachBusy(true); setError("");
+    try {
+      const response = await fetch("/api/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scenario,
+          profile,
+          actionIds: simulation.actionIds,
+          question: trimmed,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(formatApiError(result, "The evidence question could not be answered."));
+      setCoachAnswers((current) => [...current, {
+        question: trimmed,
+        answer: result.answer,
+        evidenceIds: result.evidenceIds,
+        sourceFactIds: result.sourceFactIds,
+      }]);
+      setCoachQuestion("");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The evidence question could not be answered.");
+    } finally {
+      setCoachBusy(false);
+    }
+  }
+
   function selectTransferAction(actionId: string) {
     if (!scenario || transferResult) return;
     try {
@@ -353,14 +428,14 @@ export function ScenarioStudio() {
   }
 
   function restart() {
-    setStage("research"); setProfile(null); setScenario(null); setSimulation(null); setMessages([]); setDebrief(null); setTransferResult(null); setNotice(""); setError(""); setExactAuthorizationConfirmed(false);
+    setStage("research"); setProfile(null); setScenario(null); setSimulation(null); setMessages([]); setDebrief(null); setTransferResult(null); setCoachAnswers([]); setCoachQuestion(""); setNotice(""); setError(""); setExactAuthorizationConfirmed(false);
   }
 
   return (
     <main className="studio-shell">
       <header className="studio-topbar">
         <Link href="/" className="studio-home-link"><ArrowLeft size={15} /><span>Case Library</span></Link>
-        <div className="studio-brand"><span className="studio-brand-mark">1</span><strong>One Step Wrong</strong><span>/ {isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio"}</span></div>
+        <div className="studio-brand"><span className="studio-brand-mark">1</span><strong>One Step Wrong</strong><span>/ {stage === "report" ? "Facilitator Report" : isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio"}</span></div>
       </header>
 
       <div className="studio-layout">
@@ -486,8 +561,38 @@ export function ScenarioStudio() {
                   <article><span>CONSEQUENCES</span><strong>Your completed actions</strong><p>{debrief.trace.actionIds.length} actions and {debrief.trace.evidenceIds.length} evidence items led to this outcome.</p></article>
                 </div>
               </section>
+              <section className="evidence-coach" aria-label="Ask about the evidence">
+                <header><FileQuestion size={17} /><div><strong>Ask about the evidence</strong><small>Explore what each verification channel did and did not establish.</small></div></header>
+                <div className="coach-prompts">
+                  {[
+                    "Why did the callback not prove who sent the request?",
+                    "What did the organization group chat actually confirm?",
+                    "Why was the saved directory number stronger evidence?",
+                  ].map((question) => (
+                    <button disabled={coachBusy} key={question} onClick={() => askEvidenceCoach(question)} type="button">{question}</button>
+                  ))}
+                </div>
+                {coachAnswers.length > 0 && (
+                  <div className="coach-answers" aria-live="polite">
+                    {coachAnswers.map((answer, index) => (
+                      <article key={`${answer.question}-${index}`}>
+                        <strong>{answer.question}</strong>
+                        <p>{answer.answer}</p>
+                        <footer>
+                          {answer.evidenceIds.map((id) => <span key={id}>{scenario.evidence.find((item) => item.id === id)?.label ?? id}</span>)}
+                          {answer.sourceFactIds.map((id) => <span key={id}>{profile?.facts.find((fact) => fact.id === id)?.label ?? id}</span>)}
+                        </footer>
+                      </article>
+                    ))}
+                  </div>
+                )}
+                <form className="coach-compose" onSubmit={(event) => { event.preventDefault(); askEvidenceCoach(coachQuestion); }}>
+                  <input aria-label="Question about the evidence" maxLength={500} placeholder="Ask why a check was or was not enough…" value={coachQuestion} onChange={(event) => setCoachQuestion(event.target.value)} />
+                  <button disabled={coachBusy || coachQuestion.trim().length < 3} type="submit">{coachBusy ? <LoaderCircle className="is-spinning" size={16} /> : <ArrowRight size={16} />}Ask</button>
+                </form>
+              </section>
               <blockquote><span>TRANSFER RULE</span><p>{debrief.coaching.nextTime}</p></blockquote>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={() => { setTransferResult(null); setStage("transfer"); }}><GitCompareArrows size={16} />Try a new situation</button><button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay scenario</button><button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button><Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
+              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={() => { setTransferResult(null); setStage("transfer"); }}><GitCompareArrows size={16} />Try a new situation</button><button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay scenario</button>{!featured && <button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button>}<Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
             </div>
           )}
 
@@ -526,7 +631,56 @@ export function ScenarioStudio() {
                   </section>
                 </>
               )}
-              <div className="studio-actions"><button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay rehearsal</button><button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button><Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
+              <div className="studio-actions">{transferResult && <button className="studio-button studio-button-primary" onClick={() => setStage("report")}><ClipboardList size={16} />Open facilitator report</button>}<button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay rehearsal</button>{!featured && <button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button>}<Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
+            </div>
+          )}
+
+          {stage === "report" && scenario && profile && simulation && debrief && transferResult && (
+            <div className="studio-section facilitator-report" data-testid="studio-report">
+              <header className="studio-section-heading studio-heading-row">
+                <div><span>FACILITATOR REPORT</span><h1>{scenario.title}</h1><p>A discussion-ready summary of one rehearsal and one new-context decision.</p></div>
+                <div className="report-privacy"><LockKeyhole size={16} /><span><strong>No learner identity stored</strong><small>This report exists only in the current browser session.</small></span></div>
+              </header>
+              <section className="report-outcomes">
+                <article><span>REHEARSAL</span><strong>{debrief.trace.endingId}</strong><p>{scenario.endings.find((ending) => ending.id === debrief.trace.endingId)?.title}</p></article>
+                <article><span>NEW SITUATION</span><strong>{transferOutcomeLabels[transferResult.outcome]}</strong><p>{transferResult.actionLabel}</p></article>
+                <article><span>RECOVERY</span><strong>{!debrief.trace.recoveryRequired ? "not required" : debrief.trace.missedRecoveryActionIds.length ? "incomplete" : "complete"}</strong><p>{debrief.trace.missedRecoveryActionIds.length ? `${debrief.trace.missedRecoveryActionIds.length} response steps remained.` : "No required response step was left open."}</p></article>
+              </section>
+              <div className="report-grid">
+                <section>
+                  <header><strong>Learning objective</strong></header>
+                  <p>{scenario.intro.learningObjective}</p>
+                  <blockquote>{debrief.coaching.nextTime}</blockquote>
+                </section>
+                <section>
+                  <header><strong>Recorded action sequence</strong><span>{debrief.trace.actionLabels.length}</span></header>
+                  <ol>{debrief.trace.actionLabels.map((label, index) => <li key={`${label}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span>{label}</li>)}</ol>
+                </section>
+                <section>
+                  <header><strong>Evidence considered</strong><span>{debrief.trace.evidenceIds.length}</span></header>
+                  {debrief.trace.evidenceIds.length
+                    ? <ul>{debrief.trace.evidenceIds.map((id) => { const item = scenario.evidence.find((evidence) => evidence.id === id); return item ? <li key={id}><strong>{item.label}</strong><p>{item.description}</p></li> : null; })}</ul>
+                    : <p>No evidence was collected before the rehearsal ended.</p>}
+                </section>
+                <section>
+                  <header><strong>Discussion prompts</strong></header>
+                  <ol className="discussion-prompts">
+                    <li>Which verification channel moved the check outside the original request?</li>
+                    <li>What did the group recognize, and what could it not independently confirm?</li>
+                    <li>Which response step would matter first if payment or access had already changed?</li>
+                  </ol>
+                </section>
+              </div>
+              <section className="report-guidance">
+                <header><BookOpenCheck size={16} /><div><strong>Approved institution guidance</strong><small>Source-supported context used by this rehearsal.</small></div></header>
+                {reportFacts.map((fact) => (
+                  <article key={fact.id}>
+                    <div><span>{fact.category.replaceAll("-", " ")}</span><strong>{fact.label}</strong><p>{fact.value}</p></div>
+                    <div>{fact.sourceIds.map((sourceId) => { const source = profile.sources.find((item) => item.id === sourceId); return source ? <a href={source.url} key={sourceId} rel="noreferrer" target="_blank"><ExternalLink size={12} />{source.title}</a> : null; })}</div>
+                  </article>
+                ))}
+              </section>
+              <div className="studio-actions report-actions"><button className="studio-button studio-button-primary" onClick={() => window.print()}><Printer size={16} />Print report</button><button className="studio-button" onClick={() => setStage("transfer")}><ArrowLeft size={16} />Back to new situation</button><button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay rehearsal</button><Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
             </div>
           )}
         </section>

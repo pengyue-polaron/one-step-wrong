@@ -25,8 +25,8 @@ export function WindowFrame({ id, title, icon, address, children, tone = "paper"
           <span>{title}</span>
         </div>
         <div className="window-controls">
-          <IconButton label={`最小化${title}`} icon={<Minus size={14} />} onClick={() => dispatch({ type: "CLOSE_WINDOW", window: id })} />
-          <IconButton label={`关闭${title}`} icon={<X size={14} />} onClick={() => dispatch({ type: "CLOSE_WINDOW", window: id })} />
+          <IconButton label={`Minimize ${title}`} icon={<Minus size={14} />} onClick={() => dispatch({ type: "CLOSE_WINDOW", window: id })} />
+          <IconButton label={`Close ${title}`} icon={<X size={14} />} onClick={() => dispatch({ type: "CLOSE_WINDOW", window: id })} />
         </div>
       </header>
       {address ? (

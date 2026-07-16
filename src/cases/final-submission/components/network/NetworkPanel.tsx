@@ -8,7 +8,7 @@ import { IconButton } from "@/components/ui/IconButton";
 
 function SignalBars({ level }: { level: 1 | 2 | 3 }) {
   return (
-    <span className="signal-bars" aria-label={`信号 ${level === 3 ? "满格" : level === 2 ? "中等" : "弱"}`}>
+    <span className="signal-bars" aria-label={`Signal ${level === 3 ? "strong" : level === 2 ? "medium" : "weak"}`}>
       {[1, 2, 3].map((bar) => <i key={bar} className={bar <= level ? "is-on" : ""} />)}
     </span>
   );
@@ -41,14 +41,14 @@ function WifiItem({ network }: { network: NetworkDefinition }) {
         }}
       >
         {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        网络详情
+        Network details
       </button>
       {expanded ? (
         <div className="wifi-details">
           <p>{network.summary}</p>
           <dl>
-            <div><dt>运营方</dt><dd>{network.operator ?? "未提供"}</dd></div>
-            <div><dt>连接方式</dt><dd>{network.security}</dd></div>
+            <div><dt>Operator</dt><dd>{network.operator ?? "Not provided"}</dd></div>
+            <div><dt>Connection</dt><dd>{network.security}</dd></div>
           </dl>
         </div>
       ) : null}
@@ -61,19 +61,19 @@ export function NetworkPanel() {
   const primary = scenario.networks.slice(0, 3);
   const hotspot = scenario.networks[3];
   return (
-    <aside className="network-panel" aria-label="可用网络">
+    <aside className="network-panel" aria-label="Available networks">
       <header>
         <div>
           <span className="panel-icon"><Radio size={17} /></span>
-          <div><h2>可用网络</h2><p>公共学习区</p></div>
+          <div><h2>Available networks</h2><p>Public study area</p></div>
         </div>
-        <IconButton label="关闭网络列表" icon={<X size={16} />} onClick={() => dispatch({ type: "TOGGLE_NETWORK_PANEL" })} />
+        <IconButton label="Close network list" icon={<X size={16} />} onClick={() => dispatch({ type: "TOGGLE_NETWORK_PANEL" })} />
       </header>
       <div className="network-list">
         {primary.map((network) => <WifiItem key={network.id} network={network} />)}
       </div>
       <div className="other-connection">
-        <span>其他连接方式</span>
+        <span>Other connection options</span>
         <WifiItem network={hotspot} />
       </div>
     </aside>

@@ -10,15 +10,16 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-83%20unit%20%2B%2014%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-88%20unit%20%2B%2015%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
+  <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
 
 **《一步之差》**是一台“数字判断力飞行模拟器”。学习者进入普通学生任务，在可信的工具界面中作出选择，经历延迟出现的后果，再通过根据实际操作生成的因果复盘理解安全知识。教师还可以使用 **Scenario Studio**，把经过审核的学校画像与教学简报编译成一场有边界、可游玩的演练。
 
 它不是知识问答。结果发生前，任何选择都不会被标注为安全、危险、正确或推荐。
 
-![包含三个 NYU 数字安全故事的案例库](./artifacts/screenshots/case-library.png)
+![包含一个旗舰自适应演练和三个 NYU 数字安全故事的案例库](./artifacts/screenshots/case-library.png)
 
 ## 为什么做这个项目
 
@@ -41,6 +42,8 @@
 5. 进入演练，询问相关人物，选择验证方式并收集证据。
 6. 根据实际完成的动作复盘发生了什么。
 7. 把同一条判断规则用到另一个任务。
+
+学习者可以从案例库直接进入旗舰演练，也可以打开 [`/rehearsal`](http://localhost:3000/rehearsal)。结果出现后，Evidence Coach 只依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、证据、讨论问题、审核指导和打印视图。
 
 自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。每条自适应路径都有审核过的示例，因此没有 API key 也能完整体验旗舰演练。
 
@@ -83,7 +86,11 @@
 
 ![以学习者实际操作记录为基础的 Studio 复盘](./artifacts/screenshots/studio-debrief.png)
 
+![Evidence Coach 解释一个验证渠道实际证明了什么、没有证明什么](./artifacts/screenshots/studio-coach.png)
+
 ![通过新情境检验判断规则是否真正迁移](./artifacts/screenshots/studio-transfer.png)
+
+![连接演练证据、迁移结果和审核指导的教师报告](./artifacts/screenshots/facilitator-report.png)
 
 ### 情境中的选择
 
@@ -124,6 +131,22 @@
 - Playwright 完整流程与响应式布局测试
 
 案例库可以完全在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；否则自动使用审核过的示例。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
+
+## 技术证据
+
+GPT-5.6 承担五项有边界的职责：
+
+1. 使用来源证据研究官方公开的学校指导。
+2. 把已批准的画像与教学简报编译成通过验证的场景包。
+3. 在固定身份、知识范围、渠道和允许事件内生成角色对话。
+4. 只从已记录动作中选择通过验证的复盘元素。
+5. 只使用已发现证据和审核通过的来源事实回答追问。
+
+GPT-5.6 不执行关键动作，不修改付款或访问状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，所有浏览器调用都通过 [`src/app/api`](./src/app/api) 中有大小限制的服务端路由。
+
+Codex 参与了整个仓库的实现，把产品设想落成模块化案例架构、确定性模拟引擎、来源审核流程、Scenario Studio、产品界面、测试套件和文档。主要工程决策是让学习者动作拥有最终解释权、在游玩过程中显示证据、保留完整无密钥路径，并把生成内容视为必须通过验证的提案，而不是世界状态。
+
+运行 `npm run verify:ai` 可以检查模型边界和 API。启动本地服务并配置 `OPENAI_API_KEY` 后，运行 `npm run verify:live` 可以要求研究、生成、角色对话、复盘和 Evidence Coach 全部返回实时来源；任何路径回退到审核内容都会让命令失败。
 
 ## 快速开始
 
@@ -186,20 +209,23 @@ docker run --rm -p 3000:3000 \
 | `npm test` | 单次运行 Vitest 状态与组件测试。 |
 | `npm run test:watch` | 以监听模式运行 Vitest。 |
 | `npm run test:e2e` | 运行 Playwright 浏览器测试。 |
+| `npm run verify:ai` | 运行聚焦于 AI schema、边界、适配器和 API 的测试。 |
+| `npm run verify:live` | 在运行中的服务上要求全部 GPT-5.6 路径返回实时来源。 |
 
 ## 工程结构
 
 ```text
 src/
   app/
-    api/                            仅服务端研究、生成、对话与复盘路由
+    api/                            仅服务端研究、生成、对话、复盘与教练路由
+    rehearsal/                      旗舰演练的学习者直达入口
     studio/                         教师工作流与旗舰案例实时预览
   ai/
     schemas/                        运行时契约、跨引用与安全验证
     research/                       Institution Research Agent 适配层
     scenarios/                      Scenario Architect 适配层
     simulation/                     Director 与角色回合边界验证
-    debrief/                        依据轨迹生成复盘的适配层
+    debrief/                        依据轨迹生成复盘与 Evidence Coach 的适配层
   fixtures/                         审核过的画像、场景与对话内容
   product/
     Game.tsx                        会话级案例选择与完成状态
@@ -250,11 +276,12 @@ artifacts/screenshots/              已验收的产品截图
 npm run lint
 npm run typecheck
 npm test
+npm run verify:ai
 npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 83 个 schema、API、状态与组件测试，以及 14 个浏览器测试。覆盖范围包括画像审核、精确品牌授权、权威 hostname 校验、来源证据、多种验证渠道、证据发现、动作前置条件、受影响层恢复、基于记录的复盘、迁移评估、异常自适应输出、指令注入拒绝、全部结局、审核示例、安全与事故完整路线、1366x768 至 1920x1080 桌面布局，以及 390x844 手机流程。
+当前测试集包含 88 个 schema、API、状态与组件测试，以及 15 个浏览器测试。覆盖范围包括旗舰演练直达入口、画像审核、精确品牌授权、权威 hostname 校验、来源证据、多种验证渠道、证据发现、Evidence Coach 引用边界、动作前置条件、受影响层恢复、基于记录的复盘、迁移评估、教师报告、异常自适应输出、指令注入拒绝、全部结局、审核示例、安全与事故完整路线、1366x768 至 1920x1080 桌面布局，以及 390x844 手机流程。
 
 ## 安全与隐私
 
@@ -276,9 +303,9 @@ npm run test:e2e
 - 第一章的多窗口工作区需要至少 1100 px，因此有意只支持桌面体验。
 - 桌面窗口使用固定位置，不支持自由拖拽和缩放。
 - 音效由浏览器即时合成，没有背景音乐或配音。
-- 当前没有登录、数据库、跨会话进度、协作系统、国际化框架或真实校园集成。
+- 当前没有登录、数据库、跨会话进度、协作系统、运行时国际化框架或真实校园集成。
 - 在线自适应能力需要有效 API key 和网络；没有二者时仍可通过审核示例完成完整产品流程。
 
 ## 许可证
 
-本仓库尚未发布开源许可证。在许可证加入之前，代码可以查看，但不授予复用权利。
+本项目使用 [MIT License](./LICENSE)。

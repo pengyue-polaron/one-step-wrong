@@ -11,9 +11,9 @@ for (const viewport of viewports) {
     await page.setViewportSize(viewport);
     await page.goto("/");
     await page.getByTestId("case-final-submission").click();
-    await page.getByRole("button", { name: "查看提交状态" }).click();
-    await page.getByRole("button", { name: "重新上传" }).click();
-    await expect(page.getByRole("heading", { name: "可用网络" })).toBeVisible();
+    await page.getByRole("button", { name: "Check submission status" }).click();
+    await page.getByRole("button", { name: "Retry upload" }).click();
+    await expect(page.getByRole("heading", { name: "Available networks" })).toBeVisible();
     await page.waitForTimeout(220);
 
     const geometry = await page.evaluate(() => {
@@ -48,28 +48,28 @@ for (const viewport of viewports) {
 test("case library and decision chapters stay usable on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "选择一个案例" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choose a rehearsal" })).toBeVisible();
   await expect(page.getByTestId("case-unexpected-push")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.screenshot({ path: "artifacts/screenshots/mobile-case-library.png", fullPage: true });
 
   await page.getByTestId("case-final-submission").click();
-  await expect(page.getByRole("heading", { name: "这个案例需要更宽的画面" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "This case needs a wider screen" })).toBeVisible();
   await page.screenshot({ path: "artifacts/screenshots/mobile-desktop-required.png" });
-  await page.getByRole("button", { name: "返回案例库" }).click();
-  await expect(page.getByRole("heading", { name: "选择一个案例" })).toBeVisible();
+  await page.getByRole("button", { name: "Return to case library" }).click();
+  await expect(page.getByRole("heading", { name: "Choose a rehearsal" })).toBeVisible();
 
   await page.getByTestId("case-shared-draft").click();
-  await page.getByRole("button", { name: "打开共享设置" }).click();
-  await expect(page.getByLabel("NYU Drive 共享设置")).toBeVisible();
+  await page.getByRole("button", { name: "Open sharing settings" }).click();
+  await expect(page.getByLabel("NYU Drive sharing settings")).toBeVisible();
   await expect(page.getByTestId("choice-public-link")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.screenshot({ path: "artifacts/screenshots/mobile-drive-sharing.png", fullPage: true });
 
-  await page.getByRole("button", { name: "返回案例库" }).click();
+  await page.getByRole("button", { name: "Return to case library" }).click();
   await page.getByTestId("case-unexpected-push").click();
-  await page.getByRole("button", { name: "查看登录请求" }).click();
-  await expect(page.getByLabel("NYU Duo 登录确认")).toBeVisible();
+  await page.getByRole("button", { name: "Review login request" }).click();
+  await expect(page.getByLabel("NYU Duo login verification")).toBeVisible();
   await expect(page.getByTestId("choice-verify-browser")).toBeVisible();
   await expect(page.getByTestId("choice-approve-request")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);

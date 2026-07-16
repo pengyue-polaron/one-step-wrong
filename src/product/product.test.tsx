@@ -6,13 +6,14 @@ import { SharedDraftCase } from "@/cases/shared-draft/SharedDraftCase";
 import { UnexpectedPushCase } from "@/cases/unexpected-push/UnexpectedPushCase";
 
 describe("case library and decision chapters", () => {
-  it("presents three playable cases and session progress", async () => {
+  it("presents the featured rehearsal, three cases, and session progress", async () => {
     const user = userEvent.setup();
     const onStart = vi.fn();
     render(<CaseLibrary completed={{ "final-submission": "verified" }} onStart={onStart} />);
-    expect(screen.getByRole("heading", { name: "选择一个案例" })).toBeInTheDocument();
-    expect(screen.getByText("1 / 3 已完成")).toBeInTheDocument();
-    expect(screen.getAllByText("已完成")).toHaveLength(1);
+    expect(screen.getByRole("heading", { name: "Choose a rehearsal" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "The Voice You Know" })).toBeInTheDocument();
+    expect(screen.getByText("1 / 3 complete")).toBeInTheDocument();
+    expect(screen.getAllByText("Complete")).toHaveLength(1);
     await user.click(screen.getByTestId("case-shared-draft"));
     expect(onStart).toHaveBeenCalledWith("shared-draft");
   });
@@ -20,37 +21,37 @@ describe("case library and decision chapters", () => {
   it("contains the exposed Drive route only after all critical actions", async () => {
     const user = userEvent.setup();
     render(<SharedDraftCase onExit={vi.fn()} onComplete={vi.fn()} />);
-    await user.click(screen.getByRole("button", { name: "打开共享设置" }));
+    await user.click(screen.getByRole("button", { name: "Open sharing settings" }));
     await user.click(screen.getByTestId("choice-public-link"));
-    expect(screen.getByRole("heading", { name: "出现不在小组名单里的访问者" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "处理共享异常" }));
+    expect(screen.getByRole("heading", { name: "A visitor outside the team appears" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Respond to sharing incident" }));
     for (const id of ["restrict-link", "remove-outsider", "restore-version", "notify-team"]) {
       await user.click(screen.getByTestId(`response-${id}`));
     }
-    await user.click(screen.getByRole("button", { name: "完成处理并复盘" }));
-    expect(screen.getByRole("heading", { name: "访问已收回" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Finish response and review" }));
+    expect(screen.getByRole("heading", { name: "Access pulled back" })).toBeInTheDocument();
   });
 
   it("teaches Duo binding without revealing a score before the choice", async () => {
     const user = userEvent.setup();
     render(<UnexpectedPushCase onExit={vi.fn()} onComplete={vi.fn()} />);
-    await user.click(screen.getByRole("button", { name: "查看登录请求" }));
-    expect(screen.queryByText("正确")).not.toBeInTheDocument();
-    expect(screen.queryByText("危险")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Review login request" }));
+    expect(screen.queryByText("Correct")).not.toBeInTheDocument();
+    expect(screen.queryByText("Dangerous")).not.toBeInTheDocument();
     await user.click(screen.getByTestId("choice-verify-browser"));
-    await user.click(screen.getByRole("button", { name: "查看本次复盘" }));
-    expect(screen.getByRole("heading", { name: "先绑定自己的动作" })).toBeInTheDocument();
-    expect(screen.getByText("MFA 请求必须对应你刚刚执行的登录，而不是只看品牌和账号。")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Review what happened" }));
+    expect(screen.getByRole("heading", { name: "Tie approval to your own action" })).toBeInTheDocument();
+    expect(screen.getByText("An MFA request must match a login you just performed, not merely the right brand and account.")).toBeInTheDocument();
   });
 
   it("shows that approving Duo without clearing the session leaves access open", async () => {
     const user = userEvent.setup();
     render(<UnexpectedPushCase onExit={vi.fn()} onComplete={vi.fn()} />);
-    await user.click(screen.getByRole("button", { name: "查看登录请求" }));
+    await user.click(screen.getByRole("button", { name: "Review login request" }));
     await user.click(screen.getByTestId("choice-approve-request"));
-    expect(screen.getByRole("heading", { name: "批准的登录没有进入你的 Zoom" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "处理账号异常" }));
-    await user.click(screen.getByRole("button", { name: "完成处理并复盘" }));
-    expect(screen.getByRole("heading", { name: "账号仍有入口" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "The approved login did not open your Zoom" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Respond to account incident" }));
+    await user.click(screen.getByRole("button", { name: "Finish response and review" }));
+    expect(screen.getByRole("heading", { name: "The account still has an opening" })).toBeInTheDocument();
   });
 });

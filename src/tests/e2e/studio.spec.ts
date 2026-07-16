@@ -19,6 +19,16 @@ async function openValidatedScenario(page: Page, captureProfile = false) {
   await expect(page.getByText(/New York University · fictionalized names/)).toBeVisible();
 }
 
+test("featured rehearsal opens directly from the case library", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("featured-rehearsal").click();
+  await expect(page).toHaveURL(/\/rehearsal$/);
+  await expect(page.getByTestId("studio-live")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Call the saved directory number/ })).toBeEnabled();
+  await expect(page.getByTestId("studio-live")).not.toContainText(/GPT|Build Week|fixture|fallback|schema|deterministic|canonical/i);
+});
+
 test("studio completes the reviewed research-to-debrief path", async ({ page }) => {
   await openValidatedScenario(page, true);
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -53,6 +63,10 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByRole("region", { name: "How the result was determined" })).toContainText("The conversation could change");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-debrief.png", fullPage: true });
+  await page.getByRole("button", { name: "Why did the callback not prove who sent the request?" }).click();
+  await expect(page.locator(".coach-answers article")).toContainText("The callback number was supplied by the same message");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: "artifacts/screenshots/studio-coach.png", fullPage: true });
 
   await page.getByRole("button", { name: "Try a new situation" }).click();
   await expect(page.getByTestId("studio-transfer")).toBeVisible();
@@ -63,6 +77,14 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByRole("region", { name: "Learning evidence" })).toContainText("This result follows the action selected");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-transfer.png", fullPage: true });
+
+  await page.getByRole("button", { name: "Open facilitator report" }).click();
+  await expect(page.getByTestId("studio-report")).toBeVisible();
+  await expect(page.getByText("No learner identity stored")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
+  await expect(page.getByText("Approved institution guidance")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Print report" })).toBeEnabled();
+  await page.screenshot({ path: "artifacts/screenshots/facilitator-report.png", fullPage: true });
 
   await page.getByRole("button", { name: "Replay rehearsal" }).click();
   await expect(page.getByTestId("studio-live")).toBeVisible();
@@ -126,4 +148,8 @@ test("transfer evidence remains usable on mobile", async ({ page }) => {
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.locator(".transfer-result").scrollIntoViewIfNeeded();
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio-transfer.png" });
+  await page.getByRole("button", { name: "Open facilitator report" }).click();
+  await expect(page.getByTestId("studio-report")).toBeVisible();
+  await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.screenshot({ path: "artifacts/screenshots/mobile-facilitator-report.png", fullPage: true });
 });

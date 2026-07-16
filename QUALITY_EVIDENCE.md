@@ -14,6 +14,9 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Competing verification channels reveal distinct evidence | `src/fixtures/voiceYouKnow.ts`, simulation tests, desktop and mobile evidence-board flows | Verified |
 | Review is grounded in recorded actions | Debrief adapter, route tests, and the safe and incident browser paths | Verified |
 | New-context learning transfer | Three-outcome transfer validation, direct evaluation tests, desktop and mobile browser paths | Verified |
+| Evidence-grounded learner questions | `src/ai/debrief/evidenceCoach.ts`, citation-boundary tests, `/api/coach`, and the browser debrief flow | Verified with reviewed fallback and mocked provider output |
+| Discussion-ready facilitator report | Rehearsal result, transfer evidence, approved guidance, print layout, and browser assertions | Verified |
+| Featured rehearsal is immediately playable | Case-library entry and direct `/rehearsal` browser path | Verified |
 | Complete no-key product path | **Use example institution**, then **Use example rehearsal** in `/studio` | Verified |
 | Desktop and mobile product quality | `artifacts/screenshots/` and Playwright layout tests | Verified |
 | Automated quality gate | `.github/workflows/ci.yml` | Runs on `main` |
@@ -25,11 +28,14 @@ npm ci
 npm run lint
 npm run typecheck
 npm test
+npm run verify:ai
 npm run build
 npm run test:e2e
 ```
 
-The current suite contains 83 schema, API, state, and component tests plus 14 browser tests. Browser coverage includes the case library, all published case routes, Scenario Studio authoring, safe and incident rehearsal paths, the evidence board, review, transfer, desktop layout boundaries, and 390x844 phone flows.
+The current suite contains 88 schema, API, state, and component tests plus 15 browser tests. Browser coverage includes the featured direct entry, case library, all published case routes, Scenario Studio authoring, safe and incident rehearsal paths, the evidence board, Evidence Coach, review, transfer, facilitator report, desktop layout boundaries, and 390x844 phone flows.
+
+When a server is running with `OPENAI_API_KEY`, `npm run verify:live` requires live provenance for institution research, scenario generation, role dialogue, trace-grounded review, and Evidence Coach. It fails if any path falls back to reviewed content.
 
 ## Manual Product Review
 
@@ -41,7 +47,8 @@ For meaningful interface changes:
 4. Confirm that evidence appears when discovered and remains understandable on a phone.
 5. Check that the review matches the actions actually completed.
 6. Apply the rule in the new situation and compare all three transfer outcomes.
-7. Inspect accepted screenshots at 1366x768 and 390x844.
+7. Open the facilitator report and confirm its action sequence, evidence, guidance, and print view.
+8. Inspect accepted screenshots at 1366x768 and 390x844.
 
 ## Evidence Boundaries
 
@@ -50,4 +57,3 @@ For meaningful interface changes:
 - Reviewed examples prove the complete product path, not the behavior of an external model.
 - Screenshots support visual review but do not replace browser assertions.
 - Capability claims in `README.md` must match working code and automated evidence.
-

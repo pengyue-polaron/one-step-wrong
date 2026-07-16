@@ -38,7 +38,7 @@ describe("game machine", () => {
     expect(state.phase).toBe("calm");
     expect(state.assignmentSubmitted).toBe(true);
     expect(state.suspiciousLoginTriggered).toBe(false);
-    expect(state.eventLog.at(-1)?.title).toBe("作业提交成功");
+    expect(state.eventLog.at(-1)?.title).toBe("Assignment submitted");
   });
 
   it("preserves both pre-install stop points", () => {
@@ -86,7 +86,7 @@ describe("game machine", () => {
       { type: "FINISH_RESPONSE" },
     );
     expect(state.endingId).toBe("contained");
-    expect(state.eventLog.some((event) => event.title === "作业提交成功")).toBe(true);
+    expect(state.eventLog.some((event) => event.title === "Assignment submitted")).toBe(true);
     expect(selectScore(state).response).toBeGreaterThan(70);
   });
 

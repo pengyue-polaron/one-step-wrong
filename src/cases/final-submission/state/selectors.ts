@@ -43,8 +43,8 @@ export function selectScore(state: GameState): Score {
 export function selectClues(state: GameState, scenario: ScenarioDefinition = finalSubmissionScenario): string[] {
   if (state.endingId === "verified-path") {
     return state.networkDetailsViewed
-      ? ["你查看了网络详情，确认了运营方和连接方式。"]
-      : ["你选择了来源与验证方式更清楚的连接。"];
+      ? ["You reviewed the network details and checked its operator and access method."]
+      : ["You chose a connection with a clearer source and verification path."];
   }
   const clues = [
     scenario.debrief.clueLabels["naming-mismatch"],

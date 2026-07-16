@@ -10,15 +10,16 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-83%20unit%20%2B%2014%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-88%20unit%20%2B%2015%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
+  <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
 
 **One Step Wrong** is a flight simulator for digital judgment. Learners enter ordinary student tasks, make choices inside believable tools, encounter delayed consequences, and learn through a causal debrief generated from what they actually did. Educators can also use **Scenario Studio** to turn a reviewed Institution Profile and teaching brief into a bounded, playable rehearsal.
 
 It is not a quiz. Choices are not labeled safe, risky, correct, or recommended before the outcome.
 
-![The case library showing three playable NYU digital-safety stories](./artifacts/screenshots/case-library.png)
+![The case library with a featured adaptive rehearsal and three NYU digital-safety stories](./artifacts/screenshots/case-library.png)
 
 ## Why This Project
 
@@ -42,6 +43,8 @@ Most security training explains the answer before learners feel the pressure tha
 6. Review what happened from the actions actually completed.
 7. Apply the same judgment rule to a different task.
 
+Learners can start the flagship immediately from the case library or open [`/rehearsal`](http://localhost:3000/rehearsal) directly. After the result, Evidence Coach answers follow-up questions using only evidence discovered in that run and approved source facts. Completing the new situation unlocks a transient facilitator report with the action sequence, evidence, discussion prompts, approved guidance, and a print view.
+
 Adaptive generation and dialogue are optional server-side capabilities. Source checks, reviewed institution context, typed actions, recorded evidence, ending selection, and transfer evaluation remain authoritative. Every adaptive path has a reviewed example, so the complete flagship rehearsal works without an API key.
 
 > **Conversation can adapt. Completed actions determine the consequences.**
@@ -58,7 +61,7 @@ Brand-safe fictionalization is the default. Authorized exact-brand research requ
 | --- | --- | --- | --- |
 | **01 · Final Submission** | Restore connectivity and submit an assignment to NYU Brightspace before the deadline. | Wireless identity, domains, configuration profiles, and account recovery. | Deep desktop simulation, 1100 px minimum width. |
 | **02 · Sharing Scope** | Give a project team the access needed to finish an interview review. | Specific identities, link scope, editor permissions, version recovery, and disclosure. | Responsive decision chapter. |
-| **03 · Is This You?** | Join an advising meeting while repeated Duo requests arrive. | User-initiated login, device and location matching, sessions, recovery methods, and reporting. | Responsive decision chapter. |
+| **03 · Was That You?** | Join an advising meeting while repeated Duo requests arrive. | User-initiated login, device and location matching, sessions, recovery methods, and reporting. | Responsive decision chapter. |
 
 Each case has an ordinary objective, an unmarked decision, a delayed consequence where appropriate, individual response actions, multiple endings, and a replayable causal debrief. Progress lasts only for the current browser session.
 
@@ -83,7 +86,11 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 
 ![Studio review grounded in the learner's recorded actions](./artifacts/screenshots/studio-debrief.png)
 
+![Evidence Coach explaining what a completed verification channel did and did not establish](./artifacts/screenshots/studio-coach.png)
+
 ![New-context transfer check showing whether the judgment carried forward](./artifacts/screenshots/studio-transfer.png)
+
+![Facilitator report connecting rehearsal evidence, transfer, and approved guidance](./artifacts/screenshots/facilitator-report.png)
 
 ### Decisions in context
 
@@ -124,6 +131,22 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 - Playwright for complete user flows and responsive layout checks
 
 The case library works locally. Scenario Studio uses narrowly scoped Next.js server routes when `OPENAI_API_KEY` is configured and automatically uses reviewed examples otherwise. There is no database, analytics, account system, persistence, or production campus-service integration.
+
+## Technical Evidence
+
+GPT-5.6 has five bounded responsibilities:
+
+1. Research public official institution guidance with source evidence.
+2. Compile an approved profile and teaching brief into a validated scenario package.
+3. Produce role dialogue within fixed identities, knowledge, channels, and allowed events.
+4. Select only validated review elements from the recorded action trace.
+5. Answer follow-up questions using discovered evidence and approved source facts.
+
+It does not perform critical actions, mutate payment or access state, choose an ending, or evaluate the learner's transfer action. Those decisions remain in [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts). Runtime validation lives in [`src/ai/schemas`](./src/ai/schemas), model adapters live in [`src/ai`](./src/ai), and all browser-facing calls pass through bounded server routes in [`src/app/api`](./src/app/api).
+
+Codex was used throughout the repository's implementation to translate the product thesis into the modular case architecture, deterministic simulation engine, source-review workflow, Scenario Studio, product UI, test suite, and documentation. The main engineering decisions were to keep learner actions authoritative, make evidence visible during play, preserve a complete no-key path, and treat generated content as validated proposals rather than world state.
+
+Run `npm run verify:ai` for the model-boundary and API suite. With a local server and `OPENAI_API_KEY`, run `npm run verify:live` to require live provenance from research, generation, role dialogue, review, and Evidence Coach; the command fails if any path uses reviewed fallback content.
 
 ## Quick Start
 
@@ -186,20 +209,23 @@ docker run --rm -p 3000:3000 \
 | `npm test` | Run the Vitest state and component suite once. |
 | `npm run test:watch` | Run Vitest in watch mode. |
 | `npm run test:e2e` | Run the Playwright browser suite. |
+| `npm run verify:ai` | Run the focused AI schema, guardrail, adapter, and API suite. |
+| `npm run verify:live` | Require live provenance across every GPT-5.6 path on a running server. |
 
 ## Architecture
 
 ```text
 src/
   app/
-    api/                            Server-only research, generation, turn, debrief routes
+    api/                            Server-only research, generation, turn, debrief, coach routes
+    rehearsal/                      Direct learner entry to the flagship rehearsal
     studio/                         Educator workflow and live flagship preview
   ai/
     schemas/                        Runtime contracts, cross-references, safety validation
     research/                       Institution Research Agent adapter
     scenarios/                      Scenario Architect adapter
     simulation/                     Bounded Director and role-turn validation
-    debrief/                        Trace-grounded coaching adapter
+    debrief/                        Trace-grounded review and Evidence Coach adapters
   fixtures/                         Reviewed profile, scenario, and dialogue content
   product/
     Game.tsx                        Session-level case selection and completion
@@ -250,11 +276,12 @@ Before a change is ready:
 npm run lint
 npm run typecheck
 npm test
+npm run verify:ai
 npm run build
 npm run test:e2e
 ```
 
-The current suite contains 83 schema, API, state, and component tests plus 14 browser tests. Coverage includes profile review, exact-brand authorization, authoritative hostname validation, source evidence, competing verification channels, evidence discovery, action prerequisites, affected-layer recovery, recorded-action review, transfer evaluation, malformed adaptive output, instruction-injection rejection, all outcomes, reviewed examples, complete safe and incident paths, 1366x768 through 1920x1080 desktop layouts, and 390x844 phone flows.
+The current suite contains 88 schema, API, state, and component tests plus 15 browser tests. Coverage includes the featured direct entry, profile review, exact-brand authorization, authoritative hostname validation, source evidence, competing verification channels, evidence discovery, Evidence Coach citations, action prerequisites, affected-layer recovery, recorded-action review, transfer evaluation, facilitator reporting, malformed adaptive output, instruction-injection rejection, all outcomes, reviewed examples, complete safe and incident paths, 1366x768 through 1920x1080 desktop layouts, and 390x844 phone flows.
 
 ## Safety and Privacy
 
@@ -276,9 +303,9 @@ Focused issues and pull requests are welcome. Preserve the product rules in `AGE
 - The first case is intentionally desktop-only because its multi-window workspace needs at least 1100 px.
 - Desktop windows have fixed positions and cannot be freely dragged or resized.
 - Sound is synthesized in the browser; there is no music or voice acting.
-- There is no login, database, saved progress, collaboration system, localization framework, or real campus integration.
+- There is no login, database, saved progress, collaboration system, runtime localization framework, or real campus integration.
 - Live adaptive behavior requires a valid API key and network access; reviewed examples keep the complete product flow available without either.
 
 ## License
 
-No open-source license has been published for this repository. Until a license is added, the source is available for inspection but no reuse rights are granted.
+Licensed under the [MIT License](./LICENSE).

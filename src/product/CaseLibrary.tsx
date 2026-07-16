@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Clock3, FolderKey, MapPin, ShieldCheck, Sparkles, Wifi } from "lucide-react";
+import { ArrowRight, BrainCircuit, CheckCircle2, Clock3, FolderKey, MapPin, ShieldCheck, Sparkles, Wifi } from "lucide-react";
 import Link from "next/link";
 import { caseCatalog } from "@/product/caseRegistry";
 import type { CaseEnding, ProductCaseId } from "@/cases/types";
@@ -22,17 +22,29 @@ export function CaseLibrary({
   return (
     <main className="case-library">
       <header className="library-topbar">
-        <div className="system-brand"><span className="brand-mark">N</span><span>一步之差</span></div>
-        <div className="library-progress"><span>NYU DIGITAL SAFETY FILES</span><strong>{completedCount} / {caseCatalog.length} 已完成</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
+        <div className="system-brand"><span className="brand-mark">1</span><span>One Step Wrong</span></div>
+        <div className="library-progress"><span>DIGITAL JUDGMENT REHEARSALS</span><strong>{completedCount} / {caseCatalog.length} complete</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
       </header>
 
       <div className="library-body">
         <header className="library-heading">
-          <div><span>CASE ARCHIVE · FALL 2026</span><h1>选择一个案例</h1><p>每个故事都从一件普通任务开始。结果取决于你实际做了什么，而不是答对了几道题。</p></div>
-          <dl><div><dt>可玩章节</dt><dd>{caseCatalog.length}</dd></div><div><dt>预计总时长</dt><dd>约 28 分钟</dd></div></dl>
+          <div><span>CASE ARCHIVE · FALL 2026</span><h1>Choose a rehearsal</h1><p>Every story begins with an ordinary task. The result follows what you actually do, not how many answers you get right.</p></div>
+          <dl><div><dt>Playable cases</dt><dd>{caseCatalog.length + 1}</dd></div><div><dt>Total time</dt><dd>About 36 min</dd></div></dl>
         </header>
 
-        <section className="case-grid" aria-label="案例列表">
+        <section className="featured-rehearsal" aria-labelledby="featured-rehearsal-title">
+          <div className="featured-rehearsal-mark"><BrainCircuit size={30} /></div>
+          <div>
+            <span>FEATURED · ADAPTIVE REHEARSAL</span>
+            <h2 id="featured-rehearsal-title">The Voice You Know</h2>
+            <p>A familiar voice requests an urgent payment change. Compare verification channels, collect evidence, and carry the judgment into a different task.</p>
+            <dl><div><MapPin size={13} /><span>Northbridge University</span></div><div><Clock3 size={13} /><span>About 8 minutes</span></div></dl>
+          </div>
+          <div className="featured-rehearsal-flow"><span>Practice</span><i /><span>Review</span><i /><span>Apply</span></div>
+          <Link data-testid="featured-rehearsal" href="/rehearsal">Start featured rehearsal <ArrowRight size={16} /></Link>
+        </section>
+
+        <section className="case-grid" aria-label="Case list">
           {caseCatalog.map((item) => {
             const isCompleted = Boolean(completed[item.id]);
             return (
@@ -44,7 +56,7 @@ export function CaseLibrary({
                   <small>{item.app}</small>
                 </div>
                 <div className="case-file-copy">
-                  <header><span>{item.kicker}</span>{isCompleted ? <small><CheckCircle2 size={13} /> 已完成</small> : <small>未开始</small>}</header>
+                  <header><span>{item.kicker}</span>{isCompleted ? <small><CheckCircle2 size={13} /> Complete</small> : <small>Not started</small>}</header>
                   <h2>{item.title}</h2>
                   <p>{item.summary}</p>
                   <dl>
@@ -53,7 +65,7 @@ export function CaseLibrary({
                   </dl>
                 </div>
                 <button data-testid={`case-${item.id}`} onClick={() => onStart(item.id)}>
-                  <span>{isCompleted ? "再次体验" : "开始案例"}</span><ArrowRight size={16} />
+                  <span>{isCompleted ? "Replay case" : "Start case"}</span><ArrowRight size={16} />
                 </button>
               </article>
             );
@@ -61,8 +73,8 @@ export function CaseLibrary({
         </section>
 
         <footer className="library-footnote">
-          <span>三个案例 · 三种数字边界</span>
-          <p>连接来源、共享范围、登录确认。每章都可以独立重玩。</p>
+          <span>Four rehearsals · Four judgment patterns</span>
+          <p>Verify sources, scope sharing, bind authentication to your own action, and challenge familiar requests.</p>
         </footer>
       </div>
     </main>

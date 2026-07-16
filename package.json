@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "verify:ai": "vitest run src/ai src/app/api",
+    "verify:live": "node scripts/verify-live.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

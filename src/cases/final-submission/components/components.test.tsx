@@ -17,16 +17,16 @@ describe("interactive components", () => {
     expect(screen.getByText("nyu")).toBeInTheDocument();
     expect(screen.getByText("nyuguest")).toBeInTheDocument();
     expect(screen.getByText("NYU_Free_5G")).toBeInTheDocument();
-    expect(screen.queryByText("危险网络")).not.toBeInTheDocument();
-    expect(screen.queryByText("推荐")).not.toBeInTheDocument();
+    expect(screen.queryByText("Dangerous network")).not.toBeInTheDocument();
+    expect(screen.queryByText("Recommended")).not.toBeInTheDocument();
   });
 
   it("exposes objective publisher information in the install confirmation", () => {
     const initialState = { ...createInitialState(), installDialogOpen: true };
     render(<GameProvider initialState={initialState}><CertificateDialog /></GameProvider>);
-    expect(screen.getByTestId("install-dialog")).toHaveTextContent("发布者");
-    expect(screen.getByTestId("install-dialog")).toHaveTextContent("无法验证");
-    expect(screen.getByText("继续安装")).toBeEnabled();
+    expect(screen.getByTestId("install-dialog")).toHaveTextContent("Publisher");
+    expect(screen.getByTestId("install-dialog")).toHaveTextContent("Unverified");
+    expect(screen.getByText("Continue installation")).toBeEnabled();
   });
 
   it("requires the integrity confirmation before final submission", async () => {
@@ -41,41 +41,41 @@ describe("interactive components", () => {
       uploadProgress: 100,
     };
     render(<GameProvider initialState={initialState}><CourseSystemWindow /></GameProvider>);
-    const submit = screen.getByRole("button", { name: "提交至 Brightspace" });
+    const submit = screen.getByRole("button", { name: "Submit to Brightspace" });
     expect(submit).toBeDisabled();
-    await user.click(screen.getByRole("checkbox", { name: /本人完成的作业/ }));
+    await user.click(screen.getByRole("checkbox", { name: /my own work/ }));
     expect(submit).toBeEnabled();
   });
 
   it("offers review, self-confirmation and deferral on the first login alert", () => {
     render(<GameProvider initialState={createIncidentReplayState()}><NotificationToast /></GameProvider>);
     expect(screen.getByTestId("login-alert")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "查看详情" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "是我本人" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "稍后处理" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Review details" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "This was me" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Handle later" })).toBeEnabled();
   });
 
   it("revokes the unknown session as a real individual action", async () => {
     const user = userEvent.setup();
     render(<GameProvider initialState={createIncidentReplayState()}><SecurityCenterWindow /></GameProvider>);
-    await user.click(screen.getByRole("button", { name: "退出此设备" }));
-    expect(screen.getByTestId("unknown-session")).toHaveTextContent("会话已退出");
+    await user.click(screen.getByRole("button", { name: "End this session" }));
+    expect(screen.getByTestId("unknown-session")).toHaveTextContent("Session ended");
   });
 
   it("submits a prefilled IT report without collecting credentials", async () => {
     const user = userEvent.setup();
     const state = { ...createIncidentReplayState(), phase: "response" as const };
     render(<GameProvider initialState={state}><ITReportWindow /></GameProvider>);
-    await user.click(screen.getByRole("button", { name: "提交工单" }));
-    expect(screen.getByTestId("ticket-success")).toHaveTextContent("工单已创建");
+    await user.click(screen.getByRole("button", { name: "Submit ticket" }));
+    expect(screen.getByTestId("ticket-success")).toHaveTextContent("Ticket created");
   });
 
   it("renders a dynamic debrief timeline", () => {
     let state = createIncidentReplayState();
     state = gameReducer(state, { type: "FINISH_RESPONSE" });
     render(<GameProvider initialState={state}><DebriefScreen /></GameProvider>);
-    expect(screen.getByTestId("event-timeline")).toHaveTextContent("作业提交成功");
-    expect(screen.getByTestId("event-timeline")).toHaveTextContent("账号在新设备上登录");
-    expect(screen.getByRole("button", { name: /重新体验完整案例/ })).toBeEnabled();
+    expect(screen.getByTestId("event-timeline")).toHaveTextContent("Assignment submitted");
+    expect(screen.getByTestId("event-timeline")).toHaveTextContent("Account signed in on a new device");
+    expect(screen.getByRole("button", { name: /Replay the full case/ })).toBeEnabled();
   });
 });

@@ -15,43 +15,43 @@ export function SystemBar({ onExit }: { onExit?: () => void }) {
         <span>NYU Study Desk</span>
       </div>
       <div className="system-status">
-        {onExit ? <IconButton label="返回案例库" icon={<LayoutGrid size={15} />} onClick={onExit} /> : null}
+        {onExit ? <IconButton label="Return to case library" icon={<LayoutGrid size={15} />} onClick={onExit} /> : null}
         <IconButton
-          label={state.countdownPaused ? "继续倒计时" : "暂停倒计时"}
+          label={state.countdownPaused ? "Resume countdown" : "Pause countdown"}
           icon={state.countdownPaused ? <Play size={15} /> : <Pause size={15} />}
           active={state.countdownPaused}
           onClick={() => dispatch({ type: "TOGGLE_PAUSE" })}
         />
         <IconButton
-          label={state.reducedMotion ? "启用动画" : "减少动画"}
+          label={state.reducedMotion ? "Enable motion" : "Reduce motion"}
           icon={<Zap size={15} />}
           active={state.reducedMotion}
           onClick={() => dispatch({ type: "TOGGLE_REDUCED_MOTION" })}
         />
         <IconButton
-          label={state.muted ? "打开音效" : "静音"}
+          label={state.muted ? "Enable sound" : "Mute sound"}
           icon={state.muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
           active={state.muted}
           onClick={() => dispatch({ type: "TOGGLE_MUTE" })}
         />
         <IconButton
-          label="打开网络列表"
+          label="Open network list"
           icon={<Wifi size={16} />}
           active={state.networkPanelOpen}
           onClick={() => dispatch({ type: "TOGGLE_NETWORK_PANEL" })}
         />
-        <BatteryMedium size={17} aria-label="电量 68%" />
+        <BatteryMedium size={17} aria-label="Battery 68%" />
         <button
           className="status-notification"
-          aria-label={`通知中心，${unread} 条未读`}
-          title="通知中心"
+          aria-label={`Notification center, ${unread} unread`}
+          title="Notification center"
           onClick={() => dispatch({ type: "TOGGLE_NOTIFICATION_CENTER" })}
         >
           <Bell size={16} />
           {unread > 0 ? <span>{unread}</span> : null}
         </button>
         <time>23:47</time>
-        <span className={`connection-dot ${connected ? "is-online" : ""}`} title={connected ? "已连接" : "连接不稳定"} />
+        <span className={`connection-dot ${connected ? "is-online" : ""}`} title={connected ? "Connected" : "Connection unstable"} />
       </div>
     </header>
   );

@@ -8,6 +8,8 @@
 
 The first screen is always the playable case library. Do not replace it with a landing page, feature tour, or marketing introduction.
 
+The default product language is English. Keep `README.zh-CN.md` as the complete Chinese documentation counterpart; do not introduce a runtime localization framework unless the product scope explicitly expands to multilingual delivery.
+
 ## Non-Negotiable Product Rules
 
 - Do not present the experience as a quiz.
@@ -53,6 +55,7 @@ src/
 - `src/product/CaseLibrary.tsx` renders registry metadata; it must not contain story logic.
 - `src/product/caseRegistry.ts` is the only published-case registry.
 - Do not branch on concrete case IDs in the product shell.
+- The featured rehearsal may link directly to `/rehearsal`, but it must reuse the same validated scenario, simulation engine, review, transfer, and facilitator-report implementation as Scenario Studio.
 
 ### Case modules
 
@@ -96,6 +99,7 @@ src/
 - Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
 - Derive missed recovery from affected layers. Do not require access, account, payment, evidence, notification, or reporting work when that layer was never affected by the demonstrated trace.
 - Debrief models may select only canonical cause-chain, performed-action, missed-recovery, and transfer-rule IDs. Compose learner-facing coaching from validated scenario and trace text on the server; do not accept unconstrained model-authored event claims.
+- Evidence Coach answers may use only evidence discovered in the recorded trace and approved source facts attached to the scenario. Reject undiscovered evidence, unsupported policy, invented actions, and unrelated facts.
 - Every generated flagship scenario must include one short transfer probe that applies the primary judgment rule to a different task, surface, and pressure. Its three actions remain unmarked until selection and cover demonstrated, developing, and not-yet outcomes.
 - Evaluate transfer probes in `src/engine/simulation/physics.ts` from the learner's explicit action. Models may generate validated probe content, but they must not select the action, score the learner, or rewrite the recorded result.
 - Reject role leakage, invented institution facts, out-of-scope events, prompt injection, executable instructions, and claims that unrecorded actions occurred.
@@ -151,6 +155,7 @@ src/
 - OpenAI requests may include a public institution name, official domain, public policy text, sanitized fictional teaching brief, bounded role cards, and the minimum sanitized conversational context needed for the current turn. They must never include private organizational data or personal data, and must use bounded payloads, timeouts, runtime validation, source review, and a deterministic offline fallback.
 - Treat learner messages as untrusted input. They cannot override system instructions, the world bible, role cards, tool allowlists, canonical state, or safety policy.
 - Do not persist raw role dialogue by default; keep only transient session state and the minimum canonical event IDs required for the debrief.
+- Facilitator reports are current-session, discussion-ready views of the recorded trace, transfer result, and approved guidance. Do not add learner identity, analytics, raw-dialogue export, or background persistence.
 - A device-compatibility state may explain that a chapter needs a wider screen, but it must provide a working route back to the case library.
 
 ## Interaction and Visual Quality

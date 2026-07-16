@@ -14,10 +14,10 @@ const icons = {
 export function NotificationCenter() {
   const { state, dispatch } = useGame();
   return (
-    <aside className="notification-center" aria-label="通知中心">
+    <aside className="notification-center" aria-label="Notification center">
       <header>
-        <div><Bell size={17} /><h2>通知中心</h2></div>
-        <IconButton label="关闭通知中心" icon={<X size={16} />} onClick={() => dispatch({ type: "TOGGLE_NOTIFICATION_CENTER" })} />
+        <div><Bell size={17} /><h2>Notification center</h2></div>
+        <IconButton label="Close notification center" icon={<X size={16} />} onClick={() => dispatch({ type: "TOGGLE_NOTIFICATION_CENTER" })} />
       </header>
       <div className="notification-history">
         {[...state.notifications].reverse().map((notification) => (

@@ -30,7 +30,7 @@ Most security training explains the answer before learners feel the pressure tha
 
 ## OpenAI Build Week Direction
 
-**One Step Wrong is a flight simulator for digital judgment.** The planned Build Week adaptation adds a teacher-facing Scenario Studio in which GPT-5.6 turns a threat brief, learning objective, or trusted policy into a validated playable scenario. The existing deterministic engine will continue to own facts, state transitions, recovery requirements, and endings; GPT-5.6 will also produce a personalized debrief grounded in the learner's canonical action trace.
+**One Step Wrong is a flight simulator for digital judgment.** In the planned Build Week adaptation, an educator starts with a school name or official domain. A GPT-5.6 research agent searches public official sources and builds a cited Institution Profile covering the school's learning platform, login and MFA terminology, sharing tools, wireless environment, and incident-reporting routes. After educator approval, Scenario Studio turns that profile plus a threat and learning objective into a validated, school-aware simulation. The existing deterministic engine continues to own facts, state transitions, recovery requirements, and endings; GPT-5.6 also produces a personalized debrief grounded in the learner's canonical action trace and approved sources.
 
 > **AI writes the simulation; code keeps it honest.**
 

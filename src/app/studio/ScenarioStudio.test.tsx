@@ -21,6 +21,17 @@ afterEach(() => {
 });
 
 describe("Scenario Studio profile review", () => {
+  it("gates exact-brand research behind an explicit authorization confirmation", async () => {
+    const user = userEvent.setup();
+    render(<ScenarioStudio />);
+
+    await user.click(screen.getByRole("button", { name: "Authorized exact" }));
+    expect(screen.getByRole("button", { name: "Research official sources" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Load reviewed example" })).toBeDisabled();
+    await user.click(screen.getByRole("checkbox", { name: /Authorization confirmed/ }));
+    expect(screen.getByRole("button", { name: "Research official sources" })).toBeEnabled();
+  });
+
   it("requires the educator to resolve conflicts and approve supporting sources", async () => {
     const user = userEvent.setup();
     const profile = pendingConflictProfile();

@@ -1,9 +1,11 @@
 import { z } from "zod";
 import {
   bodyTextSchema,
+  containsUnsafeInstruction,
   findDuplicates,
   hostnameMatchesDomain,
   idSchema,
+  isValidHostname,
   normalizeDomain,
   shortTextSchema,
   toValidationResult,
@@ -23,7 +25,7 @@ export const publicationModeSchema = z.enum(["authorized-exact", "brand-safe-fic
 
 export const institutionSourceSchema = z.object({
   id: idSchema,
-  url: z.url().max(500),
+  url: z.url().max(500).refine((url) => new URL(url).protocol === "https:", "Sources must use HTTPS."),
   title: shortTextSchema,
   publisher: shortTextSchema,
   accessedAt: z.iso.datetime(),
@@ -49,6 +51,10 @@ export const institutionProfileSchema = z
     id: idSchema,
     displayName: shortTextSchema,
     publicationMode: publicationModeSchema,
+    brandAuthorization: z.object({
+      exactBrandUseConfirmed: z.boolean(),
+      confirmedAt: z.iso.datetime().optional(),
+    }),
     officialDomains: z.array(z.string().trim().min(3).max(253)).min(1).max(6),
     protectedTerms: z.array(shortTextSchema).min(1).max(20),
     facts: z.array(institutionFactSchema).min(1).max(30),
@@ -62,12 +68,29 @@ export const institutionProfileSchema = z
     }),
   })
   .superRefine((profile, context) => {
+    if (profile.publicationMode === "authorized-exact" && !profile.brandAuthorization.exactBrandUseConfirmed) {
+      context.addIssue({
+        code: "custom",
+        path: ["brandAuthorization", "exactBrandUseConfirmed"],
+        message: "Exact-brand profiles require explicit authorization.",
+      });
+    }
+    if (profile.brandAuthorization.exactBrandUseConfirmed && !profile.brandAuthorization.confirmedAt) {
+      context.addIssue({
+        code: "custom",
+        path: ["brandAuthorization", "confirmedAt"],
+        message: "Authorized exact-brand use requires a confirmation time.",
+      });
+    }
     const normalizedDomains = profile.officialDomains.map(normalizeDomain);
     for (const duplicate of findDuplicates(normalizedDomains)) {
       context.addIssue({ code: "custom", path: ["officialDomains"], message: `Duplicate domain: ${duplicate}` });
     }
 
     profile.officialDomains.forEach((domain, index) => {
+      if (!isValidHostname(domain)) {
+        context.addIssue({ code: "custom", path: ["officialDomains", index], message: "Domains must be valid public hostnames." });
+      }
       if (normalizeDomain(domain) !== domain) {
         context.addIssue({ code: "custom", path: ["officialDomains", index], message: "Domains must be normalized hostnames." });
       }
@@ -130,6 +153,9 @@ export const institutionProfileSchema = z
           });
         }
       }
+    }
+    if (containsUnsafeInstruction(profile)) {
+      context.addIssue({ code: "custom", path: [], message: "Institution profile contains executable or credential-collection instructions." });
     }
   });
 

@@ -1,7 +1,7 @@
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import type OpenAI from "openai";
-import { idSchema, normalizeDomain, shortTextSchema } from "@/ai/schemas/common";
+import { idSchema, isValidHostname, normalizeDomain, shortTextSchema } from "@/ai/schemas/common";
 import {
   institutionFactCategories,
   institutionProfileSchema,
@@ -11,12 +11,26 @@ import {
 import { buildInstitutionResearchInput, institutionResearchInstructions } from "@/ai/prompts/institutionResearch";
 import { getOpenAIClient, OPENAI_MODEL } from "@/ai/openai/server";
 
-export const institutionResearchRequestSchema = z.object({
-  institutionName: z.string().trim().min(2).max(120),
-  officialDomains: z.array(z.string().trim().min(3).max(253)).max(6).default([]),
-  publicationMode: publicationModeSchema.default("brand-safe-fictionalized"),
-  useFixture: z.boolean().default(false),
-});
+export const institutionResearchRequestSchema = z
+  .object({
+    institutionName: z.string().trim().min(2).max(120),
+    officialDomains: z
+      .array(z.string().trim().min(3).max(253).refine(isValidHostname, "Use a valid public hostname."))
+      .max(6)
+      .default([]),
+    publicationMode: publicationModeSchema.default("brand-safe-fictionalized"),
+    authorizationConfirmed: z.boolean().default(false),
+    useFixture: z.boolean().default(false),
+  })
+  .superRefine((request, context) => {
+    if (request.publicationMode === "authorized-exact" && !request.authorizationConfirmed) {
+      context.addIssue({
+        code: "custom",
+        path: ["authorizationConfirmed"],
+        message: "Confirm authorization before using exact institution branding.",
+      });
+    }
+  });
 
 export type InstitutionResearchRequest = z.infer<typeof institutionResearchRequestSchema>;
 
@@ -47,7 +61,6 @@ const researchOutputSchema = z.object({
         url: z.url().max(500),
         title: shortTextSchema,
         publisher: shortTextSchema,
-        accessedAt: z.iso.datetime(),
         authority: z.enum(["institution", "primary-vendor"]),
         supportsFactIds: z.array(idSchema).min(1).max(20),
       }),
@@ -83,13 +96,18 @@ export async function researchInstitution(
 
   if (!response.output_parsed) throw new Error("Institution research returned no structured profile.");
   const raw = response.output_parsed;
+  const officialDomains = domains.length ? domains : raw.officialDomains.map(normalizeDomain);
+  const accessedAt = new Date().toISOString();
   const profile = institutionProfileSchema.parse({
     ...raw,
     schemaVersion: "1.0",
     publicationMode: request.publicationMode,
-    officialDomains: raw.officialDomains.map(normalizeDomain),
+    brandAuthorization: request.publicationMode === "authorized-exact"
+      ? { exactBrandUseConfirmed: true, confirmedAt: accessedAt }
+      : { exactBrandUseConfirmed: false },
+    officialDomains,
     facts: raw.facts.map(({ note, ...fact }) => ({ ...fact, ...(note ? { note } : {}) })),
-    sources: raw.sources.map((source) => ({ ...source, reviewStatus: "review-required" as const })),
+    sources: raw.sources.map((source) => ({ ...source, accessedAt, reviewStatus: "review-required" as const })),
     approval: { status: "review-required" },
   });
   return profile;

@@ -72,6 +72,11 @@ test("studio remains usable without horizontal overflow on mobile", async ({ pag
   await page.goto("/studio");
   await expect(page.getByTestId("studio-research")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.getByRole("button", { name: "Authorized exact" }).click();
+  await expect(page.getByRole("button", { name: "Research official sources" })).toBeDisabled();
+  await page.getByRole("checkbox", { name: /Authorization confirmed/ }).check();
+  await expect(page.getByRole("button", { name: "Research official sources" })).toBeEnabled();
+  await page.getByRole("button", { name: "Brand-safe" }).click();
   await page.getByRole("button", { name: "Load reviewed example" }).click();
   await expect(page.getByTestId("studio-profile")).toBeVisible();
   await expect(page.getByRole("region", { name: "Source review" })).toBeVisible();

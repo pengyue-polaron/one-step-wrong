@@ -59,6 +59,17 @@ export function normalizeDomain(value: string) {
     .replace(/^www\./, "");
 }
 
+export function isValidHostname(value: string) {
+  const hostname = normalizeDomain(value);
+  if (hostname.length < 3 || hostname.length > 253 || !hostname.includes(".")) return false;
+  return hostname.split(".").every(
+    (label) =>
+      label.length >= 1
+      && label.length <= 63
+      && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label),
+  );
+}
+
 export function hostnameMatchesDomain(url: string, domain: string) {
   try {
     const hostname = new URL(url).hostname.toLowerCase().replace(/^www\./, "");

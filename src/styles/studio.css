@@ -51,6 +51,9 @@
 .studio-mode button { min-height: 42px; color: #657079; background: #f1efea; border: 1px solid #9ca4a6; }
 .studio-mode button + button { border-left: 0; }
 .studio-mode button.is-active { color: #fff; background: #276a69; border-color: #1d5353; }
+.studio-authorization { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: start; gap: 9px; padding: 11px 12px; color: #5f4f2c; background: #eee5cf; border: 1px solid #c8b47d; font-size: 9px; line-height: 1.5; }
+.studio-authorization input { width: 16px; height: 16px; margin: 1px 0 0; accent-color: #276a69; }
+.studio-authorization span { display: grid; gap: 3px; }.studio-authorization strong { color: #3f3420; font: 700 9px var(--font-pixel); }
 .studio-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #b9bcbb; }
 .studio-button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 8px; padding: 8px 12px; color: #30404b; background: #f3f1eb; border: 1px solid #7d898e; border-radius: 2px; box-shadow: 2px 2px 0 rgba(35,45,50,.15); font-size: 11px; font-weight: 700; text-decoration: none; }
 .studio-button:hover:not(:disabled) { background: #fff; transform: translate(-1px, -1px); box-shadow: 3px 3px 0 rgba(35,45,50,.16); }

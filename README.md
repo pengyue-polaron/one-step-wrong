@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-71%20unit%20%2B%2013%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-77%20unit%20%2B%2013%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
@@ -48,6 +48,8 @@ GPT-5.6 is used before play for institution research and scenario compilation, d
 The flagship case, **The Voice You Know**, uses fictional Northbridge University and no real person, voice, payment detail, or campus action. See [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md) for the product brief, [`BUILD_WEEK_EVIDENCE.md`](./BUILD_WEEK_EVIDENCE.md) for the reproducible evidence and three-minute demo runbook, and [`AGENTS.md`](./AGENTS.md) for the enforced architecture and safety boundaries.
 
 The reviewed offline profile is grounded in public NYU pages for [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system), [Duo and file sharing](https://tisch.nyu.edu/cit/information-technology/faq), [Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu), [wireless access](https://library.nyu.edu/services/computing/on-campus/wifi/), [phishing indicators and reporting](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/), and [student reimbursement documentation](https://www.stern.nyu.edu/portal-partners/budget/students). The profile explicitly leaves a university-wide payment-change callback rule unknown. Brand-safe compilation then transforms protected names, domains, and platforms while retaining source fact IDs.
+
+Brand-safe fictionalization is the default. Authorized exact-brand research requires an explicit permission confirmation, and that confirmation is carried in the validated Institution Profile. When an official domain is supplied, model output cannot replace it; institution evidence must remain on that domain, use HTTPS, and receive a server-authored access time.
 
 ## Playable Cases
 
@@ -247,7 +249,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 71 schema, API, state, and component tests plus 13 browser tests. Coverage includes actionable profile review, atomic fixture/profile attribution, action prerequisites, affected-layer recovery, malformed AI output, source-domain checks, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
+The current suite contains 77 schema, API, state, and component tests plus 13 browser tests. Coverage includes actionable profile review, exact-brand authorization, authoritative hostname validation, HTTPS evidence, server access times, atomic fixture/profile attribution, action prerequisites, affected-layer recovery, malformed AI output, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
 
 ## Build Week Development
 

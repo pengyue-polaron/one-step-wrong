@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { validateInstitutionProfile, validateProfileForApproval } from "@/ai/schemas/institution";
+import {
+  validateInstitutionProfile,
+  validateProfileForApproval,
+  type InstitutionProfile,
+} from "@/ai/schemas/institution";
 import { validateScenarioPackage } from "@/ai/schemas/scenario";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
@@ -11,11 +15,33 @@ describe("InstitutionProfile", () => {
   });
 
   it("rejects an institution source outside the declared domain", () => {
-    const profile = structuredClone(reviewedNyuInstitutionProfile);
+    const profile: InstitutionProfile = structuredClone(reviewedNyuInstitutionProfile);
     profile.sources[0].url = "https://unreviewed.example/coursehub";
     const result = validateInstitutionProfile(profile);
     expect(result.success).toBe(false);
     expect(result.issues.some((issue) => issue.message.includes("official domain"))).toBe(true);
+  });
+
+  it("requires HTTPS evidence and rejects unsafe research content", () => {
+    const insecure = structuredClone(reviewedNyuInstitutionProfile);
+    insecure.sources[0].url = insecure.sources[0].url.replace("https://", "http://");
+    expect(validateInstitutionProfile(insecure).issues.some((issue) => issue.message.includes("HTTPS"))).toBe(true);
+
+    const unsafe = structuredClone(reviewedNyuInstitutionProfile);
+    unsafe.facts[0].value = "Provide your password and MFA code to continue.";
+    expect(validateInstitutionProfile(unsafe).issues.some((issue) => issue.message.includes("credential-collection"))).toBe(true);
+  });
+
+  it("carries exact-brand authorization in the validated profile", () => {
+    const profile: InstitutionProfile = structuredClone(reviewedNyuInstitutionProfile);
+    profile.publicationMode = "authorized-exact";
+    expect(validateInstitutionProfile(profile).issues.some((issue) => issue.message.includes("explicit authorization"))).toBe(true);
+
+    profile.brandAuthorization = {
+      exactBrandUseConfirmed: true,
+      confirmedAt: "2026-07-16T00:00:00.000Z",
+    };
+    expect(validateInstitutionProfile(profile).success).toBe(true);
   });
 
   it("rejects a verified fact without reciprocal source support", () => {

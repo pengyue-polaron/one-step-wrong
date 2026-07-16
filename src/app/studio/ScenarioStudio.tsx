@@ -115,6 +115,7 @@ export function ScenarioStudio() {
   const [institutionName, setInstitutionName] = useState("New York University");
   const [officialDomain, setOfficialDomain] = useState("nyu.edu");
   const [publicationMode, setPublicationMode] = useState<InstitutionProfile["publicationMode"]>("brand-safe-fictionalized");
+  const [exactAuthorizationConfirmed, setExactAuthorizationConfirmed] = useState(false);
   const [profile, setProfile] = useState<InstitutionProfile | null>(null);
   const [profileProvenance, setProfileProvenance] = useState<Provenance | null>(null);
   const [brief, setBrief] = useState(initialBrief);
@@ -152,6 +153,7 @@ export function ScenarioStudio() {
           institutionName,
           officialDomains: officialDomain.trim() ? [officialDomain.trim()] : [],
           publicationMode,
+          authorizationConfirmed: exactAuthorizationConfirmed,
           useFixture,
         }),
       });
@@ -167,7 +169,13 @@ export function ScenarioStudio() {
     if (!profile) return;
     const approved: InstitutionProfile = {
       ...profile,
-      approval: { status: "approved", reviewedAt: new Date().toISOString(), reviewerNote: "Reviewed in Scenario Studio." },
+      approval: {
+        status: "approved",
+        reviewedAt: new Date().toISOString(),
+        reviewerNote: profile.publicationMode === "authorized-exact"
+          ? "Reviewed in Scenario Studio after exact-brand authorization was confirmed."
+          : "Reviewed in Scenario Studio for brand-safe fictionalized publication.",
+      },
     };
     const validation = validateProfileForApproval(approved);
     if (!validation.success) {
@@ -298,7 +306,7 @@ export function ScenarioStudio() {
   }
 
   function restart() {
-    setStage("research"); setProfile(null); setScenario(null); setSimulation(null); setMessages([]); setDebrief(null); setNotice(""); setError("");
+    setStage("research"); setProfile(null); setScenario(null); setSimulation(null); setMessages([]); setDebrief(null); setNotice(""); setError(""); setExactAuthorizationConfirmed(false);
   }
 
   return (
@@ -319,18 +327,19 @@ export function ScenarioStudio() {
             <div className="studio-section" data-testid="studio-research">
               <header className="studio-section-heading"><span>01 / INSTITUTION RESEARCH</span><h1>Ground the rehearsal in a real learning environment.</h1><p>Start with a school and public official domain. Every retained fact will stay attached to reviewable evidence.</p></header>
               <div className="studio-form-grid">
-                <label className="studio-field studio-field-wide"><span>Institution</span><input value={institutionName} maxLength={120} onChange={(event) => setInstitutionName(event.target.value)} /></label>
-                <label className="studio-field"><span>Official domain</span><input value={officialDomain} maxLength={253} onChange={(event) => setOfficialDomain(event.target.value)} /></label>
-                <fieldset className="studio-field studio-mode"><legend>Publication mode</legend><div><button className={publicationMode === "brand-safe-fictionalized" ? "is-active" : ""} onClick={() => setPublicationMode("brand-safe-fictionalized")} type="button">Brand-safe</button><button className={publicationMode === "authorized-exact" ? "is-active" : ""} onClick={() => setPublicationMode("authorized-exact")} type="button">Authorized exact</button></div></fieldset>
+                <label className="studio-field studio-field-wide"><span>Institution</span><input value={institutionName} maxLength={120} onChange={(event) => { setInstitutionName(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
+                <label className="studio-field"><span>Official domain</span><input value={officialDomain} maxLength={253} onChange={(event) => { setOfficialDomain(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
+                <fieldset className="studio-field studio-mode"><legend>Publication mode</legend><div><button className={publicationMode === "brand-safe-fictionalized" ? "is-active" : ""} onClick={() => { setPublicationMode("brand-safe-fictionalized"); setExactAuthorizationConfirmed(false); }} type="button">Brand-safe</button><button className={publicationMode === "authorized-exact" ? "is-active" : ""} onClick={() => { setPublicationMode("authorized-exact"); setExactAuthorizationConfirmed(false); }} type="button">Authorized exact</button></div></fieldset>
+                {publicationMode === "authorized-exact" && <label className="studio-authorization studio-field-wide"><input checked={exactAuthorizationConfirmed} onChange={(event) => setExactAuthorizationConfirmed(event.target.checked)} type="checkbox" /><span><strong>Authorization confirmed</strong>I have permission to use this institution&apos;s exact name and terminology in the published rehearsal.</span></label>}
               </div>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={busy || institutionName.trim().length < 2} onClick={() => research(false)}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FileSearch size={16} />}Research official sources</button><button className="studio-button" disabled={busy} onClick={() => research(true)}><BookOpenCheck size={16} />Load reviewed example</button></div>
+              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={busy || institutionName.trim().length < 2 || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(false)}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FileSearch size={16} />}Research official sources</button><button className="studio-button" disabled={busy || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(true)}><BookOpenCheck size={16} />Load reviewed example</button></div>
               <div className="studio-process-strip"><div><span>1</span><strong>Search</strong><small>Public official pages</small></div><ArrowRight size={16} /><div><span>2</span><strong>Validate</strong><small>Domains and citations</small></div><ArrowRight size={16} /><div><span>3</span><strong>Approve</strong><small>Educator decision</small></div></div>
             </div>
           )}
 
           {stage === "profile" && profile && (
             <div className="studio-section" data-testid="studio-profile">
-              <header className="studio-section-heading studio-heading-row"><div><span>02 / PROFILE REVIEW</span><h1>{profile.displayName}</h1><p>{profile.officialDomains.join(" · ")} · {profile.facts.filter((fact) => fact.status === "verified").length} verified facts · {profile.unresolvedFields.length} unknown</p></div><ProvenanceBadge value={profileProvenance} /></header>
+              <header className="studio-section-heading studio-heading-row"><div><span>02 / PROFILE REVIEW</span><h1>{profile.displayName}</h1><p>{profile.officialDomains.join(" · ")} · {profile.publicationMode.replaceAll("-", " ")} · {profile.facts.filter((fact) => fact.status === "verified").length} verified facts · {profile.unresolvedFields.length} unknown</p></div><ProvenanceBadge value={profileProvenance} /></header>
               <div className="profile-table" role="table" aria-label="Institution facts">
                 {profile.facts.map((fact, factIndex) => (
                   <div className="profile-row" role="row" key={fact.id}>

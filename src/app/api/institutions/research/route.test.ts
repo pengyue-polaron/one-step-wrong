@@ -42,4 +42,39 @@ describe("POST /api/institutions/research", () => {
     if (previous === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = previous;
   });
+
+  it("rejects exact-brand research without explicit authorization", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/institutions/research", {
+        method: "POST",
+        body: JSON.stringify({
+          institutionName: "New York University",
+          officialDomains: ["nyu.edu"],
+          publicationMode: "authorized-exact",
+          authorizationConfirmed: false,
+        }),
+      }),
+    );
+    const result = await response.json();
+    expect(response.status).toBe(400);
+    expect(result.issues[0].path).toBe("authorizationConfirmed");
+  });
+
+  it("rejects malformed official hostnames before research", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/institutions/research", {
+        method: "POST",
+        body: JSON.stringify({
+          institutionName: "New York University",
+          officialDomains: ["http://"],
+        }),
+      }),
+    );
+    const result = await response.json();
+    expect(response.status).toBe(400);
+    expect(result.issues[0]).toEqual({
+      path: "officialDomains.0",
+      message: "Use a valid public hostname.",
+    });
+  });
 });

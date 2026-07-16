@@ -5,6 +5,9 @@ export const reviewedNyuInstitutionProfile = {
   id: "new-york-university",
   displayName: "New York University",
   publicationMode: "brand-safe-fictionalized",
+  brandAuthorization: {
+    exactBrandUseConfirmed: false,
+  },
   officialDomains: ["nyu.edu"],
   protectedTerms: [
     "New York University",

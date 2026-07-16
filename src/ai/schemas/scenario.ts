@@ -12,7 +12,7 @@ import {
 import { publicationModeSchema } from "@/ai/schemas/institution";
 
 export const canonicalStateSchema = z.object({
-  identity: z.enum(["unverified", "verified-legitimate", "verified-false"]),
+  identity: z.enum(["unverified", "claimed-legitimate", "verified-legitimate", "verified-false"]),
   payment: z.enum(["pending", "paused", "released", "redirected"]),
   access: z.enum(["restricted", "shared", "revoked"]),
   evidence: z.enum(["unpreserved", "preserved"]),
@@ -187,7 +187,7 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       });
     });
     const stateValues: Record<string, readonly string[]> = {
-      identity: ["unverified", "verified-legitimate", "verified-false"],
+      identity: ["unverified", "claimed-legitimate", "verified-legitimate", "verified-false"],
       payment: ["pending", "paused", "released", "redirected"],
       access: ["restricted", "shared", "revoked"],
       evidence: ["unpreserved", "preserved"],

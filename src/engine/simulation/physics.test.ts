@@ -62,6 +62,21 @@ describe("deterministic simulation physics", () => {
     expect(trace.recoveryRequired).toBe(false);
   });
 
+  it("distinguishes same-channel reassurance from independent verification", () => {
+    const callback = run(["call-request-number"]);
+    expect(callback.canonical.identity).toBe("claimed-legitimate");
+    expect(callback.evidenceIds).toEqual(["callback-controlled"]);
+    expect(createCanonicalTrace(voiceYouKnowScenario, callback).endingId).toBe("caution");
+
+    const groupChat = run(["ask-team-chat"]);
+    expect(groupChat.canonical.identity).toBe("unverified");
+    expect(groupChat.evidenceIds).toEqual(["team-cannot-confirm"]);
+
+    const independent = run(["verify-adviser"]);
+    expect(independent.canonical.identity).toBe("verified-false");
+    expect(independent.evidenceIds).toEqual(["adviser-denial"]);
+  });
+
   it("does not unlock verification dialogue from free text or unrelated actions", () => {
     expect(eventIsAllowed(voiceYouKnowScenario, "adviser-confirmation", [])).toBe(false);
     expect(eventIsAllowed(voiceYouKnowScenario, "adviser-confirmation", ["pause-payment"])).toBe(false);

@@ -24,9 +24,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
-      notice: parsed.data.useFixture
-        ? "Loaded the reviewed NYU source profile for a brand-safe demo."
-        : "OpenAI is not configured, so the reviewed NYU source profile was loaded.",
+      notice: "The reviewed example institution is ready.",
     });
   }
 
@@ -35,13 +33,13 @@ export async function POST(request: Request) {
     return NextResponse.json({
       profile,
       provenance: "live-research",
-      notice: "Live public-source research is ready for human review. No fact is approved yet.",
+      notice: "Public guidance is ready for review. No fact is approved yet.",
     });
   } catch {
     return NextResponse.json({
       profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
-      notice: "Live research was unavailable. The reviewed NYU source profile was loaded instead.",
+      notice: "Source research could not be completed, so the reviewed example institution was loaded.",
     });
   }
 }

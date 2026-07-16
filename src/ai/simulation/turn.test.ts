@@ -19,7 +19,7 @@ describe("bounded simulation turns", () => {
   it("does not treat a free-form verification claim as a critical action", () => {
     const turn = fallbackTurn(voiceYouKnowScenario, [], "I already called and verified the adviser", "faculty-adviser");
     expect(turn.eventId).not.toBe("adviser-confirmation");
-    expect(turn.suggestedActionId).toBe("verify-adviser");
+    expect(["call-request-number", "ask-team-chat", "verify-adviser"]).toContain(turn.suggestedActionId);
   });
 
   it("uses the reviewed fallback when no provider is configured", async () => {

@@ -52,15 +52,22 @@ type Debrief = {
 
 type ApiIssue = { path?: string; message?: string };
 
-const workflow: Array<{ id: StudioStage; label: string; meta: string }> = [
+const authoringWorkflow: Array<{ id: StudioStage; label: string; meta: string }> = [
   { id: "research", label: "Research", meta: "Public sources" },
-  { id: "profile", label: "Review", meta: "Human approval" },
-  { id: "brief", label: "Architect", meta: "Teaching brief" },
-  { id: "preview", label: "Validate", meta: "Runtime package" },
-  { id: "live", label: "Rehearse", meta: "Bounded roles" },
-  { id: "debrief", label: "Debrief", meta: "Canonical trace" },
-  { id: "transfer", label: "Transfer", meta: "New context" },
+  { id: "profile", label: "Review", meta: "Approve context" },
+  { id: "brief", label: "Design", meta: "Learning brief" },
+  { id: "preview", label: "Preview", meta: "Scenario checks" },
 ];
+
+const learnerWorkflow: Array<{ id: StudioStage; label: string; meta: string }> = [
+  { id: "live", label: "Practice", meta: "Make the judgment" },
+  { id: "debrief", label: "Review", meta: "See what changed" },
+  { id: "transfer", label: "Apply", meta: "New context" },
+];
+
+function isLearnerStage(stage: StudioStage) {
+  return stage === "live" || stage === "debrief" || stage === "transfer";
+}
 
 const initialBrief = {
   threatTopic: "Voice impersonation and urgent payment changes",
@@ -77,13 +84,13 @@ function ProvenanceBadge({ value }: { value: Provenance | null }) {
   if (!value) return null;
   const isLive = value.startsWith("live");
   const labels: Record<Provenance, string> = {
-    "live-research": "GPT-5.6 research",
-    "live-generation": "GPT-5.6 architect",
-    "reviewed-fixture": "Reviewed fixture",
-    "live-role": "GPT-5.6 role",
-    "reviewed-fallback": "Reviewed dialogue",
-    "live-debrief": "GPT-5.6 debrief",
-    "deterministic-fallback": "Deterministic debrief",
+    "live-research": "Current source review",
+    "live-generation": "New scenario",
+    "reviewed-fixture": "Reviewed example",
+    "live-role": "Adaptive response",
+    "reviewed-fallback": "Reviewed response",
+    "live-debrief": "Personalized review",
+    "deterministic-fallback": "Recorded review",
   };
   const label = labels[value];
   return <span className={`studio-provenance ${isLive ? "is-live" : ""}`}><span />{label}</span>;
@@ -98,11 +105,38 @@ function formatApiError(payload: { error?: string; issues?: ApiIssue[] }, fallba
   return details?.length ? `${heading}\n${details.join("\n")}` : heading;
 }
 
+const stateLabels = {
+  identity: {
+    unverified: "not checked",
+    "claimed-legitimate": "callback claim only",
+    "verified-legitimate": "verified",
+    "verified-false": "request disproved",
+  },
+  payment: {
+    pending: "pending",
+    paused: "paused",
+    released: "released",
+    redirected: "changed",
+  },
+  access: {
+    restricted: "restricted",
+    shared: "shared",
+    revoked: "revoked",
+  },
+} as const;
+
+const transferOutcomeLabels = {
+  demonstrated: "applied independently",
+  developing: "partly applied",
+  "not-yet": "not applied yet",
+} as const;
+
 function StageRail({ stage }: { stage: StudioStage }) {
+  const workflow = isLearnerStage(stage) ? learnerWorkflow : authoringWorkflow;
   const current = workflow.findIndex((item) => item.id === stage);
   return (
     <aside className="studio-rail" aria-label="Scenario workflow">
-      <div className="studio-rail-title"><Sparkles size={15} /><span>Build Week Studio</span></div>
+      <div className="studio-rail-title"><Sparkles size={15} /><span>{isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio"}</span></div>
       <ol>
         {workflow.map((item, index) => (
           <li className={index === current ? "is-current" : index < current ? "is-complete" : ""} key={item.id}>
@@ -111,7 +145,7 @@ function StageRail({ stage }: { stage: StudioStage }) {
           </li>
         ))}
       </ol>
-      <div className="studio-rail-principle"><span>TRUST MODEL</span><strong>Agents perform the world.</strong><p>Typed actions define what actually happened.</p></div>
+      <div className="studio-rail-principle"><span>LEARNING MODEL</span><strong>Practice the judgment, not the answer.</strong><p>The story responds to you. Consequences follow the actions you take.</p></div>
     </aside>
   );
 }
@@ -131,7 +165,6 @@ export function ScenarioStudio() {
   const [messages, setMessages] = useState<DialogueLine[]>([]);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [messageDraft, setMessageDraft] = useState("");
-  const [suggestedActionId, setSuggestedActionId] = useState<string | null>(null);
   const [debrief, setDebrief] = useState<Debrief | null>(null);
   const [transferResult, setTransferResult] = useState<TransferProbeResult | null>(null);
   const [notice, setNotice] = useState("");
@@ -139,12 +172,11 @@ export function ScenarioStudio() {
   const [busy, setBusy] = useState(false);
 
   const sourceById = useMemo(() => new Map(profile?.sources.map((source) => [source.id, source]) ?? []), [profile]);
-  const latestRoleProvenance = useMemo(
-    () => messages.slice().reverse().find((line) => line.roleId !== "learner")?.provenance ?? null,
-    [messages],
-  );
+  const visibleVerificationActions = useMemo(() => scenario && simulation
+    ? scenario.criticalActions.filter((action) => action.kind === "verify" && (simulation.actionIds.includes(action.id) || actionIsAvailable(scenario, action.id, simulation.actionIds)))
+    : [], [scenario, simulation]);
   const visibleTaskActions = useMemo(() => scenario && simulation
-    ? scenario.criticalActions.filter((action) => action.phase !== "recovery" && (simulation.actionIds.includes(action.id) || actionIsAvailable(scenario, action.id, simulation.actionIds)))
+    ? scenario.criticalActions.filter((action) => action.phase !== "recovery" && action.kind !== "verify" && (simulation.actionIds.includes(action.id) || actionIsAvailable(scenario, action.id, simulation.actionIds)))
     : [], [scenario, simulation]);
   const visibleResponseActions = useMemo(() => scenario && simulation
     ? scenario.criticalActions.filter((action) => action.phase === "recovery" && (simulation.actionIds.includes(action.id) || actionIsAvailable(scenario, action.id, simulation.actionIds)))
@@ -189,7 +221,7 @@ export function ScenarioStudio() {
       setError(validation.issues.slice(0, 4).map((issue) => `${issue.path}: ${issue.message}`).join("\n") || "Resolve profile issues before approval.");
       return;
     }
-    setProfile(approved); setError(""); setNotice("Institution Profile approved for scenario compilation."); setStage("brief");
+    setProfile(approved); setError(""); setNotice("Institution context approved. Add the learning brief."); setStage("brief");
   }
 
   function updateFactStatus(factIndex: number, status: InstitutionProfile["facts"][number]["status"]) {
@@ -249,16 +281,15 @@ export function ScenarioStudio() {
     const role = scenario.roleCards.find((item) => item.id === opening.roleId)!;
     setSimulation(createSimulationState(scenario));
     setMessages([{ id: opening.id, roleId: opening.roleId, roleName: role.displayName, content: opening.content, provenance: "reviewed-fallback" }]);
-    setSelectedRoleId(opening.roleId); setSuggestedActionId(null); setDebrief(null); setTransferResult(null); setStage("live");
+    setSelectedRoleId(opening.roleId); setDebrief(null); setTransferResult(null); setNotice(""); setStage("live");
   }
 
   function performAction(actionId: string) {
     if (!scenario || !simulation) return;
     try {
       setSimulation(applyCriticalAction(scenario, simulation, actionId));
-      if (suggestedActionId === actionId) setSuggestedActionId(null);
     } catch {
-      setError("That action is not available in the current deterministic state.");
+      setError("That action is not available yet.");
     }
   }
 
@@ -289,7 +320,7 @@ export function ScenarioStudio() {
       const turn = result.turn;
       const role = scenario.roleCards.find((item) => item.id === turn.roleId)!;
       setMessages((current) => [...current, { id: `role-${Date.now()}`, roleId: turn.roleId, roleName: role.displayName, content: turn.content, provenance: turn.provenance }]);
-      setSelectedRoleId(turn.roleId); setSuggestedActionId(turn.suggestedActionId);
+      setSelectedRoleId(turn.roleId);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Role response failed.");
     } finally { setBusy(false); }
@@ -317,7 +348,7 @@ export function ScenarioStudio() {
     try {
       setTransferResult(evaluateTransferProbe(scenario, actionId));
     } catch {
-      setError("That transfer action is not part of the validated scenario.");
+      setError("That option is not available in this situation.");
     }
   }
 
@@ -329,8 +360,7 @@ export function ScenarioStudio() {
     <main className="studio-shell">
       <header className="studio-topbar">
         <Link href="/" className="studio-home-link"><ArrowLeft size={15} /><span>Case Library</span></Link>
-        <div className="studio-brand"><span className="studio-brand-mark">1</span><strong>One Step Wrong</strong><span>/ Scenario Studio</span></div>
-        <div className="studio-model-status"><span /> GPT-5.6 + FALLBACK</div>
+        <div className="studio-brand"><span className="studio-brand-mark">1</span><strong>One Step Wrong</strong><span>/ {isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio"}</span></div>
       </header>
 
       <div className="studio-layout">
@@ -341,21 +371,21 @@ export function ScenarioStudio() {
 
           {stage === "research" && (
             <div className="studio-section" data-testid="studio-research">
-              <header className="studio-section-heading"><span>01 / INSTITUTION RESEARCH</span><h1>Ground the rehearsal in a real learning environment.</h1><p>Start with a school and public official domain. Every retained fact will stay attached to reviewable evidence.</p></header>
+              <header className="studio-section-heading"><span>01 / INSTITUTION CONTEXT</span><h1>Start with the environment students already know.</h1><p>Use public guidance to match the school&apos;s terminology, tools, and reporting routes.</p></header>
               <div className="studio-form-grid">
                 <label className="studio-field studio-field-wide"><span>Institution</span><input value={institutionName} maxLength={120} onChange={(event) => { setInstitutionName(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
                 <label className="studio-field"><span>Official domain</span><input value={officialDomain} maxLength={253} onChange={(event) => { setOfficialDomain(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
-                <fieldset className="studio-field studio-mode"><legend>Publication mode</legend><div><button className={publicationMode === "brand-safe-fictionalized" ? "is-active" : ""} onClick={() => { setPublicationMode("brand-safe-fictionalized"); setExactAuthorizationConfirmed(false); }} type="button">Brand-safe</button><button className={publicationMode === "authorized-exact" ? "is-active" : ""} onClick={() => { setPublicationMode("authorized-exact"); setExactAuthorizationConfirmed(false); }} type="button">Authorized exact</button></div></fieldset>
-                {publicationMode === "authorized-exact" && <label className="studio-authorization studio-field-wide"><input checked={exactAuthorizationConfirmed} onChange={(event) => setExactAuthorizationConfirmed(event.target.checked)} type="checkbox" /><span><strong>Authorization confirmed</strong>I have permission to use this institution&apos;s exact name and terminology in the published rehearsal.</span></label>}
+                <fieldset className="studio-field studio-mode"><legend>Institution naming</legend><div><button className={publicationMode === "brand-safe-fictionalized" ? "is-active" : ""} onClick={() => { setPublicationMode("brand-safe-fictionalized"); setExactAuthorizationConfirmed(false); }} type="button">Fictionalized</button><button className={publicationMode === "authorized-exact" ? "is-active" : ""} onClick={() => { setPublicationMode("authorized-exact"); setExactAuthorizationConfirmed(false); }} type="button">Use exact names</button></div></fieldset>
+                {publicationMode === "authorized-exact" && <label className="studio-authorization studio-field-wide"><input checked={exactAuthorizationConfirmed} onChange={(event) => setExactAuthorizationConfirmed(event.target.checked)} type="checkbox" /><span><strong>Permission confirmed</strong>I have permission to use this institution&apos;s exact name and terminology in the rehearsal.</span></label>}
               </div>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={busy || institutionName.trim().length < 2 || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(false)}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FileSearch size={16} />}Research official sources</button><button className="studio-button" disabled={busy || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(true)}><BookOpenCheck size={16} />Load reviewed example</button></div>
-              <div className="studio-process-strip"><div><span>1</span><strong>Search</strong><small>Public official pages</small></div><ArrowRight size={16} /><div><span>2</span><strong>Validate</strong><small>Domains and citations</small></div><ArrowRight size={16} /><div><span>3</span><strong>Approve</strong><small>Educator decision</small></div></div>
+              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={busy || institutionName.trim().length < 2 || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(false)}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FileSearch size={16} />}Find public guidance</button><button className="studio-button" disabled={busy || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(true)}><BookOpenCheck size={16} />Use example institution</button></div>
+              <div className="studio-process-strip"><div><span>1</span><strong>Find</strong><small>Public official pages</small></div><ArrowRight size={16} /><div><span>2</span><strong>Check</strong><small>Sources and terminology</small></div><ArrowRight size={16} /><div><span>3</span><strong>Approve</strong><small>What the scenario may use</small></div></div>
             </div>
           )}
 
           {stage === "profile" && profile && (
             <div className="studio-section" data-testid="studio-profile">
-              <header className="studio-section-heading studio-heading-row"><div><span>02 / PROFILE REVIEW</span><h1>{profile.displayName}</h1><p>{profile.officialDomains.join(" · ")} · {profile.publicationMode.replaceAll("-", " ")} · {profile.facts.filter((fact) => fact.status === "verified").length} verified facts · {profile.unresolvedFields.length} unknown</p></div><ProvenanceBadge value={profileProvenance} /></header>
+              <header className="studio-section-heading studio-heading-row"><div><span>02 / CONTEXT REVIEW</span><h1>{profile.displayName}</h1><p>{profile.officialDomains.join(" · ")} · {profile.publicationMode === "brand-safe-fictionalized" ? "fictionalized names" : "exact institution names"} · {profile.facts.filter((fact) => fact.status === "verified").length} supported facts · {profile.unresolvedFields.length} open questions</p></div><ProvenanceBadge value={profileProvenance} /></header>
               <div className="profile-table" role="table" aria-label="Institution facts">
                 {profile.facts.map((fact, factIndex) => (
                   <div className="profile-row" role="row" key={fact.id}>
@@ -367,8 +397,8 @@ export function ScenarioStudio() {
                   </div>
                 ))}
               </div>
-              {profile.unresolvedFields.length > 0 && <div className="profile-unknowns"><CircleAlert size={16} /><div><strong>Explicit unknowns</strong><p>{profile.unresolvedFields.join(" · ")}</p></div></div>}
-              {profile.researchWarnings.length > 0 && <div className="profile-unknowns profile-warnings"><CircleAlert size={16} /><div><strong>Research warnings</strong>{profile.researchWarnings.map((warning) => <p key={warning}>{warning}</p>)}</div></div>}
+              {profile.unresolvedFields.length > 0 && <div className="profile-unknowns"><CircleAlert size={16} /><div><strong>Open questions</strong><p>{profile.unresolvedFields.join(" · ")}</p></div></div>}
+              {profile.researchWarnings.length > 0 && <div className="profile-unknowns profile-warnings"><CircleAlert size={16} /><div><strong>Review notes</strong>{profile.researchWarnings.map((warning) => <p key={warning}>{warning}</p>)}</div></div>}
               <section className="profile-sources" aria-label="Source review">
                 <header><div><strong>Source review</strong><small>Approve the evidence that may support verified facts.</small></div><span>{profile.sources.filter((source) => source.reviewStatus === "approved").length} / {profile.sources.length} approved</span></header>
                 {profile.sources.map((source) => (
@@ -384,7 +414,7 @@ export function ScenarioStudio() {
 
           {stage === "brief" && profile && (
             <div className="studio-section" data-testid="studio-brief">
-              <header className="studio-section-heading"><span>03 / SCENARIO ARCHITECT</span><h1>Frame one ordinary task under pressure.</h1><p>The architect receives only the approved profile and this bounded teaching brief.</p></header>
+              <header className="studio-section-heading"><span>03 / SCENARIO DESIGN</span><h1>Put one ordinary task under believable pressure.</h1><p>Define who is practicing, what they need to finish, and the judgment the rehearsal should exercise.</p></header>
               <div className="studio-form-grid">
                 <label className="studio-field studio-field-wide"><span>Threat topic</span><input value={brief.threatTopic} onChange={(e) => setBrief({ ...brief, threatTopic: e.target.value })} /></label>
                 <label className="studio-field"><span>Target learner</span><input value={brief.targetLearner} onChange={(e) => setBrief({ ...brief, targetLearner: e.target.value })} /></label>
@@ -394,41 +424,48 @@ export function ScenarioStudio() {
                 <label className="studio-field"><span>Pressure</span><textarea value={brief.pressure} onChange={(e) => setBrief({ ...brief, pressure: e.target.value })} /></label>
                 <label className="studio-field studio-field-wide"><span>Learning objective</span><textarea value={brief.learningObjective} onChange={(e) => setBrief({ ...brief, learningObjective: e.target.value })} /></label>
               </div>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={busy} onClick={() => generateScenario(false)}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Compile scenario</button><button className="studio-button" disabled={busy} onClick={() => generateScenario(true)}><BookOpenCheck size={16} />Compile flagship example</button></div>
+              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={busy} onClick={() => generateScenario(false)}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Create rehearsal</button><button className="studio-button" disabled={busy} onClick={() => generateScenario(true)}><BookOpenCheck size={16} />Use example rehearsal</button></div>
             </div>
           )}
 
           {stage === "preview" && scenario && (
             <div className="studio-section" data-testid="studio-preview">
-              <header className="studio-section-heading studio-heading-row"><div><span>04 / VALIDATED PACKAGE</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {profile?.displayName} · {scenario.publicationMode.replaceAll("-", " ")}</p></div><div className="validation-passed"><ShieldCheck size={18} /><span><strong>VALID</strong><small>Runtime schema passed</small></span></div></header>
+              <header className="studio-section-heading studio-heading-row"><div><span>04 / SCENARIO PREVIEW</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {profile?.displayName} · {scenario.publicationMode === "brand-safe-fictionalized" ? "fictionalized names" : "exact institution names"}</p></div><div className="validation-passed"><ShieldCheck size={18} /><span><strong>READY</strong><small>Scenario checks passed</small></span></div></header>
               <div className="scenario-summary-band"><div><span>Ordinary task</span><p>{scenario.intro.ordinaryTask}</p></div><div><span>Pressure</span><p>{scenario.intro.pressure}</p></div></div>
               <div className="scenario-columns">
-                <section><header><Users size={15} /><strong>Bounded cast</strong><ProvenanceBadge value={scenarioProvenance} /></header>{scenario.roleCards.map((role) => <div className="role-line" key={role.id}><span className={`role-dot is-${role.identityStatus}`} /><div><strong>{role.displayName}</strong><small>{role.identityStatus} · {role.allowedChannels[0]}</small></div></div>)}</section>
-                <section><header><Flag size={15} /><strong>Critical actions</strong><span>{scenario.criticalActions.length}</span></header>{scenario.criticalActions.map((action) => <div className="action-line" key={action.id}><span>{action.phase}</span><strong>{action.label}</strong></div>)}</section>
+                <section><header><Users size={15} /><strong>Scenario roles</strong><ProvenanceBadge value={scenarioProvenance} /></header>{scenario.roleCards.map((role) => <div className="role-line" key={role.id}><span className={`role-dot is-${role.identityStatus}`} /><div><strong>{role.displayName}</strong><small>{role.identityStatus} · {role.allowedChannels[0]}</small></div></div>)}</section>
+                <section><header><Flag size={15} /><strong>Learner actions</strong><span>{scenario.criticalActions.length}</span></header>{scenario.criticalActions.map((action) => <div className="action-line" key={action.id}><span>{action.phase === "recovery" ? "response" : "during task"}</span><strong>{action.label}</strong></div>)}</section>
               </div>
-              <div className="package-ledger"><span>{scenario.worldBible.immutableFacts.length} immutable facts</span><span>{scenario.allowedEvents.length} allowlisted events</span><span>{scenario.recoveryActionIds.length} recovery actions</span><span>4 deterministic endings</span></div>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={launchScenario}><Play size={16} />Launch rehearsal</button><button className="studio-button" onClick={() => setStage("brief")}><ArrowLeft size={16} />Edit brief</button></div>
+              <div className="package-ledger"><span>{scenario.worldBible.immutableFacts.length} ground rules</span><span>{scenario.allowedEvents.length} conversation moments</span><span>{scenario.recoveryActionIds.length} response steps</span><span>4 possible outcomes</span></div>
+              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={launchScenario}><Play size={16} />Start rehearsal</button><button className="studio-button" onClick={() => setStage("brief")}><ArrowLeft size={16} />Edit brief</button></div>
             </div>
           )}
 
           {stage === "live" && scenario && simulation && (
             <div className="studio-section studio-live" data-testid="studio-live">
-              <header className="studio-section-heading studio-heading-row"><div><span>05 / LIVE REHEARSAL</span><h1>{scenario.title}</h1><p>{scenario.intro.ordinaryTask}</p></div><div className="rehearsal-clock"><span>EVENT STARTS</span><strong>00:20:00</strong></div></header>
+              <header className="studio-section-heading studio-heading-row"><div><span>05 / REHEARSAL</span><h1>{scenario.title}</h1><p>{scenario.intro.ordinaryTask}</p></div><div className="rehearsal-clock"><span>EVENT STARTS</span><strong>00:20:00</strong></div></header>
               <div className="rehearsal-grid">
                 <section className="dialogue-workspace">
-                  <header><MessageSquareText size={16} /><strong>Conversation</strong><ProvenanceBadge value={latestRoleProvenance} /></header>
+                  <header><MessageSquareText size={16} /><strong>Conversation</strong></header>
                   <div className="dialogue-log" aria-live="polite">{messages.map((line) => { const role = scenario.roleCards.find((candidate) => candidate.id === line.roleId); return <article className={line.roleId === "learner" ? "is-learner" : ""} key={line.id}><div><strong>{line.roleName}</strong><small>{line.roleId === "learner" ? "learner" : role?.allowedChannels[0]}</small></div><p>{line.content}</p></article>; })}</div>
                   <div className="role-picker">{scenario.roleCards.map((role) => <button className={selectedRoleId === role.id ? "is-active" : ""} key={role.id} onClick={() => setSelectedRoleId(role.id)} title={role.allowedChannels[0]}><span className="role-dot" />{role.displayName}</button>)}</div>
                   <form className="dialogue-compose" onSubmit={sendMessage}><textarea aria-label="Message a role" maxLength={500} placeholder="Ask a natural question…" value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} /><button aria-label="Send message" disabled={busy || !messageDraft.trim()}>{busy ? <LoaderCircle className="is-spinning" size={17} /> : <Send size={17} />}</button></form>
                 </section>
                 <aside className="action-console">
-                  <header><ShieldCheck size={16} /><div><strong>Decision console</strong><small>{simulation.actionIds.length} actions recorded</small></div></header>
-                  <div className="canonical-state"><span>PAYMENT <strong>{simulation.canonical.payment}</strong></span><span>IDENTITY <strong>{simulation.canonical.identity}</strong></span><span>ACCESS <strong>{simulation.canonical.access}</strong></span></div>
+                  <header><ShieldCheck size={16} /><div><strong>Actions</strong><small>{simulation.actionIds.length} completed</small></div></header>
+                  <div className="canonical-state"><span>PAYMENT <strong>{stateLabels.payment[simulation.canonical.payment]}</strong></span><span>IDENTITY <strong>{stateLabels.identity[simulation.canonical.identity]}</strong></span><span>ACCESS <strong>{stateLabels.access[simulation.canonical.access]}</strong></span></div>
+                  <section className="evidence-board" aria-label="Evidence board">
+                    <header><FileSearch size={14} /><strong>Evidence</strong><span>{simulation.evidenceIds.length}</span></header>
+                    {simulation.evidenceIds.length === 0
+                      ? <p>No evidence collected yet.</p>
+                      : <div>{simulation.evidenceIds.map((evidenceId) => { const evidence = scenario.evidence.find((item) => item.id === evidenceId); return evidence ? <article key={evidence.id}><strong>{evidence.label}</strong><p>{evidence.description}</p></article> : null; })}</div>}
+                  </section>
                   <div className="action-groups">
-                    <ActionGroup title="Task actions" actions={visibleTaskActions} performed={simulation.actionIds} suggested={suggestedActionId} onAction={performAction} />
-                    {visibleResponseActions.length > 0 && <ActionGroup title="Response actions" actions={visibleResponseActions} performed={simulation.actionIds} suggested={suggestedActionId} onAction={performAction} />}
+                    {visibleVerificationActions.length > 0 && <ActionGroup title="Choose a verification channel" actions={visibleVerificationActions} performed={simulation.actionIds} onAction={performAction} />}
+                    {visibleTaskActions.length > 0 && <ActionGroup title="Other actions" actions={visibleTaskActions} performed={simulation.actionIds} onAction={performAction} />}
+                    {visibleResponseActions.length > 0 && <ActionGroup title="Response actions" actions={visibleResponseActions} performed={simulation.actionIds} onAction={performAction} />}
                   </div>
-                  <button className="studio-button studio-button-primary finish-button" disabled={simulation.actionIds.length === 0 || busy} onClick={finishScenario}><Flag size={16} />Resolve and debrief</button>
+                  <button className="studio-button studio-button-primary finish-button" disabled={simulation.actionIds.length === 0 || busy} onClick={finishScenario}><Flag size={16} />Finish and review</button>
                 </aside>
               </div>
             </div>
@@ -436,17 +473,17 @@ export function ScenarioStudio() {
 
           {stage === "debrief" && scenario && simulation && debrief && (
             <div className="studio-section studio-debrief" data-testid="studio-debrief">
-              <header className="studio-section-heading studio-heading-row"><div><span>06 / EVIDENCE-GROUNDED DEBRIEF</span><h1>{debrief.coaching.headline}</h1><p>{debrief.coaching.summary}</p></div><ProvenanceBadge value={debrief.provenance} /></header>
-              <div className={`ending-banner is-${debrief.trace.endingId}`}><span>DETERMINISTIC ENDING</span><strong>{debrief.trace.endingId.toUpperCase()}</strong><p>{scenario.endings.find((ending) => ending.id === debrief.trace.endingId)?.summary}</p></div>
+              <header className="studio-section-heading"><span>06 / WHAT HAPPENED</span><h1>{debrief.coaching.headline}</h1><p>{debrief.coaching.summary}</p></header>
+              <div className={`ending-banner is-${debrief.trace.endingId}`}><span>OUTCOME</span><strong>{debrief.trace.endingId.toUpperCase()}</strong><p>{scenario.endings.find((ending) => ending.id === debrief.trace.endingId)?.summary}</p></div>
               <div className="trace-grid">
                 <section><header><CheckCircle2 size={16} /><strong>Recorded actions</strong></header>{debrief.trace.actionLabels.length ? <ol>{debrief.trace.actionLabels.map((label, index) => <li key={`${label}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span>{label}</li>)}</ol> : <p>No critical actions were recorded.</p>}</section>
                 <section><header><CircleAlert size={16} /><strong>Recovery status</strong></header>{!debrief.trace.recoveryRequired ? <p>No recovery was required.</p> : debrief.trace.missedRecoveryActionIds.length ? <ul>{debrief.trace.missedRecoveryActionIds.map((id) => <li key={id}>{scenario.criticalActions.find((action) => action.id === id)?.label}</li>)}</ul> : <p>All required recovery actions were completed.</p>}</section>
               </div>
-              <section className="trust-ledger" aria-label="Outcome trust model">
-                <header><LockKeyhole size={16} /><div><strong>Why this outcome is trustworthy</strong><small>Adaptive performance and recorded consequences stay separate.</small></div></header>
+              <section className="trust-ledger" aria-label="How the result was determined">
+                <header><LockKeyhole size={16} /><div><strong>How the result was determined</strong><small>The conversation could change. The recorded actions could not.</small></div></header>
                 <div>
-                  <article><span>PERFORMED</span><strong>People and pressure</strong><p>{latestRoleProvenance === "live-role" ? "GPT-5.6 adapted the role dialogue within validated boundaries." : "Reviewed dialogue performed the role within the same validated boundaries."}</p></article>
-                  <article><span>RECORDED</span><strong>Actions and ending</strong><p>{debrief.trace.actionIds.length} explicit actions and {debrief.trace.evidenceIds.length} evidence items produced the {debrief.trace.endingId} ending. No model selected it.</p></article>
+                  <article><span>CONVERSATION</span><strong>People and pressure</strong><p>Replies could respond to what you asked, challenged, or delayed.</p></article>
+                  <article><span>CONSEQUENCES</span><strong>Your completed actions</strong><p>{debrief.trace.actionIds.length} actions and {debrief.trace.evidenceIds.length} evidence items led to this outcome.</p></article>
                 </div>
               </section>
               <blockquote><span>TRANSFER RULE</span><p>{debrief.coaching.nextTime}</p></blockquote>
@@ -456,9 +493,9 @@ export function ScenarioStudio() {
 
           {stage === "transfer" && scenario && debrief && (
             <div className="studio-section studio-transfer" data-testid="studio-transfer">
-              <header className="studio-section-heading"><span>07 / TRANSFER CHECK</span><h1>Same judgment rule. Different surface.</h1><p>Use what you learned in a new ordinary task. The actions are not labeled before their consequences appear.</p></header>
+              <header className="studio-section-heading"><span>07 / NEW SITUATION</span><h1>{scenario.transferProbe.title}</h1><p>A different task puts the same judgment under pressure.</p></header>
               <div className="scenario-summary-band transfer-summary-band"><div><span>Ordinary task</span><p>{scenario.transferProbe.ordinaryTask}</p></div><div><span>Pressure</span><p>{scenario.transferProbe.pressure}</p></div></div>
-              <section className="transfer-situation"><BrainCircuit size={20} /><div><span>NEW SITUATION</span><h2>{scenario.transferProbe.title}</h2><p>{scenario.transferProbe.situation}</p></div></section>
+              <section className="transfer-situation"><BrainCircuit size={20} /><div><span>WHAT CHANGED</span><h2>Another request arrives</h2><p>{scenario.transferProbe.situation}</p></div></section>
               <div className="transfer-actions" aria-label="Transfer actions">
                 {scenario.transferProbe.actions.map((action, index) => {
                   const selected = transferResult?.actionId === action.id;
@@ -474,7 +511,7 @@ export function ScenarioStudio() {
               {transferResult && (
                 <>
                   <section className={`transfer-result is-${transferResult.outcome}`} aria-live="polite">
-                    <span>{transferResult.outcome.replace("-", " ")}</span>
+                    <span>{transferOutcomeLabels[transferResult.outcome]}</span>
                     <h2>{transferResult.headline}</h2>
                     <p>{transferResult.summary}</p>
                   </section>
@@ -482,10 +519,10 @@ export function ScenarioStudio() {
                     <header><GitCompareArrows size={16} /><div><strong>Learning evidence</strong><small>One rehearsal result and one new-context decision.</small></div></header>
                     <div>
                       <article><span>REHEARSAL</span><strong>{debrief.trace.endingId}</strong><p>{scenario.endings.find((ending) => ending.id === debrief.trace.endingId)?.title}</p></article>
-                      <article><span>TRANSFER</span><strong>{transferResult.outcome.replace("-", " ")}</strong><p>{transferResult.actionLabel}</p></article>
+                      <article><span>NEW SITUATION</span><strong>{transferOutcomeLabels[transferResult.outcome]}</strong><p>{transferResult.actionLabel}</p></article>
                       <article><span>PATTERN</span><strong>Rule carried forward</strong><p>{debrief.coaching.nextTime}</p></article>
                     </div>
-                    <footer>Only the explicit action selected here determines this result; dialogue models do not score the learner.</footer>
+                    <footer>This result follows the action selected in the new situation.</footer>
                   </section>
                 </>
               )}
@@ -498,6 +535,6 @@ export function ScenarioStudio() {
   );
 }
 
-function ActionGroup({ title, actions, performed, suggested, onAction }: { title: string; actions: ScenarioPackage["criticalActions"]; performed: string[]; suggested: string | null; onAction: (id: string) => void }) {
-  return <section><h2>{title}</h2>{actions.map((action) => { const done = performed.includes(action.id); return <button className={`${done ? "is-done" : ""} ${suggested === action.id ? "is-suggested" : ""}`} disabled={done} key={action.id} onClick={() => onAction(action.id)}><span>{done ? <Check size={14} /> : action.kind === "pause" ? <Pause size={14} /> : <ArrowRight size={14} />}</span><div><strong>{action.label}</strong><small>{action.description}</small></div></button>; })}</section>;
+function ActionGroup({ title, actions, performed, onAction }: { title: string; actions: ScenarioPackage["criticalActions"]; performed: string[]; onAction: (id: string) => void }) {
+  return <section><h2>{title}</h2>{actions.map((action) => { const done = performed.includes(action.id); return <button className={done ? "is-done" : ""} disabled={done} key={action.id} onClick={() => onAction(action.id)}><span>{done ? <Check size={14} /> : action.kind === "pause" ? <Pause size={14} /> : <ArrowRight size={14} />}</span><div><strong>{action.label}</strong><small>{action.description}</small></div></button>; })}</section>;
 }

@@ -29,21 +29,19 @@ export async function POST(request: Request) {
       scenario: voiceYouKnowScenario,
       profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
-      notice: parsed.data.useFixture
-        ? "Loaded the reviewed NYU source profile and compiled its brand-safe flagship scenario."
-        : "OpenAI is not configured, so the reviewed NYU source profile and its flagship scenario were loaded together.",
+      notice: "The reviewed example rehearsal is ready.",
     });
   }
 
   try {
     const scenario = await generateScenario(parsed.data);
-    return NextResponse.json({ scenario, provenance: "live-generation", notice: "GPT-5.6 produced a validated scenario package." });
+    return NextResponse.json({ scenario, provenance: "live-generation", notice: "The new rehearsal passed all scenario checks." });
   } catch {
     return NextResponse.json({
       scenario: voiceYouKnowScenario,
       profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
-      notice: "Live generation was unavailable or failed validation. The reviewed NYU source profile and its flagship scenario were loaded together.",
+      notice: "The new rehearsal could not be completed, so the reviewed example was loaded.",
     });
   }
 }

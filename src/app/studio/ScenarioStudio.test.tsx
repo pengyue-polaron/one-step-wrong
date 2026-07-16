@@ -21,15 +21,21 @@ afterEach(() => {
 });
 
 describe("Scenario Studio profile review", () => {
+  it("presents the authoring product without competition or provider branding", () => {
+    render(<ScenarioStudio />);
+    expect(screen.getByText("Scenario Studio")).toBeInTheDocument();
+    expect(screen.queryByText(/Build Week|GPT-5\.6|fixture|fallback/i)).not.toBeInTheDocument();
+  });
+
   it("gates exact-brand research behind an explicit authorization confirmation", async () => {
     const user = userEvent.setup();
     render(<ScenarioStudio />);
 
-    await user.click(screen.getByRole("button", { name: "Authorized exact" }));
-    expect(screen.getByRole("button", { name: "Research official sources" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Load reviewed example" })).toBeDisabled();
-    await user.click(screen.getByRole("checkbox", { name: /Authorization confirmed/ }));
-    expect(screen.getByRole("button", { name: "Research official sources" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "Use exact names" }));
+    expect(screen.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Use example institution" })).toBeDisabled();
+    await user.click(screen.getByRole("checkbox", { name: /Permission confirmed/ }));
+    expect(screen.getByRole("button", { name: "Find public guidance" })).toBeEnabled();
   });
 
   it("requires the educator to resolve conflicts and approve supporting sources", async () => {
@@ -41,7 +47,7 @@ describe("Scenario Studio profile review", () => {
     }));
 
     render(<ScenarioStudio />);
-    await user.click(screen.getByRole("button", { name: "Research official sources" }));
+    await user.click(screen.getByRole("button", { name: "Find public guidance" }));
 
     expect(await screen.findByText("Two official pages use different product descriptions.")).toBeInTheDocument();
     expect(screen.getByText("0 / 1 approved")).toBeInTheDocument();
@@ -69,7 +75,7 @@ describe("Scenario Studio profile review", () => {
     }));
 
     render(<ScenarioStudio />);
-    await user.click(screen.getByRole("button", { name: "Research official sources" }));
+    await user.click(screen.getByRole("button", { name: "Find public guidance" }));
 
     expect(await screen.findByText(/officialDomains\.0: Use a normalized official hostname/)).toBeInTheDocument();
   });
@@ -96,10 +102,10 @@ describe("Scenario Studio profile review", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<ScenarioStudio />);
-    await user.click(screen.getByRole("button", { name: "Load reviewed example" }));
+    await user.click(screen.getByRole("button", { name: "Use example institution" }));
     expect(await screen.findByRole("heading", { name: "Alternate Institution" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Approve profile" }));
-    await user.click(screen.getByRole("button", { name: "Compile flagship example" }));
+    await user.click(screen.getByRole("button", { name: "Use example rehearsal" }));
 
     expect(await screen.findByTestId("studio-preview")).toHaveTextContent("New York University");
     expect(screen.queryByText("Alternate Institution")).not.toBeInTheDocument();

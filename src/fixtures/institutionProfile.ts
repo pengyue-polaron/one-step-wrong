@@ -159,11 +159,11 @@ export const reviewedNyuInstitutionProfile = {
     "No public university-wide callback rule was found for reimbursement account changes.",
   ],
   researchWarnings: [
-    "Reviewed from public NYU pages on 2026-07-16; re-run research before an authorized institutional deployment.",
+    "Reviewed from public NYU pages on 2026-07-16; re-run research before publishing with exact institution names.",
   ],
   approval: {
     status: "approved",
     reviewedAt: "2026-07-16T00:00:00.000Z",
-    reviewerNote: "Approved as source material for a brand-safe fictionalized public demonstration.",
+    reviewerNote: "Approved as source material for brand-safe fictionalized teaching scenarios.",
   },
 } satisfies InstitutionProfile;

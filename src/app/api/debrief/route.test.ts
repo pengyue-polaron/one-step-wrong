@@ -12,6 +12,6 @@ describe("POST /api/debrief", () => {
     );
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ error: "The canonical trace could not be evaluated." });
+    expect(await response.json()).toEqual({ error: "The result could not be prepared from this action history." });
   });
 });

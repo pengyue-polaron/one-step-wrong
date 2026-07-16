@@ -57,6 +57,6 @@ describe("POST /api/scenarios/generate", () => {
     expect(response.status).toBe(200);
     expect(result.profile.id).toBe("new-york-university");
     expect(result.scenario.sourceProfileId).toBe(result.profile.id);
-    expect(result.notice).toContain("reviewed NYU source profile");
+    expect(result.notice).toContain("reviewed example rehearsal");
   });
 });

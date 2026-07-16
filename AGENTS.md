@@ -4,7 +4,7 @@
 
 `one-step-wrong` is a playable digital-safety story collection. It teaches cause and effect through ordinary student tasks, believable pressure, unmarked choices, delayed consequences, individual recovery actions, and a causal debrief.
 
-For OpenAI Build Week work, `BUILD_WEEK_PLAN.md` is the canonical implementation brief. Its scoped requirements for GPT-5.6 integration, source-grounded institution research, approved Institution Profiles, publication mode, runtime validation, privacy, demo behavior, and submission evidence take precedence over older planning assumptions when they conflict.
+`PRODUCT_PLAN.md` is the canonical product brief for Scenario Studio, source-grounded institution research, approved Institution Profiles, publication mode, runtime validation, privacy, rehearsal behavior, and learning transfer. Its scoped requirements take precedence over older planning assumptions when they conflict.
 
 The first screen is always the playable case library. Do not replace it with a landing page, feature tour, or marketing introduction.
 
@@ -13,6 +13,7 @@ The first screen is always the playable case library. Do not replace it with a l
 - Do not present the experience as a quiz.
 - Do not label choices safe, risky, correct, recommended, or suspicious before the outcome.
 - Do not show a score before the debrief.
+- Do not expose hackathon names, model/provider names, fixture/fallback terminology, schema language, or implementation architecture in the learner-facing experience.
 - Let the convenient path feel genuinely faster or easier.
 - Delay consequences when that delay is part of the lesson.
 - Model recovery as separate actions instead of one generic “fix everything” button.
@@ -34,13 +35,13 @@ Every published case must include:
 ```text
 src/
   app/studio/                  Educator research, review, compile, rehearsal UI
-  app/api/                     Server-only OpenAI and deterministic trace routes
+  app/api/                     Server-only adaptive and trace routes
   ai/                          Prompts, adapters, runtime schemas, guardrails
-  fixtures/                    Reviewed profile, scenario, dialogue fallback
+  fixtures/                    Reviewed profile, scenario, and dialogue content
   product/                     Case library, session progress, case registry
   cases/                       Case-owned content, UI, state, and tests
   engine/decision/             Generic short-chapter state and shared views
-  engine/simulation/           Canonical actions, endings, evidence, traces
+  engine/simulation/           Authoritative actions, endings, evidence, traces
   components/ui/               Domain-neutral UI primitives
   styles/                      Global tokens and product-level styles
   tests/e2e/                   Cross-module browser and layout checks
@@ -79,10 +80,10 @@ src/
 ### Agentic simulations
 
 - `src/ai/schemas/` is the contract boundary for all model-shaped data. TypeScript types alone are not acceptance.
-- `src/engine/simulation/physics.ts` is the only Build Week module allowed to apply critical actions, select endings, and create the canonical trace.
+- `src/engine/simulation/physics.ts` is the only module allowed to apply critical actions, select endings, and create the canonical trace.
 - `src/app/studio/` may orchestrate API calls and presentation state, but must not contain OpenAI client code or infer canonical consequences from dialogue.
 - `src/app/api/` returns bounded JSON with generic browser-facing errors. Do not log raw prompts, model output, dialogue, or traces.
-- Follow the bounded runtime architecture in `BUILD_WEEK_PLAN.md`: one Simulation Director and no more than three role agents for the featured case.
+- Follow the bounded runtime architecture in `PRODUCT_PLAN.md`: one Simulation Director and no more than three role agents for the featured case.
 - Define every role with a stable identity, allowed knowledge, forbidden facts, allowed channels, conversational moves, and disclosure policy.
 - Keep canonical facts, critical actions, evidence, consequences, recovery, and ending selection in deterministic code.
 - Runtime agents receive a minimal read-only state projection and may return only validated conversational proposals or allowed event IDs.
@@ -90,6 +91,8 @@ src/
 - Free-form learner text may affect dialogue, pressure, and pacing, but it must never directly mutate payment, file, account, access, report, recovery, score, or ending state.
 - High-impact actions must remain explicit typed UI actions handled by a pure reducer.
 - Keep role identity status, private facts, and adversarial classification out of learner-facing rehearsal UI. Those fields may appear in the educator's validated-package preview and server-side agent context only.
+- When verification is part of the lesson, present plausible competing channels rather than one button whose wording reveals the answer. Same-thread, request-supplied, social, and independently known channels should reveal different evidence.
+- Show evidence during the rehearsal as the learner discovers it. Do not wait until the debrief to reveal every clue that informed the outcome.
 - Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
 - Derive missed recovery from affected layers. Do not require access, account, payment, evidence, notification, or reporting work when that layer was never affected by the demonstrated trace.
 - Debrief models may select only canonical cause-chain, performed-action, missed-recovery, and transfer-rule IDs. Compose learner-facing coaching from validated scenario and trace text on the server; do not accept unconstrained model-authored event claims.
@@ -104,10 +107,10 @@ src/
 ## Current Story Worlds
 
 - The three legacy cases take place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
-- The implemented Build Week flagship uses fictional Northbridge University and generic product names as specified in `BUILD_WEEK_PLAN.md`.
+- The flagship rehearsal uses fictional Northbridge University and generic product names as specified in `PRODUCT_PLAN.md`.
 - Treat the current NYU implementation as a behavioral reference during migration; preserve task pressure, decision structure, delayed consequences, recovery mechanics, and tests rather than retaining the brand.
 - New AI-generated cases must not contain real people, credentials, payment details, restricted content, logos, or proprietary trade dress.
-- Exact institution terminology may be published only in an explicitly authorized exact mode with approved sources. Public demos default to brand-safe fictionalized output.
+- Exact institution terminology may be published only in an explicitly authorized exact mode with approved sources. Publicly shared scenarios default to brand-safe fictionalized output.
 - The remaining NYU-specific rules below apply only to legacy cases. Do not use them for Scenario Studio, the Northbridge fixture, or newly generated cases.
 - The course platform is NYU Brightspace. Display `brightspace.nyu.edu` and use familiar concepts such as Course Home, Content, Assignments, Discussions, Grades, submission history, and allowed file extensions.
 - Official wireless names are lowercase `nyu`, `nyuguest`, and `eduroam`.
@@ -140,7 +143,7 @@ src/
 - Never show in-game meta disclaimers such as “this is only a simulation,” “this will not affect your computer,” or “no data is collected.”
 - Enforce safety in implementation and tests instead of narrating it to the player.
 - Use fixed, read-only story credentials and personal details.
-- The only new application network requests allowed for Build Week are explicit server-side OpenAI routes described in `BUILD_WEEK_PLAN.md`. Institution research may use GPT-5.6 web search for public official documentation through those routes. Do not call OpenAI or arbitrary sites directly from client components.
+- The only adaptive application network requests allowed are the explicit server-side routes described in `PRODUCT_PLAN.md`. Institution research may use server-side web search for public official documentation through those routes. Do not call OpenAI or arbitrary sites directly from client components.
 - Keep OpenAI credentials server-side. Never expose secrets through `NEXT_PUBLIC_*`, browser bundles, storage, URLs, logs, fixtures, screenshots, or error payloads.
 - Do not add analytics, learner tracking, background network requests, downloads, arbitrary file writes, or device APIs.
 - Do not access real Wi-Fi, campus services, accounts, sessions, certificates, cameras, microphones, notifications, payments, or location.
@@ -158,10 +161,8 @@ src/
 - Do not rely on color alone for incident, success, or completion state.
 - Text and controls must not overflow at supported viewport sizes.
 - Decision chapters must remain usable at 390 px wide. The deep desktop case may require 1100 px, but its small-screen gate must let the player return.
-- Keep NYU Violet restrained only on unmigrated legacy screens. New Build Week surfaces must use the distinct fictional-institution palette defined during the bounded migration, while preserving semantic green, amber, red, blue, and neutral contrast.
+- Keep NYU Violet restrained only on unmigrated legacy screens. New Scenario Studio surfaces use the distinct fictional-institution palette, while preserving semantic green, amber, red, blue, and neutral contrast.
 - Update accepted screenshots when a user-facing flow changes materially.
-- Demo recordings must keep live, reviewed-fixture, reviewed-dialogue, and deterministic provenance visible and accurate. Never edit fixture footage to imply a live model call.
-- Keep generated MP4/WebM files out of Git. Version the recorder, subtitle source, and verification logic instead.
 
 ## Testing Expectations
 
@@ -185,6 +186,7 @@ Test requirements scale with the change:
 - Privacy rules need negative tests proving forbidden disclaimer copy and real side effects remain absent.
 - Schema and API changes need malformed input, broken reference, oversized content, and offline fallback coverage.
 - Agent-turn changes need tests proving free text cannot mutate canonical state, unlock an event, or suggest an action without its typed prerequisite action.
+- Learner-facing copy changes need a negative browser assertion that provider, model, hackathon, fixture, fallback, schema, and deterministic/canonical terminology remain absent from rehearsal and debrief screens.
 - Transfer-probe changes need schema coverage for all three outcomes, direct deterministic evaluation tests, and a browser path that verifies the result stays usable without overflow.
 
 The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.
@@ -193,7 +195,8 @@ The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×84
 
 - `README.md` is the English canonical README.
 - `README.zh-CN.md` is the Simplified Chinese counterpart.
-- `BUILD_WEEK_PLAN.md` is the canonical Build Week product story and implementation brief; README capability claims must match working code and automated evidence.
+- `PRODUCT_PLAN.md` is the canonical product story and implementation brief.
+- `QUALITY_EVIDENCE.md` maps product claims to working code and automated evidence.
 - Keep their structure, commands, screenshots, architecture, test counts, and limitations synchronized.
 - Use relative paths for repository screenshots so they render on GitHub and in forks.
 - Do not claim a deployment, integration, license, or compatibility level that the repository does not provide.

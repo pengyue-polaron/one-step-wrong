@@ -169,6 +169,16 @@ docker run --rm -p 3000:3000 \
   one-step-wrong
 ```
 
+### Record the fixture demo
+
+With the application running on port 3000, and Playwright Chromium plus `ffmpeg`/`ffprobe` installed, the recorder drives the complete reviewed-fixture path and burns the English subtitle track into a verified 1280x720 H.264 video:
+
+```bash
+npm run demo:record
+```
+
+The output is `artifacts/demo/build-week-fixture-demo.mp4`. Generated video files are intentionally ignored by Git; the reusable recorder and subtitle source remain versioned. The recording visibly identifies fixture and deterministic output and must not be presented as evidence of a live GPT-5.6 call.
+
 ## Available Scripts
 
 | Command | Purpose |
@@ -181,6 +191,7 @@ docker run --rm -p 3000:3000 \
 | `npm test` | Run the Vitest state and component suite once. |
 | `npm run test:watch` | Run Vitest in watch mode. |
 | `npm run test:e2e` | Run the Playwright browser suite. |
+| `npm run demo:record` | Record and subtitle the complete reviewed-fixture demo. |
 
 ## Architecture
 
@@ -215,6 +226,7 @@ src/
   styles/                           Tokens, shared styles, and case-library styles
   tests/e2e/                        Browser flows and responsive layout checks
 artifacts/screenshots/              Accepted product screenshots
+scripts/                            Reproducible Build Week demo recorder and subtitles
 ```
 
 The registry depends on a small `CaseModule` contract: case metadata plus a runner component. The product layer does not know whether a case uses the generic decision engine or a dedicated state machine. Scenario Studio is a separate authoring route and does not replace the playable case library.

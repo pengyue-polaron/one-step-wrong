@@ -158,6 +158,8 @@ src/
 - Decision chapters must remain usable at 390 px wide. The deep desktop case may require 1100 px, but its small-screen gate must let the player return.
 - Keep NYU Violet restrained only on unmigrated legacy screens. New Build Week surfaces must use the distinct fictional-institution palette defined during the bounded migration, while preserving semantic green, amber, red, blue, and neutral contrast.
 - Update accepted screenshots when a user-facing flow changes materially.
+- Demo recordings must keep live, reviewed-fixture, reviewed-dialogue, and deterministic provenance visible and accurate. Never edit fixture footage to imply a live model call.
+- Keep generated MP4/WebM files out of Git. Version the recorder, subtitle source, and verification logic instead.
 
 ## Testing Expectations
 

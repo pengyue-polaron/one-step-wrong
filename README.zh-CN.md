@@ -169,6 +169,16 @@ docker run --rm -p 3000:3000 \
   one-step-wrong
 ```
 
+### 录制 fixture 演示
+
+应用在 3000 端口运行，并安装 Playwright Chromium 与 `ffmpeg`/`ffprobe` 后，录制脚本会自动走完审核过的 fixture 流程，并把英文字幕烧录到经过校验的 1280x720 H.264 视频中：
+
+```bash
+npm run demo:record
+```
+
+输出位于 `artifacts/demo/build-week-fixture-demo.mp4`。生成的视频文件不会进入 Git；可复用录制脚本和字幕源会保留在仓库中。视频会明确标识 fixture 与确定性输出，不能把它当成 GPT-5.6 在线调用证据。
+
 ## 可用命令
 
 | 命令 | 用途 |
@@ -181,6 +191,7 @@ docker run --rm -p 3000:3000 \
 | `npm test` | 单次运行 Vitest 状态与组件测试。 |
 | `npm run test:watch` | 以监听模式运行 Vitest。 |
 | `npm run test:e2e` | 运行 Playwright 浏览器测试。 |
+| `npm run demo:record` | 自动录制并添加英文字幕的完整 fixture 演示。 |
 
 ## 工程结构
 
@@ -215,6 +226,7 @@ src/
   styles/                           设计变量、通用样式与案例库样式
   tests/e2e/                        浏览器流程和响应式布局检查
 artifacts/screenshots/              已验收的产品截图
+scripts/                            可复现的 Build Week 演示录制脚本与字幕
 ```
 
 注册表只依赖一个很小的 `CaseModule` 契约：案例元数据加运行组件。产品层不需要知道某一章使用通用决策引擎还是独立状态机。Scenario Studio 是单独的创作路由，不会替换默认的可玩案例库。

@@ -15,6 +15,7 @@ This document maps the Build Week product claims to reproducible evidence. It do
 | Complete no-key judging path | **Load reviewed example** in `/studio` | Verified locally |
 | Desktop and mobile product quality | `artifacts/screenshots/` and Playwright layout tests | Verified locally and in CI |
 | Automated quality and production-container gate | `.github/workflows/ci.yml` | Runs on `main`; production image verified locally |
+| Under-three-minute fixture demo with English subtitles | `scripts/record-build-week-demo.mjs` and `scripts/demo/build-week-fixture-demo.en.srt` | Verified locally at 96.28 seconds, 1280x720 H.264 |
 | Real GPT-5.6 Responses API execution | Requires a valid server-side `OPENAI_API_KEY` | Pending external credential |
 | Public demo URL | Requires deployment credentials | Pending external credential |
 | Event-compliant repository access | Repository is currently private | Pending owner decision |

@@ -34,6 +34,7 @@
 - Debrief Analyst 只选择规范化因果链、动作和迁移规则 ID，服务端据此组合辅导文本，模型不能自由添加事件。
 - 中英文 README、运行截图、`.env.example` 和 GitHub Actions CI。
 - Next.js standalone 多阶段生产镜像；CI 会构建镜像并探测首页、Studio、fixture API 与非 root 运行用户。
+- 可复现演示录制：Playwright 自动走完安全与事故恢复路径，FFmpeg 烧录英文字幕并验证 1280x720、H.264 和三分钟时长上限。
 
 ## 当前证据
 

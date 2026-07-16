@@ -121,4 +121,12 @@ describe("ScenarioPackage", () => {
     expect(result.success).toBe(false);
     expect(result.issues.some((issue) => issue.message.includes("incident actions"))).toBe(true);
   });
+
+  it("requires a transfer probe with three distinct learning outcomes", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    scenario.transferProbe.actions[1].outcome = "demonstrated";
+    const result = validateScenarioPackage(scenario);
+    expect(result.success).toBe(false);
+    expect(result.issues.some((issue) => issue.message.includes("demonstrated, developing, and not-yet"))).toBe(true);
+  });
 });

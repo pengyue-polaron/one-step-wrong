@@ -39,10 +39,20 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByTestId("studio-debrief")).toBeVisible();
   await expect(page.getByText("SAFE", { exact: true })).toBeVisible();
   await expect(page.getByText("Call adviser on known number")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Outcome trust model" })).toContainText("No model selected it");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-debrief.png", fullPage: true });
 
-  await page.getByRole("button", { name: "Replay scenario" }).click();
+  await page.getByRole("button", { name: "Try a new situation" }).click();
+  await expect(page.getByTestId("studio-transfer")).toBeVisible();
+  await expect(page.getByText("The Name You Recognize")).toBeVisible();
+  await page.getByRole("button", { name: /Open Campus Drive from your saved bookmark/ }).click();
+  await expect(page.getByText("Rule transferred")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Learning evidence" })).toContainText("do not score the learner");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: "artifacts/screenshots/studio-transfer.png", fullPage: true });
+
+  await page.getByRole("button", { name: "Replay rehearsal" }).click();
   await expect(page.getByTestId("studio-live")).toBeVisible();
   await expect(page.getByText("0 actions recorded")).toBeVisible();
   await expect(page.locator(".dialogue-log article")).toHaveCount(1);
@@ -82,4 +92,21 @@ test("studio remains usable without horizontal overflow on mobile", async ({ pag
   await expect(page.getByRole("region", { name: "Source review" })).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio.png", fullPage: true });
+});
+
+test("transfer evidence remains usable on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openValidatedScenario(page);
+  await page.getByRole("button", { name: "Launch rehearsal" }).click();
+  await page.getByRole("button", { name: /Call adviser on known number/ }).click();
+  await page.getByRole("button", { name: /Pause reimbursement/ }).click();
+  await page.getByRole("button", { name: "Resolve and debrief" }).click();
+  await page.getByRole("button", { name: "Try a new situation" }).click();
+  await expect(page.getByTestId("studio-transfer")).toBeVisible();
+  await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.getByRole("button", { name: /Ask for confirmation in the same group chat/ }).click();
+  await expect(page.getByText("Verification stayed inside the request")).toBeVisible();
+  await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.locator(".transfer-result").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "artifacts/screenshots/mobile-studio-transfer.png" });
 });

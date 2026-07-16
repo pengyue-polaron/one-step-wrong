@@ -40,8 +40,9 @@ Most security training explains the answer before learners feel the pressure tha
 4. Validate the generated world bible, critical actions, evidence, recovery, endings, and up to three role cards at runtime.
 5. Exchange natural messages with bounded roles while explicit application controls record every high-impact action without exposing hidden role identity.
 6. Reach a deterministic ending and receive coaching grounded in the canonical trace.
+7. Apply the same judgment rule to a different task and receive a deterministic transfer result based only on the explicit action selected.
 
-GPT-5.6 is used before play for institution research and scenario compilation, during play for bounded role performance, and after play to select a trace-grounded coaching emphasis. The Debrief Analyst returns only validated cause, performed-action, missed-recovery, and transfer-rule IDs; the server composes the displayed coaching from canonical text. Zod schemas, source checks, allowlisted events, typed state transitions, and deterministic ending selection remain authoritative. Every OpenAI path has a reviewed offline fallback, so the complete flagship case works without an API key.
+GPT-5.6 is used before play for institution research and scenario compilation, during play for bounded role performance, and after play to select a trace-grounded coaching emphasis. The Debrief Analyst returns only validated cause, performed-action, missed-recovery, and transfer-rule IDs; the server composes the displayed coaching from canonical text. Zod schemas, source checks, allowlisted events, typed state transitions, deterministic ending selection, and transfer evaluation remain authoritative. Every OpenAI path has a reviewed offline fallback, so the complete flagship case works without an API key.
 
 > **Agents perform the world; deterministic code defines its physics.**
 
@@ -79,6 +80,8 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 </table>
 
 ![Evidence-grounded deterministic Studio debrief](./artifacts/screenshots/studio-debrief.png)
+
+![New-context transfer check with deterministic learning evidence](./artifacts/screenshots/studio-transfer.png)
 
 ### Decisions in context
 
@@ -261,11 +264,11 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 79 schema, API, state, and component tests plus 13 browser tests. Coverage includes actionable profile review, exact-brand authorization, authoritative hostname validation, Web Search URL evidence, HTTPS sources, server access times, atomic fixture/profile attribution, action prerequisites, affected-layer recovery, canonical-ID debrief grounding, malformed AI output, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
+The current suite contains 81 schema, API, state, and component tests plus 14 browser tests. Coverage includes actionable profile review, exact-brand authorization, authoritative hostname validation, Web Search URL evidence, HTTPS sources, server access times, atomic fixture/profile attribution, action prerequisites, affected-layer recovery, canonical-ID debrief grounding, deterministic transfer evaluation, malformed AI output, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
 
 ## Build Week Development
 
-Codex accelerated repository analysis, architecture extraction, schema and fixture implementation, deterministic engine work, API integration, UI construction, and browser verification. GPT-5.6 is a product runtime dependency only on the optional server paths described above; it never chooses a canonical action or ending. The pre-existing foundation was the three-case library, decision engine, and deep desktop chapter. Build Week added Scenario Studio, runtime schemas, a reviewed NYU source profile, the fictionalized Northbridge **The Voice You Know** scenario, four server routes, bounded dialogue, deterministic simulation physics, trace-grounded debriefing, and offline fixtures.
+Codex accelerated repository analysis, architecture extraction, schema and fixture implementation, deterministic engine work, API integration, UI construction, and browser verification. GPT-5.6 is a product runtime dependency only on the optional server paths described above; it never chooses a canonical action, ending, or transfer result. The earlier project foundation was the three-case library, decision engine, and deep desktop chapter. Build Week added Scenario Studio, runtime schemas, a reviewed NYU source profile, the fictionalized Northbridge **The Voice You Know** scenario, four server routes, bounded dialogue, deterministic simulation physics, trace-grounded debriefing, a new-context transfer check, and offline fixtures.
 
 ## Safety and Privacy
 

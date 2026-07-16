@@ -72,6 +72,15 @@ const endingSchema = z.object({
   requiresTriggeredRecoveryComplete: z.boolean(),
 });
 
+const transferProbeActionSchema = z.object({
+  id: idSchema,
+  label: shortTextSchema,
+  description: bodyTextSchema,
+  outcome: z.enum(["demonstrated", "developing", "not-yet"]),
+  resultHeadline: shortTextSchema,
+  resultSummary: bodyTextSchema,
+});
+
 export const scenarioPackageOutputSchema = z
   .object({
     schemaVersion: z.literal("1.0"),
@@ -132,6 +141,14 @@ export const scenarioPackageOutputSchema = z
       .min(1)
       .max(30),
     endings: z.array(endingSchema).length(4),
+    transferProbe: z.object({
+      id: idSchema,
+      title: shortTextSchema,
+      ordinaryTask: bodyTextSchema,
+      situation: bodyTextSchema,
+      pressure: bodyTextSchema,
+      actions: z.array(transferProbeActionSchema).length(3),
+    }),
     transferRules: z.array(bodyTextSchema).min(1).max(6),
     sourceFactIds: z.array(idSchema).min(1).max(20),
   });
@@ -145,6 +162,7 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       ["allowedEvents", scenario.allowedEvents.map((item) => item.id)],
       ["fallbackDialogue", scenario.fallbackDialogue.map((item) => item.id)],
       ["endings", scenario.endings.map((item) => item.id)],
+      ["transferProbe.actions", scenario.transferProbe.actions.map((item) => item.id)],
     ] as const;
     for (const [path, ids] of groups) {
       for (const duplicate of findDuplicates([...ids])) {
@@ -268,6 +286,13 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
     });
     if (new Set(scenario.endings.map((ending) => ending.id)).size !== 4) {
       context.addIssue({ code: "custom", path: ["endings"], message: "Provide safe, caution, contained, and expanded endings." });
+    }
+    if (new Set(scenario.transferProbe.actions.map((action) => action.outcome)).size !== 3) {
+      context.addIssue({
+        code: "custom",
+        path: ["transferProbe", "actions"],
+        message: "Transfer probes must include demonstrated, developing, and not-yet outcomes.",
+      });
     }
     if (containsUnsafeInstruction(scenario)) {
       context.addIssue({ code: "custom", path: [], message: "Scenario contains executable or credential-collection instructions." });

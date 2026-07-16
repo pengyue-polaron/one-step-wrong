@@ -5,6 +5,7 @@ import { FormEvent, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  BrainCircuit,
   BookOpenCheck,
   Check,
   CheckCircle2,
@@ -12,7 +13,9 @@ import {
   ExternalLink,
   FileSearch,
   Flag,
+  GitCompareArrows,
   LoaderCircle,
+  LockKeyhole,
   MessageSquareText,
   Pause,
   Play,
@@ -34,9 +37,11 @@ import {
   createSimulationState,
   type CanonicalTrace,
   type SimulationState,
+  type TransferProbeResult,
+  evaluateTransferProbe,
 } from "@/engine/simulation/physics";
 
-type StudioStage = "research" | "profile" | "brief" | "preview" | "live" | "debrief";
+type StudioStage = "research" | "profile" | "brief" | "preview" | "live" | "debrief" | "transfer";
 type Provenance = "live-research" | "live-generation" | "reviewed-fixture" | "live-role" | "reviewed-fallback" | "live-debrief" | "deterministic-fallback";
 type DialogueLine = { id: string; roleId: string; roleName: string; content: string; provenance: Provenance | null };
 type Debrief = {
@@ -54,6 +59,7 @@ const workflow: Array<{ id: StudioStage; label: string; meta: string }> = [
   { id: "preview", label: "Validate", meta: "Runtime package" },
   { id: "live", label: "Rehearse", meta: "Bounded roles" },
   { id: "debrief", label: "Debrief", meta: "Canonical trace" },
+  { id: "transfer", label: "Transfer", meta: "New context" },
 ];
 
 const initialBrief = {
@@ -127,6 +133,7 @@ export function ScenarioStudio() {
   const [messageDraft, setMessageDraft] = useState("");
   const [suggestedActionId, setSuggestedActionId] = useState<string | null>(null);
   const [debrief, setDebrief] = useState<Debrief | null>(null);
+  const [transferResult, setTransferResult] = useState<TransferProbeResult | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -242,7 +249,7 @@ export function ScenarioStudio() {
     const role = scenario.roleCards.find((item) => item.id === opening.roleId)!;
     setSimulation(createSimulationState(scenario));
     setMessages([{ id: opening.id, roleId: opening.roleId, roleName: role.displayName, content: opening.content, provenance: "reviewed-fallback" }]);
-    setSelectedRoleId(opening.roleId); setSuggestedActionId(null); setDebrief(null); setStage("live");
+    setSelectedRoleId(opening.roleId); setSuggestedActionId(null); setDebrief(null); setTransferResult(null); setStage("live");
   }
 
   function performAction(actionId: string) {
@@ -305,8 +312,17 @@ export function ScenarioStudio() {
     } finally { setBusy(false); }
   }
 
+  function selectTransferAction(actionId: string) {
+    if (!scenario || transferResult) return;
+    try {
+      setTransferResult(evaluateTransferProbe(scenario, actionId));
+    } catch {
+      setError("That transfer action is not part of the validated scenario.");
+    }
+  }
+
   function restart() {
-    setStage("research"); setProfile(null); setScenario(null); setSimulation(null); setMessages([]); setDebrief(null); setNotice(""); setError(""); setExactAuthorizationConfirmed(false);
+    setStage("research"); setProfile(null); setScenario(null); setSimulation(null); setMessages([]); setDebrief(null); setTransferResult(null); setNotice(""); setError(""); setExactAuthorizationConfirmed(false);
   }
 
   return (
@@ -426,8 +442,54 @@ export function ScenarioStudio() {
                 <section><header><CheckCircle2 size={16} /><strong>Recorded actions</strong></header>{debrief.trace.actionLabels.length ? <ol>{debrief.trace.actionLabels.map((label, index) => <li key={`${label}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span>{label}</li>)}</ol> : <p>No critical actions were recorded.</p>}</section>
                 <section><header><CircleAlert size={16} /><strong>Recovery status</strong></header>{!debrief.trace.recoveryRequired ? <p>No recovery was required.</p> : debrief.trace.missedRecoveryActionIds.length ? <ul>{debrief.trace.missedRecoveryActionIds.map((id) => <li key={id}>{scenario.criticalActions.find((action) => action.id === id)?.label}</li>)}</ul> : <p>All required recovery actions were completed.</p>}</section>
               </div>
+              <section className="trust-ledger" aria-label="Outcome trust model">
+                <header><LockKeyhole size={16} /><div><strong>Why this outcome is trustworthy</strong><small>Adaptive performance and recorded consequences stay separate.</small></div></header>
+                <div>
+                  <article><span>PERFORMED</span><strong>People and pressure</strong><p>{latestRoleProvenance === "live-role" ? "GPT-5.6 adapted the role dialogue within validated boundaries." : "Reviewed dialogue performed the role within the same validated boundaries."}</p></article>
+                  <article><span>RECORDED</span><strong>Actions and ending</strong><p>{debrief.trace.actionIds.length} explicit actions and {debrief.trace.evidenceIds.length} evidence items produced the {debrief.trace.endingId} ending. No model selected it.</p></article>
+                </div>
+              </section>
               <blockquote><span>TRANSFER RULE</span><p>{debrief.coaching.nextTime}</p></blockquote>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={launchScenario}><RotateCcw size={16} />Replay scenario</button><button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button><Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
+              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={() => { setTransferResult(null); setStage("transfer"); }}><GitCompareArrows size={16} />Try a new situation</button><button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay scenario</button><button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button><Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
+            </div>
+          )}
+
+          {stage === "transfer" && scenario && debrief && (
+            <div className="studio-section studio-transfer" data-testid="studio-transfer">
+              <header className="studio-section-heading"><span>07 / TRANSFER CHECK</span><h1>Same judgment rule. Different surface.</h1><p>Use what you learned in a new ordinary task. The actions are not labeled before their consequences appear.</p></header>
+              <div className="scenario-summary-band transfer-summary-band"><div><span>Ordinary task</span><p>{scenario.transferProbe.ordinaryTask}</p></div><div><span>Pressure</span><p>{scenario.transferProbe.pressure}</p></div></div>
+              <section className="transfer-situation"><BrainCircuit size={20} /><div><span>NEW SITUATION</span><h2>{scenario.transferProbe.title}</h2><p>{scenario.transferProbe.situation}</p></div></section>
+              <div className="transfer-actions" aria-label="Transfer actions">
+                {scenario.transferProbe.actions.map((action, index) => {
+                  const selected = transferResult?.actionId === action.id;
+                  return (
+                    <button className={selected ? "is-selected" : transferResult ? "is-muted" : ""} disabled={Boolean(transferResult)} key={action.id} onClick={() => selectTransferAction(action.id)}>
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <div><strong>{action.label}</strong><small>{action.description}</small></div>
+                      <ArrowRight size={16} />
+                    </button>
+                  );
+                })}
+              </div>
+              {transferResult && (
+                <>
+                  <section className={`transfer-result is-${transferResult.outcome}`} aria-live="polite">
+                    <span>{transferResult.outcome.replace("-", " ")}</span>
+                    <h2>{transferResult.headline}</h2>
+                    <p>{transferResult.summary}</p>
+                  </section>
+                  <section className="learning-evidence" aria-label="Learning evidence">
+                    <header><GitCompareArrows size={16} /><div><strong>Learning evidence</strong><small>One rehearsal result and one new-context decision.</small></div></header>
+                    <div>
+                      <article><span>REHEARSAL</span><strong>{debrief.trace.endingId}</strong><p>{scenario.endings.find((ending) => ending.id === debrief.trace.endingId)?.title}</p></article>
+                      <article><span>TRANSFER</span><strong>{transferResult.outcome.replace("-", " ")}</strong><p>{transferResult.actionLabel}</p></article>
+                      <article><span>PATTERN</span><strong>Rule carried forward</strong><p>{debrief.coaching.nextTime}</p></article>
+                    </div>
+                    <footer>Only the explicit action selected here determines this result; dialogue models do not score the learner.</footer>
+                  </section>
+                </>
+              )}
+              <div className="studio-actions"><button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay rehearsal</button><button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button><Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
             </div>
           )}
         </section>

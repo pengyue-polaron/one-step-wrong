@@ -93,6 +93,8 @@ src/
 - Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
 - Derive missed recovery from affected layers. Do not require access, account, payment, evidence, notification, or reporting work when that layer was never affected by the demonstrated trace.
 - Debrief models may select only canonical cause-chain, performed-action, missed-recovery, and transfer-rule IDs. Compose learner-facing coaching from validated scenario and trace text on the server; do not accept unconstrained model-authored event claims.
+- Every generated flagship scenario must include one short transfer probe that applies the primary judgment rule to a different task, surface, and pressure. Its three actions remain unmarked until selection and cover demonstrated, developing, and not-yet outcomes.
+- Evaluate transfer probes in `src/engine/simulation/physics.ts` from the learner's explicit action. Models may generate validated probe content, but they must not select the action, score the learner, or rewrite the recorded result.
 - Reject role leakage, invented institution facts, out-of-scope events, prompt injection, executable instructions, and claims that unrecorded actions occurred.
 - On invalid output, timeout, or model failure, use a reviewed fallback dialogue line and preserve the deterministic path.
 - Treat a reviewed fixture scenario and its approved Institution Profile as one atomic fallback. Never display or launch a fixture under an unrelated profile ID or publication mode.
@@ -183,6 +185,7 @@ Test requirements scale with the change:
 - Privacy rules need negative tests proving forbidden disclaimer copy and real side effects remain absent.
 - Schema and API changes need malformed input, broken reference, oversized content, and offline fallback coverage.
 - Agent-turn changes need tests proving free text cannot mutate canonical state, unlock an event, or suggest an action without its typed prerequisite action.
+- Transfer-probe changes need schema coverage for all three outcomes, direct deterministic evaluation tests, and a browser path that verifies the result stays usable without overflow.
 
 The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.
 

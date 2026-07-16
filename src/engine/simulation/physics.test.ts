@@ -4,6 +4,7 @@ import {
   applyCriticalAction,
   createCanonicalTrace,
   createSimulationState,
+  evaluateTransferProbe,
   eventIsAllowed,
 } from "@/engine/simulation/physics";
 
@@ -93,5 +94,16 @@ describe("deterministic simulation physics", () => {
       createSimulationState(generated),
     );
     expect(createCanonicalTrace(generated, state).endingId).toBe("safe");
+  });
+
+  it("evaluates the transfer probe only from its validated explicit action", () => {
+    expect(evaluateTransferProbe(voiceYouKnowScenario, "open-known-drive")).toMatchObject({
+      probeId: "familiar-name-new-channel",
+      outcome: "demonstrated",
+      headline: "Rule transferred",
+    });
+    expect(evaluateTransferProbe(voiceYouKnowScenario, "ask-same-chat").outcome).toBe("developing");
+    expect(evaluateTransferProbe(voiceYouKnowScenario, "use-replacement-link").outcome).toBe("not-yet");
+    expect(() => evaluateTransferProbe(voiceYouKnowScenario, "invented-action")).toThrow("Unknown transfer action");
   });
 });

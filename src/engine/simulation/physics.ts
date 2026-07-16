@@ -19,6 +19,15 @@ export type CanonicalTrace = {
   transferRules: string[];
 };
 
+export type TransferProbeResult = {
+  probeId: string;
+  actionId: string;
+  actionLabel: string;
+  outcome: "demonstrated" | "developing" | "not-yet";
+  headline: string;
+  summary: string;
+};
+
 export function createSimulationState(scenario: ScenarioPackage): SimulationState {
   return {
     canonical: structuredClone(scenario.worldBible.initialState),
@@ -109,4 +118,17 @@ export function createCanonicalTrace(scenario: ScenarioPackage, state: Simulatio
 export function eventIsAllowed(scenario: ScenarioPackage, eventId: string, actionIds: string[]) {
   const event = scenario.allowedEvents.find((candidate) => candidate.id === eventId);
   return Boolean(event && event.allowedAfterActionIds.every((id) => actionIds.includes(id)));
+}
+
+export function evaluateTransferProbe(scenario: ScenarioPackage, actionId: string): TransferProbeResult {
+  const action = scenario.transferProbe.actions.find((candidate) => candidate.id === actionId);
+  if (!action) throw new Error(`Unknown transfer action: ${actionId}`);
+  return {
+    probeId: scenario.transferProbe.id,
+    actionId: action.id,
+    actionLabel: action.label,
+    outcome: action.outcome,
+    headline: action.resultHeadline,
+    summary: action.resultSummary,
+  };
 }

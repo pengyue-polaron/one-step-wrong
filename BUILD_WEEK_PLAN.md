@@ -113,6 +113,7 @@ The minimum convincing product loop is:
 14. The deterministic engine applies consequences, selects the ending, and produces a canonical action trace.
 15. A server-only Debrief Analyst creates personalized coaching grounded in that trace and the approved profile.
 16. The UI distinguishes sourced institution facts, deterministic simulation facts, and AI-performed dialogue and coaching.
+17. The learner applies the primary judgment rule to a short new-context transfer probe whose result is evaluated only from an explicit deterministic action.
 
 The three-minute demo must show this loop working. Do not submit a fixed transcript while describing live role agents as future work. Keep one recorded fallback trace so a network or model failure does not break judging.
 
@@ -188,6 +189,7 @@ The generated scenario package should cover at least:
 - Separate containment and recovery steps.
 - Multiple deterministic endings.
 - Cause chains and transfer rules.
+- One short transfer probe with a different task, surface, and pressure, plus unmarked actions covering demonstrated, developing, and not-yet outcomes.
 - Source references for every institution-specific fact.
 - A maximum of three role cards.
 - Allowed conversational events and pacing conditions.
@@ -479,6 +481,13 @@ Do not spend Build Week on:
 - It does not override the deterministic ending.
 - The existing deterministic debrief remains available.
 - Model failure does not block completion.
+
+### Learning transfer
+
+- The learner can apply the primary judgment rule to a new context after the debrief.
+- Transfer actions are not labeled before selection.
+- The transfer result is derived from the selected validated action rather than model scoring.
+- The UI distinguishes the rehearsal ending from the new-context transfer result.
 
 ### Security
 

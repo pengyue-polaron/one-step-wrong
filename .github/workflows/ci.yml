@@ -46,3 +46,33 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build --tag one-step-wrong:ci .
+      - run: docker run --detach --name one-step-wrong --publish 3000:3000 one-step-wrong:ci
+      - name: Wait for the application
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3000/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs one-step-wrong
+          exit 1
+      - name: Verify production routes and runtime user
+        run: |
+          test "$(docker exec one-step-wrong id -u)" = "1001"
+          curl --fail --silent http://127.0.0.1:3000/studio > /dev/null
+          curl --fail --silent \
+            --header 'content-type: application/json' \
+            --data '{"institutionName":"New York University","officialDomains":["nyu.edu"],"useFixture":true}' \
+            http://127.0.0.1:3000/api/institutions/research \
+            | jq --exit-status '.provenance == "reviewed-fixture"'
+      - name: Stop the application
+        if: always()
+        run: docker rm --force one-step-wrong

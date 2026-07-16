@@ -150,6 +150,23 @@ OPENAI_API_KEY=your_key_here
 npx playwright install chromium
 ```
 
+### 运行生产容器
+
+镜像使用 Next.js standalone 输出，并以非特权用户运行。不提供 API key 时，仍可通过审核过的 fixture 完整游玩。
+
+```bash
+docker build -t one-step-wrong .
+docker run --rm -p 3000:3000 one-step-wrong
+```
+
+如需启用服务端 GPT-5.6 在线路径，请在运行时注入密钥，不要把它构建进镜像：
+
+```bash
+docker run --rm -p 3000:3000 \
+  -e OPENAI_API_KEY="$OPENAI_API_KEY" \
+  one-step-wrong
+```
+
 ## 可用命令
 
 | 命令 | 用途 |

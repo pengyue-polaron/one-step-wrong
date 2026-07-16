@@ -26,6 +26,7 @@
 - 审阅回退：无密钥、超时、越权事件、角色泄漏、异常结构或生成失败时仍可完整游玩。
 - 规范化动作轨迹与复盘：安全路径不虚构恢复缺口，事故路径分别记录已完成和遗漏的恢复动作。
 - 中英文 README、运行截图、`.env.example` 和 GitHub Actions CI。
+- Next.js standalone 多阶段生产镜像；CI 会构建镜像并探测首页、Studio、fixture API 与非 root 运行用户。
 
 ## 当前证据
 

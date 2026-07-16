@@ -150,6 +150,23 @@ For the first Playwright run:
 npx playwright install chromium
 ```
 
+### Run the production container
+
+The image uses Next.js standalone output and runs as an unprivileged user. It remains fully playable through reviewed fixtures when no API key is supplied.
+
+```bash
+docker build -t one-step-wrong .
+docker run --rm -p 3000:3000 one-step-wrong
+```
+
+To enable live server-side GPT-5.6 paths, inject the key at runtime rather than building it into the image:
+
+```bash
+docker run --rm -p 3000:3000 \
+  -e OPENAI_API_KEY="$OPENAI_API_KEY" \
+  one-step-wrong
+```
+
 ## Available Scripts
 
 | Command | Purpose |

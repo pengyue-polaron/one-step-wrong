@@ -45,7 +45,7 @@ GPT-5.6 在演练前负责学校研究和场景编译，演练中负责有边界
 
 > **Agents 演出这个世界，确定性代码定义它的物理规则。**
 
-旗舰案例 **The Voice You Know** 使用虚构的 Northbridge University，不包含真实人物、声音、付款信息或校园操作。产品规格见 [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md)，已执行的架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
+旗舰案例 **The Voice You Know** 使用虚构的 Northbridge University，不包含真实人物、声音、付款信息或校园操作。产品规格见 [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md)，可复现证据和三分钟演示手册见 [`BUILD_WEEK_EVIDENCE.md`](./BUILD_WEEK_EVIDENCE.md)，已执行的架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
 
 审核过的离线画像使用 NYU 官方公开页面作为来源，覆盖 [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system)、[Duo 与文件共享](https://tisch.nyu.edu/cit/information-technology/faq)、[Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu)、[校园无线网络](https://library.nyu.edu/services/computing/on-campus/wifi/)、[钓鱼特征与上报](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/)和[学生报销材料](https://www.stern.nyu.edu/portal-partners/budget/students)。画像明确把“全校统一的付款信息变更回拨规则”保留为未知；品牌安全编译随后转换受保护的校名、域名与平台名，同时保留来源事实 ID。
 

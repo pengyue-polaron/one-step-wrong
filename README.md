@@ -45,7 +45,7 @@ GPT-5.6 is used before play for institution research and scenario compilation, d
 
 > **Agents perform the world; deterministic code defines its physics.**
 
-The flagship case, **The Voice You Know**, uses fictional Northbridge University and no real person, voice, payment detail, or campus action. See [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md) for the product brief and [`AGENTS.md`](./AGENTS.md) for the enforced architecture and safety boundaries.
+The flagship case, **The Voice You Know**, uses fictional Northbridge University and no real person, voice, payment detail, or campus action. See [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md) for the product brief, [`BUILD_WEEK_EVIDENCE.md`](./BUILD_WEEK_EVIDENCE.md) for the reproducible evidence and three-minute demo runbook, and [`AGENTS.md`](./AGENTS.md) for the enforced architecture and safety boundaries.
 
 The reviewed offline profile is grounded in public NYU pages for [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system), [Duo and file sharing](https://tisch.nyu.edu/cit/information-technology/faq), [Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu), [wireless access](https://library.nyu.edu/services/computing/on-campus/wifi/), [phishing indicators and reporting](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/), and [student reimbursement documentation](https://www.stern.nyu.edu/portal-partners/budget/students). The profile explicitly leaves a university-wide payment-change callback rule unknown. Brand-safe compilation then transforms protected names, domains, and platforms while retaining source fact IDs.
 

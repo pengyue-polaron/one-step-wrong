@@ -9,6 +9,7 @@ import {
   scenarioPackageSchema,
   type ScenarioPackage,
 } from "@/ai/schemas/scenario";
+import { assertScenarioCoverage } from "@/engine/simulation/coverage";
 
 export const scenarioBriefSchema = z.object({
   threatTopic: z.string().trim().min(3).max(120),
@@ -81,5 +82,6 @@ export async function generateScenario(
   );
   validateScenarioAgainstProfile(scenario, approvedFactIds);
   validateScenarioPublicationMode(scenario, request.profile);
+  assertScenarioCoverage(scenario);
   return scenario;
 }

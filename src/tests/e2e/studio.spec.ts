@@ -17,6 +17,7 @@ async function openValidatedScenario(page: Page, captureProfile = false) {
   await expect(page.getByTestId("studio-preview")).toBeVisible();
   await expect(page.getByText("Scenario checks passed")).toBeVisible();
   await expect(page.getByText(/New York University · fictionalized names/)).toBeVisible();
+  await expect(page.getByRole("region", { name: "Outcome coverage" })).toContainText("4 / 4 reachable");
 }
 
 test("featured rehearsal opens directly from the case library", async ({ page }) => {
@@ -126,6 +127,12 @@ test("studio remains usable without horizontal overflow on mobile", async ({ pag
   await expect(page.getByRole("region", { name: "Source review" })).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio.png", fullPage: true });
+  await page.getByRole("button", { name: "Approve profile" }).click();
+  await page.getByRole("button", { name: "Use example rehearsal" }).click();
+  await expect(page.getByRole("region", { name: "Outcome coverage" })).toContainText("4 / 4 reachable");
+  await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.getByRole("region", { name: "Outcome coverage" }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "artifacts/screenshots/mobile-studio-coverage.png" });
 });
 
 test("transfer evidence remains usable on mobile", async ({ page }) => {

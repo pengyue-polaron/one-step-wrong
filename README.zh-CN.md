@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-88%20unit%20%2B%2015%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-91%20unit%20%2B%2015%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -50,6 +50,8 @@
 > **对话可以变化，后果由学习者完成的动作决定。**
 
 旗舰案例 **The Voice You Know** 使用虚构的 Northbridge University，不包含真实人物、声音、付款信息或校园操作。产品方向见 [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md)，可复现质量证据见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)，架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
+
+如需直接组织一次 10–35 分钟课堂或工作坊活动，可以使用双语 [`FACILITATOR_GUIDE.zh-CN.md`](./FACILITATOR_GUIDE.zh-CN.md)。
 
 审核过的离线画像使用 NYU 官方公开页面作为来源，覆盖 [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system)、[Duo 与文件共享](https://tisch.nyu.edu/cit/information-technology/faq)、[Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu)、[校园无线网络](https://library.nyu.edu/services/computing/on-campus/wifi/)、[钓鱼特征与上报](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/)和[学生报销材料](https://www.stern.nyu.edu/portal-partners/budget/students)。画像明确把“全校统一的付款信息变更回拨规则”保留为未知；品牌安全编译随后转换受保护的校名、域名与平台名，同时保留来源事实 ID。
 
@@ -124,6 +126,7 @@
 - Next.js 16、React 19 和严格模式 TypeScript
 - OpenAI Responses API、Structured Outputs 与 Web Search
 - 对所有模型输出执行 Zod 运行时 schema 和跨引用验证
+- 使用有界状态空间遍历证明场景声明的每一种结局都真实可达
 - 原生 CSS 设计系统，根据案例使用不同学校环境配色
 - Lucide React 图标
 - 使用纯 reducer 与模拟物理层构建可复现的剧情状态
@@ -143,6 +146,8 @@ GPT-5.6 承担五项有边界的职责：
 5. 只使用已发现证据和审核通过的来源事实回答追问。
 
 GPT-5.6 不执行关键动作，不修改付款或访问状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，所有浏览器调用都通过 [`src/app/api`](./src/app/api) 中有大小限制的服务端路由。
+
+生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
 
 Codex 参与了整个仓库的实现，把产品设想落成模块化案例架构、确定性模拟引擎、来源审核流程、Scenario Studio、产品界面、测试套件和文档。主要工程决策是让学习者动作拥有最终解释权、在游玩过程中显示证据、保留完整无密钥路径，并把生成内容视为必须通过验证的提案，而不是世界状态。
 
@@ -241,7 +246,7 @@ src/
     reducer.ts                      纯状态转换与结局派生
     components/                     通用章节外壳与选择控件
     views/                          结果、响应与复盘页面
-  engine/simulation/               关键动作、结局、证据与记录
+  engine/simulation/               权威物理层、记录、迁移与结局覆盖验证
   components/ui/                    只包含可复用按钮原语
   styles/                           设计变量、通用样式与案例库样式
   tests/e2e/                        浏览器流程和响应式布局检查
@@ -281,7 +286,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 88 个 schema、API、状态与组件测试，以及 15 个浏览器测试。覆盖范围包括旗舰演练直达入口、画像审核、精确品牌授权、权威 hostname 校验、来源证据、多种验证渠道、证据发现、Evidence Coach 引用边界、动作前置条件、受影响层恢复、基于记录的复盘、迁移评估、教师报告、异常自适应输出、指令注入拒绝、全部结局、审核示例、安全与事故完整路线、1366x768 至 1920x1080 桌面布局，以及 390x844 手机流程。
+当前测试集包含 91 个 schema、API、状态与组件测试，以及 15 个浏览器测试。覆盖范围包括旗舰演练直达入口、画像审核、精确品牌授权、权威 hostname 校验、来源证据、多种验证渠道、证据发现、Evidence Coach 引用边界、动作前置条件、四结局自动可达性、受影响层恢复、基于记录的复盘、迁移评估、教师报告、异常自适应输出、指令注入拒绝、全部结局、审核示例、安全与事故完整路线、1366x768 至 1920x1080 桌面布局，以及 390x844 手机流程。
 
 ## 安全与隐私
 

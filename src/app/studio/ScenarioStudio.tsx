@@ -15,6 +15,7 @@ import {
   FileQuestion,
   FileSearch,
   Flag,
+  GitBranch,
   GitCompareArrows,
   LoaderCircle,
   LockKeyhole,
@@ -43,6 +44,7 @@ import {
   type TransferProbeResult,
   evaluateTransferProbe,
 } from "@/engine/simulation/physics";
+import { evaluateScenarioCoverage } from "@/engine/simulation/coverage";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 
@@ -222,6 +224,10 @@ export function ScenarioStudio({ mode = "studio" }: { mode?: "studio" | "feature
     if (!profile || !scenario) return [];
     return profile.facts.filter((fact) => fact.status === "verified" && scenario.sourceFactIds.includes(fact.id));
   }, [profile, scenario]);
+  const scenarioCoverage = useMemo(
+    () => scenario ? evaluateScenarioCoverage(scenario) : null,
+    [scenario],
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -322,6 +328,10 @@ export function ScenarioStudio({ mode = "studio" }: { mode?: "studio" | "feature
 
   function launchScenario() {
     if (!scenario) return;
+    if (!scenarioCoverage?.allOutcomesReachable) {
+      setError("Every declared outcome needs a legal learner-action path before rehearsal.");
+      return;
+    }
     const dialogue = openingDialogue(scenario);
     setSimulation(createSimulationState(scenario));
     setMessages([dialogue.message]);
@@ -505,14 +515,31 @@ export function ScenarioStudio({ mode = "studio" }: { mode?: "studio" | "feature
 
           {stage === "preview" && scenario && (
             <div className="studio-section" data-testid="studio-preview">
-              <header className="studio-section-heading studio-heading-row"><div><span>04 / SCENARIO PREVIEW</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {profile?.displayName} · {scenario.publicationMode === "brand-safe-fictionalized" ? "fictionalized names" : "exact institution names"}</p></div><div className="validation-passed"><ShieldCheck size={18} /><span><strong>READY</strong><small>Scenario checks passed</small></span></div></header>
+              <header className="studio-section-heading studio-heading-row"><div><span>04 / SCENARIO PREVIEW</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {profile?.displayName} · {scenario.publicationMode === "brand-safe-fictionalized" ? "fictionalized names" : "exact institution names"}</p></div><div className={`validation-passed ${scenarioCoverage?.allOutcomesReachable ? "" : "is-blocked"}`}><ShieldCheck size={18} /><span><strong>{scenarioCoverage?.allOutcomesReachable ? "READY" : "BLOCKED"}</strong><small>{scenarioCoverage?.allOutcomesReachable ? "Scenario checks passed" : "Outcome coverage incomplete"}</small></span></div></header>
               <div className="scenario-summary-band"><div><span>Ordinary task</span><p>{scenario.intro.ordinaryTask}</p></div><div><span>Pressure</span><p>{scenario.intro.pressure}</p></div></div>
               <div className="scenario-columns">
                 <section><header><Users size={15} /><strong>Scenario roles</strong><ProvenanceBadge value={scenarioProvenance} /></header>{scenario.roleCards.map((role) => <div className="role-line" key={role.id}><span className={`role-dot is-${role.identityStatus}`} /><div><strong>{role.displayName}</strong><small>{role.identityStatus} · {role.allowedChannels[0]}</small></div></div>)}</section>
                 <section><header><Flag size={15} /><strong>Learner actions</strong><span>{scenario.criticalActions.length}</span></header>{scenario.criticalActions.map((action) => <div className="action-line" key={action.id}><span>{action.phase === "recovery" ? "response" : "during task"}</span><strong>{action.label}</strong></div>)}</section>
               </div>
+              {scenarioCoverage && (
+                <section className="scenario-coverage" aria-label="Outcome coverage">
+                  <header><GitBranch size={16} /><div><strong>Outcome coverage</strong><small>{scenarioCoverage.reachableStateCount} legal action states checked</small></div><span>{scenarioCoverage.endingCoverage.filter((result) => result.reachable).length} / 4 reachable</span></header>
+                  <div>
+                    {scenarioCoverage.endingCoverage.map((result) => {
+                      const ending = scenario.endings.find((item) => item.id === result.endingId);
+                      return (
+                        <article className={result.reachable ? "is-reachable" : "is-blocked"} key={result.endingId}>
+                          <div><span>{result.endingId}</span><strong>{ending?.title}</strong><small>{result.reachable ? `${result.actionIds.length} actions · ${result.evidenceIds.length} evidence items` : "No legal action path"}</small></div>
+                          <p>{result.reachable ? result.actionLabels.join(" → ") : "Revise the ending rules or action prerequisites."}</p>
+                        </article>
+                      );
+                    })}
+                  </div>
+                  <footer>Each route uses the same prerequisites, recovery rules, and ending selection used during the rehearsal.</footer>
+                </section>
+              )}
               <div className="package-ledger"><span>{scenario.worldBible.immutableFacts.length} ground rules</span><span>{scenario.allowedEvents.length} conversation moments</span><span>{scenario.recoveryActionIds.length} response steps</span><span>4 possible outcomes</span></div>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={launchScenario}><Play size={16} />Start rehearsal</button><button className="studio-button" onClick={() => setStage("brief")}><ArrowLeft size={16} />Edit brief</button></div>
+              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={!scenarioCoverage?.allOutcomesReachable} onClick={launchScenario}><Play size={16} />Start rehearsal</button><button className="studio-button" onClick={() => setStage("brief")}><ArrowLeft size={16} />Edit brief</button></div>
             </div>
           )}
 

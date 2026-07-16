@@ -84,6 +84,7 @@ src/
 
 - `src/ai/schemas/` is the contract boundary for all model-shaped data. TypeScript types alone are not acceptance.
 - `src/engine/simulation/physics.ts` is the only module allowed to apply critical actions, select endings, and create the canonical trace.
+- `src/engine/simulation/coverage.ts` may explore legal action states through the physics API, but it must not duplicate or replace runtime action, recovery, or ending rules.
 - `src/app/studio/` may orchestrate API calls and presentation state, but must not contain OpenAI client code or infer canonical consequences from dialogue.
 - `src/app/api/` returns bounded JSON with generic browser-facing errors. Do not log raw prompts, model output, dialogue, or traces.
 - Follow the bounded runtime architecture in `PRODUCT_PLAN.md`: one Simulation Director and no more than three role agents for the featured case.
@@ -193,6 +194,7 @@ Test requirements scale with the change:
 - Agent-turn changes need tests proving free text cannot mutate canonical state, unlock an event, or suggest an action without its typed prerequisite action.
 - Learner-facing copy changes need a negative browser assertion that provider, model, hackathon, fixture, fallback, schema, and deterministic/canonical terminology remain absent from rehearsal and debrief screens.
 - Transfer-probe changes need schema coverage for all three outcomes, direct deterministic evaluation tests, and a browser path that verifies the result stays usable without overflow.
+- Scenario-generation changes need coverage tests proving safe, caution, contained, and expanded endings are each reachable through legal action prerequisites.
 
 The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.
 

@@ -158,6 +158,7 @@ These guarantees belong in code and tests, not in immersion-breaking learner dis
 - Every institution fact is supported, disputed, or explicitly unknown.
 - Sources can be approved or rejected before profile approval.
 - A bounded scenario can be generated, validated, previewed, and launched.
+- Every declared ending has at least one legal action path under the same prerequisites and recovery rules used at runtime.
 - Fictionalization prevents protected institution terms from leaking into a public scenario.
 
 ### Learner workflow

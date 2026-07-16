@@ -46,6 +46,14 @@ describe("Scenario Architect adapter", () => {
     expect(() => validateScenarioPublicationMode(leaked, reviewedNyuInstitutionProfile)).toThrow("protected term");
   });
 
+  it("rejects a generated package with a declared but unreachable ending", async () => {
+    const generated = structuredClone(voiceYouKnowScenario);
+    const safe = generated.endings.find((ending) => ending.id === "safe")!;
+    safe.forbiddenActionIds.push("verify-adviser");
+    const provider = { responses: { parse: vi.fn().mockResolvedValue({ output_parsed: generated }) } } as unknown as ScenarioGenerationProvider;
+    await expect(generateScenario({ profile: reviewedNyuInstitutionProfile, brief, useFixture: false }, provider)).rejects.toThrow("unreachable outcomes: safe");
+  });
+
   it("allows approved terminology only in matching authorized-exact mode", () => {
     const profile: InstitutionProfile = structuredClone(reviewedNyuInstitutionProfile);
     profile.publicationMode = "authorized-exact";

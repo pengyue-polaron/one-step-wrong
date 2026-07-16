@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-88%20unit%20%2B%2015%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-91%20unit%20%2B%2015%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -50,6 +50,8 @@ Adaptive generation and dialogue are optional server-side capabilities. Source c
 > **Conversation can adapt. Completed actions determine the consequences.**
 
 The flagship case, **The Voice You Know**, uses fictional Northbridge University and no real person, voice, payment detail, or campus action. See [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md) for the product direction, [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for reproducible evidence, and [`AGENTS.md`](./AGENTS.md) for architecture and safety boundaries.
+
+For a ready-to-run 10–35 minute classroom or workshop format, use the bilingual [`FACILITATOR_GUIDE.md`](./FACILITATOR_GUIDE.md).
 
 The reviewed offline profile is grounded in public NYU pages for [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system), [Duo and file sharing](https://tisch.nyu.edu/cit/information-technology/faq), [Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu), [wireless access](https://library.nyu.edu/services/computing/on-campus/wifi/), [phishing indicators and reporting](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/), and [student reimbursement documentation](https://www.stern.nyu.edu/portal-partners/budget/students). The profile explicitly leaves a university-wide payment-change callback rule unknown. Brand-safe compilation then transforms protected names, domains, and platforms while retaining source fact IDs.
 
@@ -124,6 +126,7 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 - Next.js 16, React 19, and strict TypeScript
 - OpenAI Responses API with Structured Outputs and Web Search
 - Zod runtime schemas and cross-reference validation for all model output
+- Bounded state-space exploration proving that every declared scenario outcome is reachable
 - Native CSS design system with case-specific institutional palettes
 - Lucide React icons
 - Pure reducers and simulation physics for deterministic story progression
@@ -143,6 +146,8 @@ GPT-5.6 has five bounded responsibilities:
 5. Answer follow-up questions using discovered evidence and approved source facts.
 
 It does not perform critical actions, mutate payment or access state, choose an ending, or evaluate the learner's transfer action. Those decisions remain in [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts). Runtime validation lives in [`src/ai/schemas`](./src/ai/schemas), model adapters live in [`src/ai`](./src/ai), and all browser-facing calls pass through bounded server routes in [`src/app/api`](./src/app/api).
+
+Before a generated rehearsal can launch, [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) explores every reachable action set through the production physics API. Generation fails if safe, caution, contained, or expanded has no legal path; the educator preview shows a shortest representative trace for each outcome.
 
 Codex was used throughout the repository's implementation to translate the product thesis into the modular case architecture, deterministic simulation engine, source-review workflow, Scenario Studio, product UI, test suite, and documentation. The main engineering decisions were to keep learner actions authoritative, make evidence visible during play, preserve a complete no-key path, and treat generated content as validated proposals rather than world state.
 
@@ -241,7 +246,7 @@ src/
     reducer.ts                      Pure state transitions and ending selection
     components/                     Shared chapter chrome and choices
     views/                          Outcome, response, and debrief screens
-  engine/simulation/               Authoritative actions, endings, evidence, and traces
+  engine/simulation/               Authoritative physics, traces, transfer, and outcome coverage
   components/ui/                    Reusable button primitives only
   styles/                           Tokens, shared styles, and case-library styles
   tests/e2e/                        Browser flows and responsive layout checks
@@ -281,7 +286,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 88 schema, API, state, and component tests plus 15 browser tests. Coverage includes the featured direct entry, profile review, exact-brand authorization, authoritative hostname validation, source evidence, competing verification channels, evidence discovery, Evidence Coach citations, action prerequisites, affected-layer recovery, recorded-action review, transfer evaluation, facilitator reporting, malformed adaptive output, instruction-injection rejection, all outcomes, reviewed examples, complete safe and incident paths, 1366x768 through 1920x1080 desktop layouts, and 390x844 phone flows.
+The current suite contains 91 schema, API, state, and component tests plus 15 browser tests. Coverage includes the featured direct entry, profile review, exact-brand authorization, authoritative hostname validation, source evidence, competing verification channels, evidence discovery, Evidence Coach citations, action prerequisites, automatic four-outcome reachability, affected-layer recovery, recorded-action review, transfer evaluation, facilitator reporting, malformed adaptive output, instruction-injection rejection, all outcomes, reviewed examples, complete safe and incident paths, 1366x768 through 1920x1080 desktop layouts, and 390x844 phone flows.
 
 ## Safety and Privacy
 

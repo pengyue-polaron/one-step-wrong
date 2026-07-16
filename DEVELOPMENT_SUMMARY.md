@@ -27,11 +27,13 @@
 - 复盘只使用实际完成的动作、已发现证据、受影响层和遗漏恢复。
 - Evidence Coach 只使用本次已经发现的证据与审核通过的来源事实回答追问。
 - 新情境迁移会检查学习者能否把同一条判断规则用到不同任务。
+- 场景覆盖引擎会遍历合法动作状态，证明 safe、caution、contained、expanded 四种结局都真实可达。
+- 双语教师指南提供 10–35 分钟课堂、入学教育和工作坊流程。
 - 中英文 README、产品截图、`.env.example`、GitHub Actions CI 和完整测试门槛。
 
 ## 工程质量
 
-- 88 个 schema、API、状态与组件测试。
+- 91 个 schema、API、状态与组件测试。
 - 15 个 Playwright 浏览器测试。
 - 浏览器覆盖旗舰案例直达入口、全部已发布案例、Studio 安全路线、事故恢复路线、证据板、Evidence Coach、复盘、迁移、教师报告、桌面布局边界和 390 px 手机流程。
 - 完整门槛：`lint`、`typecheck`、`test`、`build`、`test:e2e`。

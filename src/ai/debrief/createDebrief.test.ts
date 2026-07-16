@@ -14,11 +14,16 @@ describe("canonical debrief", () => {
     expect(result.provenance).toBe("deterministic-fallback");
   });
 
-  it("falls back when generated coaching claims an unperformed action", async () => {
+  it("falls back when generated coaching selects an unperformed action", async () => {
     const provider = {
       responses: {
         parse: vi.fn().mockResolvedValue({
-          output_parsed: { summary: "You wisely Report to Safety Desk before continuing.", transferRuleIndex: 0 },
+          output_parsed: {
+            causeChainIndex: 0,
+            performedActionId: "report-incident",
+            missedRecoveryActionId: null,
+            transferRuleIndex: 0,
+          },
         }),
       },
     } as unknown as DebriefProvider;
@@ -28,5 +33,28 @@ describe("canonical debrief", () => {
     );
     expect(result.provenance).toBe("deterministic-fallback");
     expect(result.coaching.headline).toBe("Verified before release");
+  });
+
+  it("builds live coaching only from model-selected canonical IDs", async () => {
+    const provider = {
+      responses: {
+        parse: vi.fn().mockResolvedValue({
+          output_parsed: {
+            causeChainIndex: 0,
+            performedActionId: "approve-change",
+            missedRecoveryActionId: "report-incident",
+            transferRuleIndex: 1,
+          },
+        }),
+      },
+    } as unknown as DebriefProvider;
+    const result = await createDebrief(
+      { scenario: voiceYouKnowScenario, actionIds: ["approve-change", "preserve-evidence"] },
+      provider,
+    );
+    expect(result.provenance).toBe("live-debrief");
+    expect(result.coaching.summary).toContain("Approve new payment details");
+    expect(result.coaching.summary).toContain("Report to Safety Desk");
+    expect(result.coaching.nextTime).toBe(voiceYouKnowScenario.transferRules[1]);
   });
 });

@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-78%20unit%20%2B%2013%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-79%20unit%20%2B%2013%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
@@ -41,7 +41,7 @@
 5. 与有知识和频道边界的角色自然对话；学习者不会提前看到隐藏身份，所有高影响行为仍须通过明确的界面动作完成。
 6. 到达确定性结局，并获得只依据规范化动作轨迹生成的复盘。
 
-GPT-5.6 在演练前负责学校研究和场景编译，演练中负责有边界的角色表演，演练后负责基于轨迹的辅导文案。Zod schema、来源校验、事件白名单、类型化状态转换和确定性结局选择拥有最终解释权。每条 OpenAI 路径都有审核过的离线回退，因此没有 API key 也能完整体验旗舰案例。
+GPT-5.6 在演练前负责学校研究和场景编译，演练中负责有边界的角色表演，演练后负责选择基于轨迹的辅导重点。Debrief Analyst 只能返回经过验证的因果链、已执行动作、遗漏恢复动作和迁移规则 ID；最终显示文案由服务器使用规范化文本组合。Zod schema、来源校验、事件白名单、类型化状态转换和确定性结局选择拥有最终解释权。每条 OpenAI 路径都有审核过的离线回退，因此没有 API key 也能完整体验旗舰案例。
 
 > **Agents 演出这个世界，确定性代码定义它的物理规则。**
 
@@ -249,7 +249,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 78 个 schema、API、状态与组件测试，以及 13 个浏览器测试。覆盖范围包括可操作的画像审核、精确品牌授权、权威 hostname 校验、Web Search URL 证据、HTTPS 来源、服务端访问时间、fixture/画像原子归因、动作前置条件、受影响层恢复、异常模型输出、prompt/凭据诱导拒绝、确定性结局、离线回退、安全与事故完整路线、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
+当前测试集包含 79 个 schema、API、状态与组件测试，以及 13 个浏览器测试。覆盖范围包括可操作的画像审核、精确品牌授权、权威 hostname 校验、Web Search URL 证据、HTTPS 来源、服务端访问时间、fixture/画像原子归因、动作前置条件、受影响层恢复、规范化 ID 复盘约束、异常模型输出、prompt/凭据诱导拒绝、确定性结局、离线回退、安全与事故完整路线、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
 
 ## Build Week 开发说明
 

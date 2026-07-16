@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-78%20unit%20%2B%2013%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-79%20unit%20%2B%2013%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
@@ -41,7 +41,7 @@ Most security training explains the answer before learners feel the pressure tha
 5. Exchange natural messages with bounded roles while explicit application controls record every high-impact action without exposing hidden role identity.
 6. Reach a deterministic ending and receive coaching grounded in the canonical trace.
 
-GPT-5.6 is used before play for institution research and scenario compilation, during play for bounded role performance, and after play for trace-grounded coaching. Zod schemas, source checks, allowlisted events, typed state transitions, and deterministic ending selection remain authoritative. Every OpenAI path has a reviewed offline fallback, so the complete flagship case works without an API key.
+GPT-5.6 is used before play for institution research and scenario compilation, during play for bounded role performance, and after play to select a trace-grounded coaching emphasis. The Debrief Analyst returns only validated cause, performed-action, missed-recovery, and transfer-rule IDs; the server composes the displayed coaching from canonical text. Zod schemas, source checks, allowlisted events, typed state transitions, and deterministic ending selection remain authoritative. Every OpenAI path has a reviewed offline fallback, so the complete flagship case works without an API key.
 
 > **Agents perform the world; deterministic code defines its physics.**
 
@@ -249,7 +249,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 78 schema, API, state, and component tests plus 13 browser tests. Coverage includes actionable profile review, exact-brand authorization, authoritative hostname validation, Web Search URL evidence, HTTPS sources, server access times, atomic fixture/profile attribution, action prerequisites, affected-layer recovery, malformed AI output, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
+The current suite contains 79 schema, API, state, and component tests plus 13 browser tests. Coverage includes actionable profile review, exact-brand authorization, authoritative hostname validation, Web Search URL evidence, HTTPS sources, server access times, atomic fixture/profile attribution, action prerequisites, affected-layer recovery, canonical-ID debrief grounding, malformed AI output, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
 
 ## Build Week Development
 

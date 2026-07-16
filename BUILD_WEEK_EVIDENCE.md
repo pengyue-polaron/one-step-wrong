@@ -11,7 +11,7 @@ This document maps the Build Week product claims to reproducible evidence. It do
 | Bounded Director and role performance | `src/ai/simulation/turn.ts`, minimum-context, leakage, invalid-event, and timeout tests | Verified with mocked model output |
 | Free text cannot mutate canonical state | Studio browser tests and simulation physics tests | Verified |
 | Deterministic actions, affected-layer recovery, endings, and replay | `src/engine/simulation/physics.ts`, prerequisite/API tests, and all-ending tests | Verified |
-| Trace-grounded debrief with fallback | `src/ai/debrief/createDebrief.ts` and route tests | Verified with mocked model output and fixture fallback |
+| Trace-grounded debrief with fallback | Canonical-ID emphasis schema, server-composed coaching, debrief adapter and route tests | Verified with mocked model selection and deterministic fallback |
 | Complete no-key judging path | **Load reviewed example** in `/studio` | Verified locally |
 | Desktop and mobile product quality | `artifacts/screenshots/` and Playwright layout tests | Verified locally and in CI |
 | Automated quality and production-container gate | `.github/workflows/ci.yml` | Runs on `main`; production image verified locally |

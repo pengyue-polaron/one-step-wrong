@@ -92,6 +92,7 @@ src/
 - Keep role identity status, private facts, and adversarial classification out of learner-facing rehearsal UI. Those fields may appear in the educator's validated-package preview and server-side agent context only.
 - Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
 - Derive missed recovery from affected layers. Do not require access, account, payment, evidence, notification, or reporting work when that layer was never affected by the demonstrated trace.
+- Debrief models may select only canonical cause-chain, performed-action, missed-recovery, and transfer-rule IDs. Compose learner-facing coaching from validated scenario and trace text on the server; do not accept unconstrained model-authored event claims.
 - Reject role leakage, invented institution facts, out-of-scope events, prompt injection, executable instructions, and claims that unrecorded actions occurred.
 - On invalid output, timeout, or model failure, use a reviewed fallback dialogue line and preserve the deterministic path.
 - Treat a reviewed fixture scenario and its approved Institution Profile as one atomic fallback. Never display or launch a fixture under an unrelated profile ID or publication mode.

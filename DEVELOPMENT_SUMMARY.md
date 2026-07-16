@@ -31,12 +31,13 @@
 - 学习者界面隐藏角色真实身份状态；教师仍可在生成包预览中检查角色边界。
 - 审阅回退：无密钥、超时、越权事件、角色泄漏、异常结构或生成失败时仍可完整游玩。
 - 规范化动作轨迹与复盘：安全路径不虚构恢复缺口，事故路径分别记录已完成和遗漏的恢复动作。
+- Debrief Analyst 只选择规范化因果链、动作和迁移规则 ID，服务端据此组合辅导文本，模型不能自由添加事件。
 - 中英文 README、运行截图、`.env.example` 和 GitHub Actions CI。
 - Next.js standalone 多阶段生产镜像；CI 会构建镜像并探测首页、Studio、fixture API 与非 root 运行用户。
 
 ## 当前证据
 
-- `78` 条 schema、API、状态与组件测试。
+- `79` 条 schema、API、状态与组件测试。
 - `13` 条 Playwright 浏览器测试。
 - 浏览器覆盖 Studio 安全路径、事故恢复路径、自由文本回合、完整 replay 和 390 px 手机布局。
 - 完整门槛：`lint`、`typecheck`、`test`、`build`、`test:e2e`。

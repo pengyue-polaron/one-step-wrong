@@ -76,7 +76,8 @@ export type InstitutionResearchProvider = Pick<OpenAI, "responses">;
 function canonicalEvidenceUrl(value: string) {
   const url = new URL(value);
   const path = url.pathname.replace(/\/+$/, "") || "/";
-  return `${url.hostname.toLowerCase()}${path}`;
+  const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+  return `${url.protocol}//${hostname}${path}`;
 }
 
 export function validateSourcesAgainstWebSearch(

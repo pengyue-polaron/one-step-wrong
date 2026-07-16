@@ -28,6 +28,14 @@ Most security training explains the answer before learners feel the pressure tha
 4. Require separate recovery actions for account, device, content, and social impact.
 5. Reconstruct the causal chain in the debrief.
 
+## OpenAI Build Week Direction
+
+**One Step Wrong is a flight simulator for digital judgment.** The planned Build Week adaptation adds a teacher-facing Scenario Studio in which GPT-5.6 turns a threat brief, learning objective, or trusted policy into a validated playable scenario. The existing deterministic engine will continue to own facts, state transitions, recovery requirements, and endings; GPT-5.6 will also produce a personalized debrief grounded in the learner's canonical action trace.
+
+> **AI writes the simulation; code keeps it honest.**
+
+These AI capabilities are an implementation target and are not part of the current static prototype yet. See [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md) for the canonical product story, architecture, safety boundaries, acceptance criteria, demo outline, and implementation order.
+
 ## Playable Cases
 
 | Case | Student task | Security boundary | Experience |

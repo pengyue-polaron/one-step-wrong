@@ -6,13 +6,30 @@ import type { CaseModule, ProductCaseId } from "@/cases/types";
 import { UnexpectedPushCase } from "@/cases/unexpected-push/UnexpectedPushCase";
 import { unexpectedPushSummary } from "@/cases/unexpected-push/definition";
 
-export const caseModules = [
-  { summary: finalSubmissionSummary, Runner: FinalSubmissionCase },
-  { summary: sharedDraftSummary, Runner: SharedDraftCase },
-  { summary: unexpectedPushSummary, Runner: UnexpectedPushCase },
+const finalSubmissionModule = {
+  summary: finalSubmissionSummary,
+  Runner: FinalSubmissionCase,
+} satisfies CaseModule;
+const sharedDraftModule = {
+  summary: sharedDraftSummary,
+  Runner: SharedDraftCase,
+} satisfies CaseModule;
+const unexpectedPushModule = {
+  summary: unexpectedPushSummary,
+  Runner: UnexpectedPushCase,
+} satisfies CaseModule;
+
+const allCaseModules = [
+  finalSubmissionModule,
+  sharedDraftModule,
+  unexpectedPushModule,
 ] satisfies CaseModule[];
 
+export const caseModules = [
+  finalSubmissionModule,
+  unexpectedPushModule,
+] satisfies CaseModule[];
 export const caseCatalog = caseModules.map((item) => item.summary);
 export const caseRegistry = Object.fromEntries(
-  caseModules.map((item) => [item.summary.id, item]),
+  allCaseModules.map((item) => [item.summary.id, item]),
 ) as Record<ProductCaseId, CaseModule>;

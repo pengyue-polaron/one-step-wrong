@@ -59,14 +59,16 @@ test("case library and decision chapters stay usable on a phone", async ({ page 
   await page.getByRole("button", { name: "Return to case library" }).click();
   await expect(page.getByRole("heading", { name: "Choose a rehearsal" })).toBeVisible();
 
-  await page.getByTestId("case-shared-draft").click();
-  await page.getByRole("button", { name: "Open sharing settings" }).click();
-  await expect(page.getByLabel("NYU Drive sharing settings")).toBeVisible();
-  await expect(page.getByTestId("choice-public-link")).toBeVisible();
+  await page.getByTestId("rehearsal-sharing-scope").click();
+  await expect(page.getByRole("heading", { name: "Sharing Scope" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Campus Drive task workspace" })).toBeVisible();
+  await expect(page.getByTestId("task-request-summary")).toContainText("Maya Ortiz");
+  await expect(page.getByTestId("task-request-summary")).toContainText("my invitation still has not appeared");
+  await expect(page.getByRole("button", { name: /Add three named teammates as commenters/ })).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
-  await page.screenshot({ path: "artifacts/screenshots/mobile-drive-sharing.png", fullPage: true });
+  await page.screenshot({ path: "artifacts/screenshots/mobile-sharing-scope.png", fullPage: true });
 
-  await page.getByRole("button", { name: "Return to case library" }).click();
+  await page.getByRole("link", { name: "Case Library" }).click();
   await page.getByTestId("case-unexpected-push").click();
   await page.getByRole("button", { name: "Review login request" }).click();
   await expect(page.getByLabel("NYU Duo login verification")).toBeVisible();
@@ -74,4 +76,19 @@ test("case library and decision chapters stay usable on a phone", async ({ page 
   await expect(page.getByTestId("choice-approve-request")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.screenshot({ path: "artifacts/screenshots/mobile-duo-request.png", fullPage: true });
+});
+
+test("desktop modal isolation clears when the viewport becomes phone-sized", async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto("/");
+  await page.getByTestId("case-final-submission").click();
+  await expect(page.getByRole("dialog", { name: "Final Submission" })).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const returnButton = page.getByRole("button", { name: "Return to case library" });
+  await expect(returnButton).toBeVisible();
+  await expect(returnButton).toBeEnabled();
+  await expect(returnButton).not.toHaveAttribute("inert", "");
+  await returnButton.click();
+  await expect(page.getByRole("heading", { name: "Choose a rehearsal" })).toBeVisible();
 });

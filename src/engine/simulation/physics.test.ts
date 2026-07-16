@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+import { sharingScopeScenario } from "@/fixtures/sharingScope";
 import {
   applyCriticalAction,
   createCanonicalTrace,
@@ -89,6 +90,17 @@ describe("deterministic simulation physics", () => {
     expect(independent.evidenceIds).toEqual(["adviser-denial"]);
   });
 
+  it("keeps verified identity from being downgraded by weaker later evidence", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    scenario.exclusiveActionGroups = [];
+    const state = ["verify-adviser", "call-request-number"].reduce(
+      (current, action) => applyCriticalAction(scenario, current, action),
+      createSimulationState(scenario),
+    );
+    expect(state.canonical.identity).toBe("verified-false");
+    expect(createCanonicalTrace(scenario, state).endingId).toBe("safe");
+  });
+
   it("does not unlock verification dialogue from free text or unrelated actions", () => {
     expect(eventIsAllowed(voiceYouKnowScenario, "adviser-confirmation", [])).toBe(false);
     expect(eventIsAllowed(voiceYouKnowScenario, "adviser-confirmation", ["pause-payment"])).toBe(false);
@@ -100,6 +112,16 @@ describe("deterministic simulation physics", () => {
     expect(applyCriticalAction(voiceYouKnowScenario, once, "pause-payment")).toBe(once);
   });
 
+  it("locks alternative decisions after one action in an exclusive group", () => {
+    const firstChoice = applyCriticalAction(
+      voiceYouKnowScenario,
+      createSimulationState(voiceYouKnowScenario),
+      "call-request-number",
+    );
+    expect(() => applyCriticalAction(voiceYouKnowScenario, firstChoice, "verify-adviser")).toThrow("not available");
+    expect(() => applyCriticalAction(voiceYouKnowScenario, firstChoice, "ask-team-chat")).toThrow("not available");
+  });
+
   it("creates fresh replay state without canonical or trace leakage", () => {
     const firstRun = run(["call-request-number", "approve-change", "share-folder"]);
     const replay = createSimulationState(voiceYouKnowScenario);
@@ -108,6 +130,7 @@ describe("deterministic simulation physics", () => {
       actionIds: [],
       evidenceIds: [],
     });
+    expect(replay.canonical.content).toBe("intact");
     expect(replay.canonical).not.toBe(firstRun.canonical);
     expect(JSON.stringify(createCanonicalTrace(voiceYouKnowScenario, firstRun))).not.toContain("Dr. Maya Chen");
   });
@@ -172,10 +195,40 @@ describe("deterministic simulation physics", () => {
     expect(evaluateTransferProbe(voiceYouKnowScenario, "open-known-drive")).toMatchObject({
       probeId: "familiar-name-new-channel",
       outcome: "demonstrated",
-      headline: "Rule transferred",
+      headline: "Known-channel pattern applied",
     });
     expect(evaluateTransferProbe(voiceYouKnowScenario, "ask-same-chat").outcome).toBe("developing");
     expect(evaluateTransferProbe(voiceYouKnowScenario, "use-replacement-link").outcome).toBe("not-yet");
     expect(() => evaluateTransferProbe(voiceYouKnowScenario, "invented-action")).toThrow("Unknown transfer action");
+  });
+
+  it("contains access and content independently in Sharing Scope", () => {
+    const unsafe = [
+      "share-public-edit-link",
+      "review-sharing-activity",
+    ].reduce(
+      (state, action) => applyCriticalAction(sharingScopeScenario, state, action),
+      createSimulationState(sharingScopeScenario),
+    );
+    expect(createCanonicalTrace(sharingScopeScenario, unsafe).endingId).toBe("expanded");
+    expect(unsafe.canonical.content).toBe("modified");
+    expect(() => applyCriticalAction(sharingScopeScenario, unsafe, "share-named-commenters")).toThrow("not available");
+    expect(() => applyCriticalAction(sharingScopeScenario, unsafe, "report-sharing-incident")).toThrow("not available");
+
+    const contained = [
+      "restrict-public-link",
+      "restore-participant-sheet",
+      "preserve-activity-record",
+      "notify-affected-people",
+      "report-sharing-incident",
+    ].reduce(
+      (state, action) => applyCriticalAction(sharingScopeScenario, state, action),
+      unsafe,
+    );
+    const trace = createCanonicalTrace(sharingScopeScenario, contained);
+    expect(trace.endingId).toBe("contained");
+    expect(trace.finalState.access).toBe("restricted");
+    expect(trace.finalState.content).toBe("restored");
+    expect(trace.missedRecoveryActionIds).toEqual([]);
   });
 });

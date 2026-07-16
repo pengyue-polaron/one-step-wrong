@@ -42,6 +42,25 @@ describe("POST /api/scenarios/generate", () => {
     expect(result.profile.publicationMode).toBe(result.scenario.publicationMode);
   });
 
+  it("selects a reviewed rehearsal by explicit ID", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/scenarios/generate", {
+        method: "POST",
+        body: JSON.stringify({
+          profile: reviewedNyuInstitutionProfile,
+          brief,
+          useFixture: true,
+          reviewedScenarioId: "sharing-scope",
+        }),
+      }),
+    );
+    const result = await response.json();
+    expect(response.status).toBe(200);
+    expect(result.scenario.id).toBe("sharing-scope");
+    expect(result.scenario.exclusiveActionGroups[0].id).toBe("sharing-method");
+    expect(result.notice).toContain("Sharing Scope");
+  });
+
   it("does not replace a live generation request with the fixture when no key is present", async () => {
     const previous = process.env.OPENAI_API_KEY;
     try {
@@ -84,6 +103,6 @@ describe("POST /api/scenarios/generate", () => {
     expect(response.status).toBe(200);
     expect(result.profile.id).toBe("new-york-university");
     expect(result.scenario.sourceProfileId).toBe(result.profile.id);
-    expect(result.notice).toContain("reviewed example rehearsal");
+    expect(result.notice).toContain("The Voice You Know");
   });
 });

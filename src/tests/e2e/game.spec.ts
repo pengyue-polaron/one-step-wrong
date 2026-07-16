@@ -12,30 +12,38 @@ async function begin(page: Page, captureIntro = false) {
   await expect(page.getByText(/only a simulation|will not affect your computer|no data is collected/i)).toHaveCount(0);
 }
 
-test("case library exposes the featured rehearsal and three complete chapters", async ({ page }) => {
+test("case library exposes two reviewed rehearsals and two archive chapters", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Choose a rehearsal" })).toBeVisible();
   await expect(page.getByTestId("featured-rehearsal")).toBeVisible();
+  await expect(page.getByTestId("rehearsal-sharing-scope")).toBeVisible();
   await expect(page.getByTestId("case-final-submission")).toBeVisible();
-  await expect(page.getByTestId("case-shared-draft")).toBeVisible();
+  await expect(page.getByTestId("case-shared-draft")).toHaveCount(0);
   await expect(page.getByTestId("case-unexpected-push")).toBeVisible();
 });
 
-test("Drive public link route can be contained through scoped actions", async ({ page }) => {
-  await page.goto("/");
-  await page.getByTestId("case-shared-draft").click();
-  await page.getByRole("button", { name: "Open sharing settings" }).click();
-  await expect(page.getByLabel("NYU Drive sharing settings")).toBeVisible();
-  await page.screenshot({ path: "artifacts/screenshots/drive-sharing.png" });
-  await page.getByTestId("choice-public-link").click();
-  await expect(page.getByRole("heading", { name: "A visitor outside the team appears" })).toBeVisible();
-  await page.getByRole("button", { name: "Respond to sharing incident" }).click();
-  for (const id of ["restrict-link", "remove-outsider", "restore-version", "notify-team"]) await page.getByTestId(`response-${id}`).click();
-  await page.getByRole("button", { name: "Finish response and review" }).click();
-  await expect(page.getByRole("heading", { name: "Access pulled back" })).toBeVisible();
-  await page.screenshot({ path: "artifacts/screenshots/drive-debrief.png", fullPage: true });
-  await page.locator(".debrief-actions").getByRole("button", { name: "Return to case library" }).click();
-  await expect(page.getByText("Archive 1 / 3 complete")).toBeVisible();
+test("Sharing Scope contains a public-link incident through every affected layer", async ({ page }) => {
+  await page.goto("/rehearsal/sharing-scope");
+  await expect(page.getByRole("heading", { name: "Sharing Scope" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Campus Drive task workspace" })).toContainText("Three teammates checking quotations");
+  await page.getByRole("button", { name: /Create an editor link anyone can use/ }).click();
+  await expect(page.getByRole("button", { name: /Add three named teammates as commenters/ })).toHaveCount(0);
+  await page.getByRole("button", { name: /Review sharing activity/ }).click();
+  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Files downloaded outside the team");
+  await page.screenshot({ path: "artifacts/screenshots/sharing-scope-incident.png", fullPage: true });
+  for (const action of [
+    /Restrict the public link/,
+    /Restore the participant sheet/,
+    /Preserve the activity record/,
+    /Notify the project team and participants/,
+    /Report to the Digital Safety Desk/,
+  ]) {
+    await page.getByRole("button", { name: action }).click();
+  }
+  await page.getByRole("button", { name: "Finish and review" }).click();
+  await expect(page.getByText("CONTAINED", { exact: true })).toBeVisible();
+  await expect(page.getByText("All required recovery actions were completed.")).toBeVisible();
+  await page.screenshot({ path: "artifacts/screenshots/sharing-scope-debrief.png", fullPage: true });
 });
 
 test("Duo chapter binds approval to a player-initiated login", async ({ page }) => {

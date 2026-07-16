@@ -86,7 +86,7 @@ try {
   });
   requireProvenance("evidence coach", coach.provenance, "live-coach");
 
-  console.log("Live GPT-5.6 verification completed.");
+  console.log("Live adaptive-path verification completed.");
 } catch (error) {
   console.error(`LIVE VERIFICATION FAILED\n${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;

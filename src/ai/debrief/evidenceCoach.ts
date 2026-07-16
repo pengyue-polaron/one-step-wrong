@@ -43,18 +43,50 @@ function buildTrace(request: z.infer<typeof evidenceCoachRequestSchema>) {
 
 function relevantEvidenceIds(
   question: string,
+  scenario: z.infer<typeof scenarioPackageSchema>,
   availableEvidence: Array<{ id: string; label: string; description: string }>,
 ) {
-  const normalized = question.toLowerCase();
-  const preferredIds = [
-    normalized.match(/callback|attached|request number|same message/) ? "callback-controlled" : null,
-    normalized.match(/group|team|chat|social/) ? "team-cannot-confirm" : null,
-    normalized.match(/directory|independent|adviser|advisor|known channel/) ? "adviser-denial" : null,
-    normalized.match(/payment|reimbursement|account|route/) ? "payment-route-anomaly" : null,
-    normalized.match(/folder|guest|access|editor/) ? "unexpected-folder-guest" : null,
-    normalized.match(/preserve|message|metadata|record/) ? "message-mismatch" : null,
-  ].filter((id): id is string => Boolean(id));
-  const preferred = preferredIds.filter((id) => availableEvidence.some((item) => item.id === id));
+  const normalized = question.trim().toLowerCase();
+  const exactPrompt = scenario.learnerPresentation.coachPrompts.find(
+    (prompt) => prompt.question.trim().toLowerCase() === normalized,
+  );
+  if (exactPrompt && availableEvidence.some((item) => item.id === exactPrompt.evidenceId)) {
+    return [exactPrompt.evidenceId];
+  }
+
+  const queryTerms = new Set(
+    normalized
+      .split(/[^a-z0-9]+/)
+      .filter((term) => term.length >= 4),
+  );
+  const ranked = availableEvidence
+    .map((item) => {
+      const promptText = scenario.learnerPresentation.coachPrompts
+        .filter((prompt) => prompt.evidenceId === item.id)
+        .map((prompt) => prompt.question)
+        .join(" ");
+      const terms = (text: string) => new Set(
+        text.toLowerCase().split(/[^a-z0-9]+/).filter((term) => term.length >= 4),
+      );
+      const labelTerms = terms(item.label);
+      const descriptionTerms = terms(item.description);
+      const promptTerms = terms(promptText);
+      const score = [...queryTerms].reduce(
+        (total, term) =>
+          total
+          + (labelTerms.has(term) ? 3 : 0)
+          + (promptTerms.has(term) ? 2 : 0)
+          + (descriptionTerms.has(term) ? 1 : 0),
+        0,
+      );
+      return { id: item.id, score };
+    })
+    .sort((left, right) => right.score - left.score);
+  const highestScore = ranked[0]?.score ?? 0;
+  const preferred = ranked
+    .filter((item) => item.score > 0 && item.score === highestScore)
+    .slice(0, 3)
+    .map((item) => item.id);
   return preferred.length ? preferred : availableEvidence.slice(0, 3).map((item) => item.id);
 }
 
@@ -63,13 +95,13 @@ export function createReviewedEvidenceAnswer(
 ): EvidenceCoachAnswer {
   const trace = buildTrace(request);
   const availableEvidence = request.scenario.evidence.filter((item) => trace.evidenceIds.includes(item.id));
-  const evidenceIds = relevantEvidenceIds(request.question, availableEvidence);
+  const evidenceIds = relevantEvidenceIds(request.question, request.scenario, availableEvidence);
   const selectedEvidence = evidenceIds
     .map((id) => availableEvidence.find((item) => item.id === id))
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
   const answer = selectedEvidence.length
     ? `${selectedEvidence.map((item) => `${item.label}: ${item.description}`).join(" ")} ${trace.transferRules[0]}`
-    : `This run did not collect evidence that answers the question directly. Replay the rehearsal and compare a request-controlled check with an independently known channel. ${trace.transferRules[0]}`;
+    : `This run did not collect evidence that answers the question directly. Replay the rehearsal and compare what each available route establishes before the high-impact action. ${trace.transferRules[0]}`;
   return {
     answer,
     evidenceIds,

@@ -44,7 +44,7 @@ export const voiceYouKnowScenario = {
       },
       {
         id: "source-guidance",
-        statement: "The source institution warns that financial urgency and non-standard information requests are phishing indicators.",
+        statement: "The source institution warns that familiar sender details can be forged and should not be trusted by themselves.",
         audience: "public",
         institutionSpecific: true,
         sourceFactIds: ["payment-verification-policy"],
@@ -61,6 +61,7 @@ export const voiceYouKnowScenario = {
       identity: "unverified",
       payment: "pending",
       access: "restricted",
+      content: "intact",
       evidence: "unpreserved",
       people: "unnotified",
       report: "not-reported",
@@ -209,6 +210,12 @@ export const voiceYouKnowScenario = {
       availableAfterAnyActionIds: ["review-payment-status", "review-folder-access"],
       requiredAfterActionIds: ["approve-change", "share-folder"],
       stateChanges: [{ field: "report", value: "reported" }],
+    },
+  ],
+  exclusiveActionGroups: [
+    {
+      id: "first-verification-channel",
+      actionIds: ["call-request-number", "ask-team-chat", "verify-adviser"],
     },
   ],
   evidence: [
@@ -578,8 +585,8 @@ export const voiceYouKnowScenario = {
         label: "Open Campus Drive from your saved bookmark",
         description: "Locate the event deck independently and inspect any pending access request there.",
         outcome: "demonstrated",
-        resultHeadline: "Rule transferred",
-        resultSummary: "You changed both the surface and the channel, then reused independent verification before granting access.",
+        resultHeadline: "Known-channel pattern applied",
+        resultSummary: "After the rehearsal feedback, you changed both the surface and the channel before granting access.",
       },
       {
         id: "ask-same-chat",
@@ -604,5 +611,53 @@ export const voiceYouKnowScenario = {
     "Bind payment, access, and account changes to a separately known verification channel.",
     "Containment stops further change; recovery preserves evidence, removes access, notifies people, and reports the incident.",
   ],
+  learnerPresentation: {
+    openingEventId: "urgent-request",
+    workspace: {
+      appName: "Student Events Hub",
+      sectionLabel: "Student Events Council",
+      itemTitle: "Guest speaker reimbursement",
+      itemDescription: "Finalize the approved reimbursement record before the campus event begins.",
+      metadata: [
+        { label: "Status", value: "Pending review" },
+        { label: "Due", value: "Before doors open" },
+        { label: "Owner", value: "Student Events Council" },
+      ],
+    },
+    statusFields: [
+      {
+        field: "payment",
+        label: "Payment",
+        concealedLabel: "Pending",
+        revealAfterAnyActionIds: [],
+      },
+      {
+        field: "identity",
+        label: "Request",
+        concealedLabel: "Unconfirmed",
+        revealAfterAnyActionIds: [],
+      },
+      {
+        field: "access",
+        label: "Access",
+        concealedLabel: "Restricted",
+        revealAfterAnyActionIds: [],
+      },
+    ],
+    actionHeadings: {
+      verify: "Choose a verification channel",
+      task: "Work on the request",
+      inspect: "Check what changed",
+      recovery: "Respond to the incident",
+    },
+    coachPrompts: [
+      { evidenceId: "callback-controlled", question: "What did the callback establish, and what remained unverified?" },
+      { evidenceId: "team-cannot-confirm", question: "What did the organization group chat actually confirm?" },
+      { evidenceId: "adviser-denial", question: "What made the saved directory call independent evidence?" },
+      { evidenceId: "payment-route-anomaly", question: "What did the changed reimbursement route show?" },
+      { evidenceId: "unexpected-folder-guest", question: "Why did the outside folder guest change the response?" },
+      { evidenceId: "message-mismatch", question: "Why did preserving the original message matter?" },
+    ],
+  },
   sourceFactIds: ["payment-verification-policy", "security-desk"],
 } satisfies ScenarioPackage;

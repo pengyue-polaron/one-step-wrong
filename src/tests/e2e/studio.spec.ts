@@ -28,6 +28,10 @@ test("featured rehearsal opens directly from the case library", async ({ page })
   await expect(page.getByTestId("studio-live")).toBeVisible();
   await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Call the saved directory number/ })).toBeEnabled();
+  await expect(page.locator('audio[aria-label="Play voice note from Dr. Maya Chen"]:visible')).toHaveAttribute(
+    "src",
+    "/audio/the-voice-you-know-opening.ogg",
+  );
   await expect(page.getByRole("button", { name: /Dr\. Maya Chen Voice message/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).toHaveCount(0);
   await expect(page.getByText("Northbridge University")).toBeVisible();
@@ -49,13 +53,6 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await page.getByRole("button", { name: "Send message" }).click();
   await expect(page.locator(".dialogue-log article")).toHaveCount(3);
 
-  await page.getByRole("button", { name: /Call the number attached to the message/ }).click();
-  await expect(page.locator(".dialogue-log")).toContainText("I also need the reimbursement folder shared");
-  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Callback came from the request");
-  await expect(page.getByText("claimed again")).toBeVisible();
-  await page.getByRole("button", { name: /Ask in the organization group chat/ }).click();
-  await expect(page.locator(".dialogue-log")).toContainText("I cannot confirm who sent that voice message");
-  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("The team recognizes the context, not the sender");
   await page.getByRole("button", { name: /Call the saved directory number/ }).click();
   await expect(page.locator(".dialogue-log")).toContainText("I did not request any account change");
   await expect(page.getByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).toBeVisible();
@@ -84,12 +81,12 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByTestId("studio-transfer")).not.toContainText(/GPT|Build Week|fixture|fallback|schema|deterministic|canonical/i);
   await expect(page.getByText("The Name You Recognize")).toBeVisible();
   await page.getByRole("button", { name: /Open Campus Drive from your saved bookmark/ }).click();
-  await expect(page.getByText("Rule transferred")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Learning evidence" })).toContainText("before the built-in transfer rule appeared");
+  await expect(page.getByText("Known-channel pattern applied")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Learning evidence" })).toContainText("after feedback");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-transfer.png", fullPage: true });
-  await page.getByRole("button", { name: "What did the callback establish, and what remained unverified?" }).click();
-  await expect(page.locator(".coach-answers article")).toContainText("The callback number was supplied by the same message");
+  await page.getByRole("button", { name: "What made the saved directory call independent evidence?" }).click();
+  await expect(page.locator(".coach-answers article")).toContainText("Independent adviser confirmation");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-coach.png", fullPage: true });
 
@@ -98,14 +95,14 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByText("No learner identity stored")).toBeVisible();
   await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
   await expect(page.getByText(/Source profile: New York University · Published setting: Northbridge University/)).toBeVisible();
-  await expect(page.getByText(/selected before rule reveal/)).toBeVisible();
+  await expect(page.getByText(/selected before the explicit rule/)).toBeVisible();
   await expect(page.getByText("Approved institution guidance")).toBeVisible();
   await expect(page.getByRole("button", { name: "Print report" })).toBeEnabled();
   await page.screenshot({ path: "artifacts/screenshots/facilitator-report.png", fullPage: true });
 
   await page.getByRole("button", { name: "Replay rehearsal" }).click();
   await expect(page.getByTestId("studio-live")).toBeVisible();
-  await expect(page.getByText("0 completed")).toBeVisible();
+  await expect(page.getByText("0 task actions recorded")).toBeVisible();
   await expect(page.locator(".dialogue-log article")).toHaveCount(1);
   await expect(page.getByRole("button", { name: /Call the saved directory number/ })).toBeEnabled();
 });
@@ -166,12 +163,11 @@ test("transfer evidence remains usable on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openValidatedScenario(page);
   await page.getByRole("button", { name: "Start rehearsal" }).click();
-  await page.getByRole("button", { name: /Call the number attached to the message/ }).click();
-  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Callback came from the request");
+  await page.getByRole("button", { name: /Call the saved directory number/ }).click();
+  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Independent adviser confirmation");
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.getByRole("region", { name: "Evidence board" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio-evidence.png" });
-  await page.getByRole("button", { name: /Call the saved directory number/ }).click();
   await page.getByRole("button", { name: /Pause reimbursement/ }).click();
   await page.getByRole("button", { name: "Finish and review" }).click();
   await page.getByRole("button", { name: "Test in a new situation" }).click();

@@ -7,6 +7,7 @@ import {
 import { validateScenarioPackage, type ScenarioPackage } from "@/ai/schemas/scenario";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+import { sharingScopeScenario } from "@/fixtures/sharingScope";
 
 describe("InstitutionProfile", () => {
   it("accepts the reviewed official-source fixture", () => {
@@ -56,6 +57,7 @@ describe("InstitutionProfile", () => {
 describe("ScenarioPackage", () => {
   it("accepts the reviewed flagship scenario", () => {
     expect(validateScenarioPackage(voiceYouKnowScenario).success).toBe(true);
+    expect(validateScenarioPackage(sharingScopeScenario).success).toBe(true);
   });
 
   it("defines knowledge and channel boundaries for every registered role", () => {
@@ -140,6 +142,21 @@ describe("ScenarioPackage", () => {
     expect(result.issues.some((issue) => issue.message.includes("unreachable"))).toBe(true);
   });
 
+  it("rejects prerequisites that require mutually exclusive actions together", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    scenario.exclusiveActionGroups = [{
+      id: "verification-choice",
+      actionIds: ["call-request-number", "verify-adviser"],
+    }];
+    scenario.criticalActions
+      .find((action) => action.id === "share-folder")!
+      .availableAfterAllActionIds = ["call-request-number", "verify-adviser"];
+
+    const result = validateScenarioPackage(scenario);
+    expect(result.success).toBe(false);
+    expect(result.issues.some((issue) => issue.message.includes("unreachable"))).toBe(true);
+  });
+
   it("requires recovery actions to identify the incident layers that trigger them", () => {
     const scenario = structuredClone(voiceYouKnowScenario);
     scenario.criticalActions.find((action) => action.id === "preserve-evidence")!.requiredAfterActionIds = [];
@@ -190,6 +207,30 @@ describe("ScenarioPackage", () => {
     expect(
       validateScenarioPackage(scenario).issues.some((issue) => issue.message.includes("without mutating canonical state")),
     ).toBe(true);
+  });
+
+  it("validates mutually exclusive decisions and learner presentation references", () => {
+    const exclusive = structuredClone(voiceYouKnowScenario);
+    exclusive.exclusiveActionGroups = [
+      {
+        id: "verification-choice",
+        actionIds: ["call-request-number", "verify-adviser"],
+      },
+      {
+        id: "overlapping-choice",
+        actionIds: ["verify-adviser", "pause-payment"],
+      },
+    ];
+    expect(
+      validateScenarioPackage(exclusive).issues.some((issue) => issue.message.includes("only one exclusive group")),
+    ).toBe(true);
+
+    const invalidPresentation = structuredClone(voiceYouKnowScenario);
+    invalidPresentation.learnerPresentation.openingEventId = "missing-event";
+    invalidPresentation.learnerPresentation.coachPrompts[0].evidenceId = "missing-evidence";
+    const result = validateScenarioPackage(invalidPresentation);
+    expect(result.issues.some((issue) => issue.message.includes("Unknown opening event"))).toBe(true);
+    expect(result.issues.some((issue) => issue.message.includes("Unknown evidence"))).toBe(true);
   });
 
   it("requires a transfer probe with three distinct learning outcomes", () => {

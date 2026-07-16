@@ -6,6 +6,7 @@ import {
 } from "@/ai/scenarios/generate";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+import { sharingScopeScenario } from "@/fixtures/sharingScope";
 import type { InstitutionProfile } from "@/ai/schemas/institution";
 import type { ScenarioPackage } from "@/ai/schemas/scenario";
 
@@ -44,6 +45,11 @@ describe("Scenario Architect adapter", () => {
     const leaked = structuredClone(voiceYouKnowScenario);
     leaked.summary = "An NYU student handles an urgent payment request.";
     expect(() => validateScenarioPublicationMode(leaked, reviewedNyuInstitutionProfile)).toThrow("protected term");
+  });
+
+  it("keeps both reviewed rehearsals within the fictionalized publication boundary", () => {
+    expect(() => validateScenarioPublicationMode(voiceYouKnowScenario, reviewedNyuInstitutionProfile)).not.toThrow();
+    expect(() => validateScenarioPublicationMode(sharingScopeScenario, reviewedNyuInstitutionProfile)).not.toThrow();
   });
 
   it("rejects a generated package with a declared but unreachable ending", async () => {

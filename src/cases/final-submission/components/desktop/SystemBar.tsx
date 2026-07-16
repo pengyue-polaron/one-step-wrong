@@ -17,25 +17,29 @@ export function SystemBar({ onExit }: { onExit?: () => void }) {
       <div className="system-status">
         {onExit ? <IconButton label="Return to case library" icon={<LayoutGrid size={15} />} onClick={onExit} /> : null}
         <IconButton
-          label={state.countdownPaused ? "Resume countdown" : "Pause countdown"}
+          aria-pressed={state.countdownPaused}
+          label="Pause countdown"
           icon={state.countdownPaused ? <Play size={15} /> : <Pause size={15} />}
           active={state.countdownPaused}
           onClick={() => dispatch({ type: "TOGGLE_PAUSE" })}
         />
         <IconButton
-          label={state.reducedMotion ? "Enable motion" : "Reduce motion"}
+          aria-pressed={state.reducedMotion}
+          label="Reduce motion"
           icon={<Zap size={15} />}
           active={state.reducedMotion}
           onClick={() => dispatch({ type: "TOGGLE_REDUCED_MOTION" })}
         />
         <IconButton
-          label={state.muted ? "Enable sound" : "Mute sound"}
+          aria-pressed={state.muted}
+          label="Mute sound"
           icon={state.muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
           active={state.muted}
           onClick={() => dispatch({ type: "TOGGLE_MUTE" })}
         />
         <IconButton
-          label="Open network list"
+          aria-expanded={state.networkPanelOpen}
+          label="Network list"
           icon={<Wifi size={16} />}
           active={state.networkPanelOpen}
           onClick={() => dispatch({ type: "TOGGLE_NETWORK_PANEL" })}
@@ -43,6 +47,7 @@ export function SystemBar({ onExit }: { onExit?: () => void }) {
         <BatteryMedium size={17} aria-label="Battery 68%" />
         <button
           className="status-notification"
+          aria-expanded={state.notificationCenterOpen}
           aria-label={`Notification center, ${unread} unread`}
           title="Notification center"
           onClick={() => dispatch({ type: "TOGGLE_NOTIFICATION_CENTER" })}

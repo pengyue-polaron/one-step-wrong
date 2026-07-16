@@ -10,6 +10,7 @@ import {
   type ScenarioPackage,
 } from "@/ai/schemas/scenario";
 import { assertScenarioCoverage } from "@/engine/simulation/coverage";
+import { reviewedScenarioIds } from "@/fixtures/reviewedScenarioRegistry";
 
 export const scenarioBriefSchema = z.object({
   threatTopic: z.string().trim().min(3).max(120),
@@ -28,6 +29,7 @@ export const scenarioGenerationRequestSchema = z.object({
   profile: institutionProfileSchema,
   brief: scenarioBriefSchema,
   useFixture: z.boolean().default(false),
+  reviewedScenarioId: z.enum(reviewedScenarioIds).default("the-voice-you-know"),
 });
 
 export type ScenarioGenerationProvider = Pick<OpenAI, "responses">;
@@ -57,7 +59,7 @@ export function validateScenarioPublicationMode(scenario: ScenarioPackage, profi
 }
 
 export async function generateScenario(
-  request: z.infer<typeof scenarioGenerationRequestSchema>,
+  request: z.input<typeof scenarioGenerationRequestSchema>,
   provider: ScenarioGenerationProvider | null = getOpenAIClient(),
 ) {
   const approval = validateProfileForApproval(request.profile);

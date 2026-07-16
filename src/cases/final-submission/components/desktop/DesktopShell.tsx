@@ -51,7 +51,7 @@ export function DesktopShell({ onExit }: { onExit?: () => void }) {
         <span><MonitorUp size={28} /></span>
         <small>DESKTOP CHAPTER</small>
         <h1>This case needs a wider screen</h1>
-        <p>Continue in a desktop browser. The other two cases work on a phone.</p>
+        <p>Continue in a desktop browser. The other rehearsals work on a phone.</p>
         {onExit ? <PixelButton icon={<LayoutGrid size={15} />} onClick={onExit}>Return to case library</PixelButton> : null}
       </section>
     </main>

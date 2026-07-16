@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-105%20unit%20%2B%2015%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-132%20unit%20%2B%2021%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -19,7 +19,7 @@
 
 它不是知识问答。结果发生前，任何选择都不会被标注为安全、危险、正确或推荐。
 
-![包含一个旗舰互动演练和三个 NYU 数字安全故事的案例库](./artifacts/screenshots/case-library.png)
+![包含两个审核互动演练和两个归档章节的案例库](./artifacts/screenshots/case-library.png)
 
 ## 为什么做这个项目
 
@@ -38,22 +38,22 @@
 1. 从官方公开来源研究一所学校，或载入审核过的 NYU 来源画像。
 2. 审核引用、冲突、研究警告和明确未知项，再批准学校环境。
 3. 定义受众、普通任务、压力、威胁和学习目标。
-4. 跟踪审核来源如何进入虚构化发布环境，再预览角色、动作、恢复和结局覆盖。
-5. 进入演练，通过明确动作打开验证渠道，并看到每个动作返回证据和剧情回应。
+4. 跟踪审核来源如何进入虚构化发布环境，预览角色、动作、恢复和结局覆盖，并在不重写审核故事的前提下润色少量可见标签。
+5. 进入演练，通过明确的任务和检查动作推进，并看到每个动作返回证据和剧情回应。
 6. 根据实际完成的动作复盘因果链与最终操作状态。
 7. 在内置迁移规则显示前，先在不同任务中完成一次选择。
 
-学习者可以从案例库直接进入旗舰演练，也可以打开 [`/rehearsal`](http://localhost:3000/rehearsal)。新情境动作记录后，Evidence Coach 才会依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、最终操作状态、证据、讨论问题、审核指导和打印视图。
+学习者可以打开 [`/rehearsal`](http://localhost:3000/rehearsal) 进入 **The Voice You Know**，或打开 [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope) 进入 **Sharing Scope**。新情境动作记录后，Evidence Coach 才会依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、最终操作状态、证据、讨论问题、审核指导和打印视图。
 
 自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。没有 API key 时，旗舰直达入口和明确的 **Use example...** 路径仍然完整；实时创作按钮会清楚显示不可用，不会悄悄把学校或教学简报替换成无关数据。
 
 > **对话可以变化，后果由学习者完成的动作决定。**
 
-旗舰案例 **The Voice You Know** 使用虚构的 Northbridge University，不包含真实人物、声音、付款信息或校园操作。产品方向见 [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md)，可复现质量证据见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)，架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
+两个审核演练都使用虚构的 Northbridge University，不包含真实人物、付款信息、私人文档或校园操作。产品方向见 [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md)，可复现质量证据见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)，架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
 
 如需直接组织一次 10–35 分钟课堂或工作坊活动，可以使用双语 [`FACILITATOR_GUIDE.zh-CN.md`](./FACILITATOR_GUIDE.zh-CN.md)。
 
-审核过的离线画像使用 NYU 官方公开页面作为来源，覆盖 [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system)、[Duo 与文件共享](https://tisch.nyu.edu/cit/information-technology/faq)、[Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu)、[校园无线网络](https://library.nyu.edu/services/computing/on-campus/wifi/)、[钓鱼特征与上报](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/)和[学生报销材料](https://www.stern.nyu.edu/portal-partners/budget/students)。画像明确把“全校统一的付款信息变更回拨规则”保留为未知；品牌安全编译随后转换受保护的校名、域名与平台名，同时保留来源事实 ID。
+审核过的离线画像使用 NYU 官方公开页面作为来源，覆盖 [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system)、[Duo 与文件共享](https://tisch.nyu.edu/cit/information-technology/faq)、[Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu)、[校园无线网络](https://library.nyu.edu/services/computing/on-campus/wifi/)、[伪造发件人识别与钓鱼上报](https://cims.nyu.edu/dynamic/systems/userservices/mail/)和[学生报销材料](https://www.stern.nyu.edu/portal-partners/budget/students)。画像明确把“全校统一的付款信息变更回拨规则”保留为未知；品牌安全编译随后转换受保护的校名、域名与平台名，同时保留来源事实 ID。
 
 默认发布方式是品牌安全虚构化。使用精确学校品牌前必须明确确认已获授权，而且确认会写入通过验证的 Institution Profile。用户提供官方域名后，模型不能把它替换为其他域名；学校来源必须位于该域名、使用 HTTPS、由服务器写入访问时间，而且 URL 必须出现在同一次 Responses Web Search 返回的工具证据中。
 
@@ -61,9 +61,10 @@
 
 | 案例 | 学生任务 | 安全边界 | 体验形式 |
 | --- | --- | --- | --- |
-| **01 · 最后一次提交** | 在截止前恢复网络，把作业提交至 NYU Brightspace。 | 无线网络身份、域名、配置文件和账号止损。 | 深度桌面模拟，最低宽度 1100 px。 |
-| **02 · 共享范围** | 给项目小组开放完成访谈核对所需的权限。 | 具体身份、链接范围、编辑权限、版本恢复和影响沟通。 | 响应式决策章节。 |
-| **03 · 这次是你吗** | 在连续收到 Duo 请求时进入导师会议。 | 本人发起的登录、设备与位置、会话、恢复方式和上报。 | 响应式决策章节。 |
+| **The Voice You Know** | 在熟悉声音要求变更付款信息时完成嘉宾报销。 | 独立验证、付款状态、工作区访问和分层恢复。 | 审核过的 Agentic 演练，支持响应式布局。 |
+| **Sharing Scope** | 给三位纪录片项目成员开放核对访谈引文所需的权限。 | 具名对象、权限级别、可转发链接、内容恢复和泄露响应。 | 审核过的 Agentic 演练，支持响应式布局。 |
+| **最后一次提交** | 在截止前恢复网络，把作业提交至 NYU Brightspace。 | 无线网络身份、域名、配置文件和账号止损。 | 深度桌面模拟，最低宽度 1100 px。 |
+| **这次是你吗** | 在连续收到 Duo 请求时进入导师会议。 | 本人发起的登录、设备与位置、会话、恢复方式和上报。 | 响应式决策章节。 |
 
 每个案例都有普通任务、无预警选择、必要时出现的延迟后果、逐项响应、多种结局和可重玩的因果复盘。完成进度只保留在当前浏览会话中。
 
@@ -98,26 +99,26 @@
 
 <table>
   <tr>
-    <td width="50%"><img alt="NYU Drive 共享范围选择" src="./artifacts/screenshots/drive-sharing.png" /></td>
+    <td width="50%"><img alt="Campus Drive 工作区中的 Sharing Scope 公开链接事件" src="./artifacts/screenshots/sharing-scope-incident.png" /></td>
     <td width="50%"><img alt="意外 Duo 请求选择" src="./artifacts/screenshots/duo-request.png" /></td>
   </tr>
   <tr>
-    <td align="center">NYU Drive 共享范围</td>
+    <td align="center">任务工作区中的访问对象与权限范围</td>
     <td align="center">Duo 登录确认</td>
   </tr>
 </table>
 
 ### 因果复盘
 
-![把玩家选择、沿途证据、响应动作和迁移规则连接起来的复盘页面](./artifacts/screenshots/drive-debrief.png)
+![把链接选择、活动证据、分层恢复和迁移规则连接起来的 Sharing Scope 复盘](./artifacts/screenshots/sharing-scope-debrief.png)
 
 ### 响应式章节
 
 <table>
   <tr>
     <td width="33%"><img alt="手机上的案例库" src="./artifacts/screenshots/mobile-case-library.png" /></td>
-    <td width="33%"><img alt="手机上的 NYU Drive 章节" src="./artifacts/screenshots/mobile-drive-sharing.png" /></td>
-    <td width="33%"><img alt="手机上的 Duo 章节" src="./artifacts/screenshots/mobile-duo-request.png" /></td>
+    <td width="33%"><img alt="手机上的 Sharing Scope 任务工作区" src="./artifacts/screenshots/mobile-sharing-scope.png" /></td>
+    <td width="33%"><img alt="手机上的教师报告" src="./artifacts/screenshots/mobile-facilitator-report.png" /></td>
   </tr>
 </table>
 
@@ -131,13 +132,14 @@
 - Lucide React 图标
 - 使用纯 reducer 与模拟物理层构建可复现的剧情状态
 - Vitest 与 React Testing Library 状态/组件测试
-- Playwright 完整流程与响应式布局测试
+- Playwright 与 Axe 完整流程、键盘焦点、自动无障碍和响应式布局测试
+- 不含学习者级记录的场次汇总试用工具
 
-案例库和完整的审核旗舰演练都可以在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；没有 key 时，明确的审核示例按钮仍然可用，实时创作请求会返回清楚的错误。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
+案例库和两个完整的审核演练都可以在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；没有 key 时，明确的审核示例按钮仍然可用，实时创作请求会返回清楚的错误。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
 
 ## 技术证据
 
-GPT-5.6 承担五项有边界的职责：
+可选的自适应模型层承担五项有边界的职责：
 
 1. 使用来源证据研究官方公开的学校指导。
 2. 把已批准的画像与教学简报编译成通过验证的场景包。
@@ -145,15 +147,13 @@ GPT-5.6 承担五项有边界的职责：
 4. 只从已记录动作中选择通过验证的复盘元素。
 5. 只使用已发现证据和审核通过的来源事实回答追问。
 
-GPT-5.6 不执行关键动作，不修改付款或访问状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，所有浏览器调用都通过 [`src/app/api`](./src/app/api) 中有大小限制的服务端路由。
+模型不执行关键动作，不修改付款、访问或内容状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，所有浏览器调用都通过 [`src/app/api`](./src/app/api) 中有大小限制的服务端路由。
 
-生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。审核旗舰目前会检查 704 个合法动作状态。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
+生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。审核语音案例会检查 248 个合法动作状态，Sharing Scope 会检查 29 个。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
 
 同一份 schema 还会证明每一条恢复可用路径都经过事故触发点、contained 事故中每个被改变的状态字段都有真正有效的恢复动作，而且受影响层的最终状态确实已被控制。旗舰案例里，付款批准会先表现为成功，后续状态复查才揭示异常；真正的 contained 还必须单独请求财务冻结。对话渠道只有在学习者明确打开后才出现；自由对话会留在当前选中的角色频道，动作触发事件会记录 ID，避免审核对话无限重复。
 
-迁移动作会在内置规则和 Evidence Coach 引导问题出现前被记录。因此第二个情境提供的是可观察的学习证据，而不是刚看完答案后的复述。
-
-Codex 参与了整个仓库的实现，把产品设想落成模块化案例架构、确定性模拟引擎、来源审核流程、Scenario Studio、产品界面、测试套件和文档。主要工程决策是让学习者动作拥有最终解释权、在游玩过程中显示证据、保留完整无密钥路径，并把生成内容视为必须通过验证的提案，而不是世界状态。
+第二个任务是在首次演练反馈后的即时应用。动作仍会在明确迁移规则和 Evidence Coach 引导问题出现前记录，因此它只能作为有边界的形成性信号，不能被描述成因果学习证明。
 
 运行 `npm run verify:ai` 可以检查模型边界和 API。启动本地服务并配置 `OPENAI_API_KEY` 后，运行 `npm run verify:live` 可以要求研究、生成、角色对话、复盘和 Evidence Coach 全部返回实时来源；任何路径回退到审核内容都会让命令失败。
 
@@ -219,7 +219,8 @@ docker run --rm -p 3000:3000 \
 | `npm run test:watch` | 以监听模式运行 Vitest。 |
 | `npm run test:e2e` | 运行 Playwright 浏览器测试。 |
 | `npm run verify:ai` | 运行聚焦于 AI schema、边界、适配器和 API 的测试。 |
-| `npm run verify:live` | 在运行中的服务上要求全部 GPT-5.6 路径返回实时来源。 |
+| `npm run verify:live` | 在运行中的服务上要求全部自适应路径返回实时来源。 |
+| `npm run pilot:analyze -- <文件>` | 校验并汇总只含场次计数的试用数据。 |
 
 ## 工程结构
 
@@ -227,23 +228,24 @@ docker run --rm -p 3000:3000 \
 src/
   app/
     api/                            仅服务端研究、生成、对话、复盘与教练路由
-    rehearsal/                      旗舰演练的学习者直达入口
-    studio/                         教师工作流与旗舰案例实时预览
+    rehearsal/                      审核演练的学习者直达路由
+    studio/                         教师工作流、受限标签编辑器与通用演练界面
   ai/
     schemas/                        运行时契约、跨引用与安全验证
     research/                       Institution Research Agent 适配层
     scenarios/                      Scenario Architect 适配层
     simulation/                     Director 与角色回合边界验证
     debrief/                        依据轨迹生成复盘与 Evidence Coach 的适配层
-  fixtures/                         审核过的画像、场景与对话内容
+  fixtures/                         审核过的画像/场景原子包与对话内容
   product/
     Game.tsx                        会话级案例选择与完成状态
     CaseLibrary.tsx                 可直接游玩的第一屏
-    caseRegistry.ts                 所有已发布案例的唯一注册入口
+    caseRegistry.ts                 旧章节注册表
+    reviewedRehearsals.ts           轻量审核演练目录
   cases/
     types.ts                        通用案例模块契约
     final-submission/               深度桌面案例：界面、状态、内容、测试
-    shared-draft/                   Drive 剧情定义与场景
+    shared-draft/                   已归档的早期共享原型
     unexpected-push/                Duo 剧情定义与场景
   engine/decision/
     DecisionCaseRunner.tsx          通用流程编排
@@ -253,13 +255,14 @@ src/
   engine/simulation/               权威物理层、记录、迁移与结局覆盖验证
   components/ui/                    只包含可复用按钮原语
   styles/                           设计变量、通用样式与案例库样式
-  tests/e2e/                        浏览器流程和响应式布局检查
+  tests/e2e/                        浏览器流程、无障碍和响应式检查
+pilot/                              只含场次汇总的形成性试用协议
 artifacts/screenshots/              已验收的产品截图
 ```
 
-注册表只依赖一个很小的 `CaseModule` 契约：案例元数据加运行组件。产品层不需要知道某一章使用通用决策引擎还是独立状态机。Scenario Studio 是单独的创作路由，不会替换默认的可玩案例库。
+旧章节只依赖一个很小的 `CaseModule` 契约：案例元数据加运行组件。审核过的 Agentic 演练则以画像/场景原子包按 ID 选择，并通过同一套界面运行。Scenario Studio 是单独的创作路由，不会替换默认的可玩案例库。
 
-项目有意保留两种章节模型：
+项目有意保留三种章节模型：
 
 - **决策章节**使用 `intro → decision → outcome → response? → debrief`，只提供剧情数据和该案例拥有的场景。
 - **深度模拟**拥有自己的状态机与界面，但仍从同一个注册表进入产品。
@@ -267,15 +270,21 @@ artifacts/screenshots/              已验收的产品截图
 
 架构边界、内容约束和完成检查清单见 [`AGENTS.md`](./AGENTS.md)。
 
-## 扩展案例
+## 扩展案例库
+
+新增审核过的 Agentic 演练时：
+
+1. 添加通过验证的场景 fixture，并在 `src/fixtures/reviewedScenarioRegistry.ts` 中与已批准画像组成原子包。
+2. 在 `src/product/reviewedRehearsals.ts` 注册学习者目录元数据，并通过共享静态路由开放。
+3. 补齐 schema、可达性、物理层、直达路由、浏览器流程、响应式和截图覆盖。
+
+新增旧式决策章节或深度章节时：
 
 1. 创建 `src/cases/<case-id>/`，提供摘要、剧情定义或状态模型、场景和测试。
-2. 聚焦一次选择和复盘时使用决策引擎；只有需要多个工具、自由导航或长事件链时才建立独立 reducer。
-3. 导出实现 `CaseRunnerProps` 的运行组件。
-4. 只在 `src/product/caseRegistry.ts` 注册一次。
-5. 补齐经过验证的剧情路线、响应式检查和验收截图。
+2. 聚焦流程使用决策引擎；只有需要多个工具、自由导航或长事件链时才建立独立 reducer。
+3. 导出实现 `CaseRunnerProps` 的运行组件，并只在 `src/product/caseRegistry.ts` 注册一次。
 
-不要在产品外壳中增加具体案例分支。工具界面和剧情文案应留在拥有它们的案例模块内。
+不要在产品外壳中增加具体案例分支。
 
 ## 质量门槛
 
@@ -290,7 +299,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 105 个 schema、API、状态与组件测试，以及 15 个浏览器测试。覆盖范围包括旗舰演练直达入口、画像审核、精确品牌授权、权威 hostname 校验、流式请求上限、来源转换链、动作解锁渠道、事件投递记录、延迟后果、四结局自动可达性、受影响层恢复、最终操作状态、规则揭示前迁移、Evidence Coach 引用边界、教师报告、异常自适应输出、指令注入拒绝、安全与事故完整路线、生产构建、1366x768 至 1920x1080 桌面布局，以及 390x844 手机流程。
+当前测试集包含 132 个 schema、API、状态与组件测试，以及 21 个浏览器测试。覆盖范围包括两个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、访问与内容恢复、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机流程。
 
 ## 安全与隐私
 
@@ -309,9 +318,9 @@ npm run test:e2e
 
 ## 已知限制
 
-- 第一章的多窗口工作区需要至少 1100 px，因此有意只支持桌面体验。
+- **Final Submission** 的多窗口工作区需要至少 1100 px，因此有意只支持桌面体验。
 - 桌面窗口使用固定位置，不支持自由拖拽和缩放。
-- 音效由浏览器即时合成，没有背景音乐或配音。
+- Final Submission 会即时合成短界面音效，The Voice You Know 包含一段本地合成语音；项目不克隆真人声音，也不调用运行时文字转语音服务。
 - 当前没有登录、数据库、跨会话进度、协作系统、运行时国际化框架或真实校园集成。
 - 在线自适应创作需要有效 API key 和网络；没有二者时仍可通过明确的审核示例路径完成完整产品流程。
 

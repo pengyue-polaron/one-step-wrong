@@ -6,16 +6,18 @@ import { SharedDraftCase } from "@/cases/shared-draft/SharedDraftCase";
 import { UnexpectedPushCase } from "@/cases/unexpected-push/UnexpectedPushCase";
 
 describe("case library and decision chapters", () => {
-  it("presents the featured rehearsal, three cases, and session progress", async () => {
+  it("presents two reviewed rehearsals, two archive cases, and session progress", async () => {
     const user = userEvent.setup();
     const onStart = vi.fn();
     render(<CaseLibrary completed={{ "final-submission": "verified" }} onStart={onStart} />);
     expect(screen.getByRole("heading", { name: "Choose a rehearsal" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "The Voice You Know" })).toBeInTheDocument();
-    expect(screen.getByText("Archive 1 / 3 complete")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sharing Scope" })).toBeInTheDocument();
+    expect(screen.getByText("Archive 1 / 2 complete")).toBeInTheDocument();
     expect(screen.getAllByText("Complete")).toHaveLength(1);
-    await user.click(screen.getByTestId("case-shared-draft"));
-    expect(onStart).toHaveBeenCalledWith("shared-draft");
+    expect(screen.queryByTestId("case-shared-draft")).not.toBeInTheDocument();
+    await user.click(screen.getByTestId("case-unexpected-push"));
+    expect(onStart).toHaveBeenCalledWith("unexpected-push");
   });
 
   it("contains the exposed Drive route only after all critical actions", async () => {

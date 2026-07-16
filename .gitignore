@@ -5,6 +5,7 @@ playwright-report/
 test-results/
 artifacts/demo/*.mp4
 artifacts/demo/*.webm
+pilot/local/
 *.tsbuildinfo
 .DS_Store
 .env*

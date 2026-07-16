@@ -3,6 +3,7 @@
 import { ArrowRight, CheckCircle2, Clock3, FolderKey, MapPin, MessageSquareText, ShieldCheck, Sparkles, Wifi } from "lucide-react";
 import Link from "next/link";
 import { caseCatalog } from "@/product/caseRegistry";
+import { reviewedRehearsals } from "@/product/reviewedRehearsals";
 import type { CaseEnding, ProductCaseId } from "@/cases/types";
 
 const caseIcons = {
@@ -18,7 +19,7 @@ export function CaseLibrary({
   completed: Partial<Record<ProductCaseId, CaseEnding | string>>;
   onStart: (id: ProductCaseId) => void;
 }) {
-  const completedCount = Object.keys(completed).length;
+  const completedCount = caseCatalog.filter((item) => completed[item.id]).length;
   return (
     <main className="case-library">
       <header className="library-topbar">
@@ -29,19 +30,33 @@ export function CaseLibrary({
       <div className="library-body">
         <header className="library-heading">
           <div><span>CASE ARCHIVE · FALL 2026</span><h1>Choose a rehearsal</h1><p>Every story begins with an ordinary task. The result follows what you actually do, not how many answers you get right.</p></div>
-          <dl><div><dt>Playable cases</dt><dd>{caseCatalog.length + 1}</dd></div><div><dt>Total time</dt><dd>About 36 min</dd></div></dl>
+          <ul className="library-stats" aria-label="Library summary"><li><span>Playable cases</span><strong>{caseCatalog.length + reviewedRehearsals.length}</strong></li><li><span>Total time</span><strong>About 36 min</strong></li></ul>
         </header>
 
-        <section className="featured-rehearsal" aria-labelledby="featured-rehearsal-title">
-          <div className="featured-rehearsal-mark"><MessageSquareText size={30} /></div>
-          <div>
-            <span>FEATURED · INTERACTIVE REHEARSAL</span>
-            <h2 id="featured-rehearsal-title">The Voice You Know</h2>
-            <p>A voice message appears to come from a trusted adviser. Compare verification channels, follow what changes, and carry the judgment into a different task.</p>
-            <dl><div><MapPin size={13} /><span>Northbridge University</span></div><div><Clock3 size={13} /><span>About 8 minutes</span></div></dl>
-          </div>
-          <div className="featured-rehearsal-flow"><span>Practice</span><i /><span>Review</span><i /><span>Apply</span></div>
-          <Link data-testid="featured-rehearsal" href="/rehearsal">Start featured rehearsal <ArrowRight size={16} /></Link>
+        <section className="reviewed-rehearsal-grid" aria-label="Reviewed interactive rehearsals">
+          {reviewedRehearsals.map((item) => (
+            <article className="featured-rehearsal" key={item.id}>
+              <div className="featured-rehearsal-mark">
+                {item.icon === "message" ? <MessageSquareText size={27} /> : <FolderKey size={27} />}
+              </div>
+              <div>
+                <span>{item.kicker}</span>
+                <h2>{item.title}</h2>
+                <p>{item.summary}</p>
+                <ul className="rehearsal-meta" aria-label={`${item.title} details`}>
+                  <li><MapPin size={13} /><span>{item.location}</span></li>
+                  <li><Clock3 size={13} /><span>{item.duration}</span></li>
+                </ul>
+              </div>
+              <div className="featured-rehearsal-flow"><span>Practice</span><i /><span>Review</span><i /><span>Apply</span></div>
+              <Link
+                data-testid={item.testId}
+                href={item.href}
+              >
+                Start rehearsal <ArrowRight size={16} />
+              </Link>
+            </article>
+          ))}
         </section>
 
         <section className="case-grid" aria-label="Case list">
@@ -59,10 +74,10 @@ export function CaseLibrary({
                   <header><span>{item.kicker}</span>{isCompleted ? <small><CheckCircle2 size={13} /> Complete</small> : <small>Not started</small>}</header>
                   <h2>{item.title}</h2>
                   <p>{item.summary}</p>
-                  <dl>
-                    <div><MapPin size={13} /><span>{item.location}</span></div>
-                    <div><Clock3 size={13} /><span>{item.duration}</span></div>
-                  </dl>
+                  <ul className="case-meta" aria-label={`${item.title} details`}>
+                    <li><MapPin size={13} /><span>{item.location}</span></li>
+                    <li><Clock3 size={13} /><span>{item.duration}</span></li>
+                  </ul>
                 </div>
                 <button data-testid={`case-${item.id}`} onClick={() => onStart(item.id)}>
                   <span>{isCompleted ? "Replay case" : "Start case"}</span><ArrowRight size={16} />

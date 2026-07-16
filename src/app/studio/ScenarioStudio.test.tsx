@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ScenarioStudio } from "@/app/studio/ScenarioStudio";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+import { sharingScopeScenario } from "@/fixtures/sharingScope";
 import type { InstitutionProfile } from "@/ai/schemas/institution";
 
 function pendingConflictProfile(): InstitutionProfile {
@@ -48,9 +49,10 @@ describe("Scenario Studio profile review", () => {
 
   it("reveals conversation channels only after the matching explicit action", async () => {
     const user = userEvent.setup();
-    render(<ScenarioStudio mode="featured" />);
+    const first = render(<ScenarioStudio mode="featured" />);
 
     expect(screen.getByRole("button", { name: /Dr\. Maya Chen Voice message/ })).toBeInTheDocument();
+    expect(screen.getAllByLabelText("Play voice note from Dr. Maya Chen")).toHaveLength(2);
     expect(screen.queryByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).not.toBeInTheDocument();
     expect(screen.queryByText("Jordan Lee")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Share reimbursement folder/ })).not.toBeInTheDocument();
@@ -58,10 +60,69 @@ describe("Scenario Studio profile review", () => {
     await user.click(screen.getByRole("button", { name: /Call the number attached to the message/ }));
     expect(screen.getByText(/I also need the reimbursement folder shared/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Share reimbursement folder/ })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: /Call the saved directory number/ })).not.toBeInTheDocument();
 
+    first.unmount();
+    render(<ScenarioStudio mode="featured" />);
     await user.click(screen.getByRole("button", { name: /Call the saved directory number/ }));
     expect(screen.getByText(/I did not request any account change/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).toBeInTheDocument();
+  });
+
+  it("runs a second reviewed rehearsal through the generic task workspace", async () => {
+    const user = userEvent.setup();
+    render(
+      <ScenarioStudio
+        initialProfile={reviewedNyuInstitutionProfile}
+        initialScenario={sharingScopeScenario}
+        mode="featured"
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Sharing Scope" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Campus Drive task workspace" })).toHaveTextContent("Interview Research / Quote Review");
+    expect(screen.getByText("Last saved at 20:12")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Create an editor link anyone can use/ }));
+    expect(screen.queryByRole("button", { name: /Add three named teammates as commenters/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Review sharing activity/ })).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: /Review sharing activity/ }));
+    expect(screen.getByText("modified")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Evidence board" })).toHaveTextContent("Files downloaded outside the team");
+    expect(screen.getByRole("button", { name: /Restore the participant sheet/ })).toBeEnabled();
+  });
+
+  it("freezes critical actions while an adaptive role reply is pending", async () => {
+    const user = userEvent.setup();
+    let resolveResponse: ((value: {
+      ok: boolean;
+      json: () => Promise<unknown>;
+    }) => void) | undefined;
+    vi.stubGlobal("fetch", vi.fn(() => new Promise((resolve) => {
+      resolveResponse = resolve;
+    })));
+    render(<ScenarioStudio mode="featured" />);
+
+    await user.type(screen.getByLabelText("Message a role"), "Can you confirm the change?");
+    await user.click(screen.getByRole("button", { name: "Send message" }));
+    expect(screen.getByRole("button", { name: /Call the saved directory number/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Approve new payment details/ })).toBeDisabled();
+
+    resolveResponse?.({
+      ok: true,
+      json: async () => ({
+        turn: {
+          eventId: "urgent-request",
+          roleId: "impersonator",
+          content: "Please use the replacement details before doors open.",
+          provenance: "reviewed-fallback",
+        },
+      }),
+    });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /Call the saved directory number/ })).toBeEnabled(),
+    );
   });
 
   it("requires the educator to resolve conflicts and approve supporting sources", async () => {
@@ -135,5 +196,43 @@ describe("Scenario Studio profile review", () => {
 
     expect(await screen.findByTestId("studio-preview")).toHaveTextContent("New York University");
     expect(screen.queryByText("Alternate Institution")).not.toBeInTheDocument();
+  });
+
+  it("applies bounded label edits only after validation and coverage checks", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          profile: reviewedNyuInstitutionProfile,
+          provenance: "reviewed-fixture",
+          notice: "Profile ready.",
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          profile: reviewedNyuInstitutionProfile,
+          scenario: voiceYouKnowScenario,
+          provenance: "reviewed-fixture",
+          notice: "Scenario ready.",
+        }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ScenarioStudio />);
+    await user.click(screen.getByRole("button", { name: "Use example institution" }));
+    await user.click(await screen.findByRole("button", { name: "Approve profile" }));
+    await user.click(screen.getByRole("button", { name: "Use example rehearsal" }));
+    await user.click(await screen.findByRole("button", { name: "Edit visible labels" }));
+    expect(screen.queryByLabelText("Ordinary task")).not.toBeInTheDocument();
+    expect(screen.getByText(/Task facts, pressure, role dialogue/)).toBeInTheDocument();
+    await user.clear(screen.getByLabelText("Title"));
+    await user.type(screen.getByLabelText("Title"), "Known Voice, New Request");
+    expect(screen.getByRole("button", { name: "Apply labels" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "Apply labels" }));
+
+    expect(screen.getByRole("heading", { name: "Known Voice, New Request" })).toBeInTheDocument();
+    expect(screen.getByText("Visible labels updated and all checks passed.")).toBeInTheDocument();
   });
 });

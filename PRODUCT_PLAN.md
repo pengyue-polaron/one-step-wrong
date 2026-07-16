@@ -45,7 +45,7 @@ The educator workflow has four stages:
 1. **Research** public official guidance for an institution.
 2. **Review** sources, supported facts, conflicts, warnings, and explicit unknowns.
 3. **Design** an ordinary task, threat, audience, pressure, and learning objective.
-4. **Preview** the bounded roles, actions, evidence, recovery, and possible outcomes before starting the rehearsal.
+4. **Preview** the bounded roles, actions, evidence, recovery, and possible outcomes; educators may polish a small set of interface labels while task facts, dialogue, descriptions, sources, state changes, and ending logic remain locked.
 
 The learner workflow has three stages:
 
@@ -72,7 +72,7 @@ Every scenario must:
 
 When identity verification is part of the lesson, the scenario must offer plausible competing channels. A request-supplied callback, a same-conversation confirmation, social confirmation, and an independently known channel establish different things. Each completed check should reveal evidence explaining what it did and did not prove.
 
-## Flagship Rehearsal
+## Reviewed Rehearsals
 
 ### The Voice You Know
 
@@ -87,6 +87,19 @@ When identity verification is part of the lesson, the scenario must offer plausi
 - **Transfer rule:** a familiar voice is a clue, not proof of identity.
 
 The public scenario contains no real person, voice, payment information, or campus operation.
+
+### Sharing Scope
+
+- **Institution:** fictional Northbridge University, informed by the same reviewed NYU public-source profile.
+- **Learner role:** student documentary project coordinator.
+- **Ordinary task:** give three named teammates enough access to review interview quotations.
+- **Pressure:** a real teammate cannot find the invitation and the review closes in fourteen minutes.
+- **Decision:** choose named commenters, named editors, a campus-wide editor link, or a public editor link.
+- **Delayed consequence:** a public link appears to solve the task before activity review reveals an outside download and a changed participant sheet.
+- **Recovery:** restrict future access, restore content, preserve activity evidence, notify affected people, and report through the approved fictional route.
+- **Transfer rule:** match both the audience and permission level to the specific work.
+
+The two reviewed rehearsals use one validated package contract, task workspace, deterministic physics engine, review, transfer probe, Evidence Coach, and facilitator report. Scenario-specific content is data rather than page-level branching.
 
 ## Product Architecture
 
@@ -160,24 +173,25 @@ These guarantees belong in code and tests, not in immersion-breaking learner dis
 - Every institution fact is supported, disputed, or explicitly unknown.
 - Sources can be approved or rejected before profile approval.
 - A bounded scenario can be generated, validated, previewed, and launched.
+- A small set of interface labels can be refined without changing reviewed task facts, dialogue, descriptions, sources, or protected logic.
 - Every declared ending has at least one legal action path under the same prerequisites and recovery rules used at runtime.
 - Fictionalization prevents protected institution terms from leaking into a public scenario.
 
 ### Learner workflow
 
 - The rehearsal begins with an ordinary task and credible pressure.
-- Verification choices do not reveal the answer in their labels.
-- Each verification channel reveals distinct evidence.
+- Verification choices, when present, do not reveal the answer in their labels.
+- Each completed check or scope choice reveals distinct evidence.
 - New channels appear only after the learner explicitly reaches them.
 - Unsafe task actions can appear successful before a separate status check reveals the consequence.
 - Free text can influence conversation but cannot mutate high-impact state.
 - Recovery appears only for layers actually affected by completed actions.
 - Recovery begins only after every triggered consequence is visible; every availability branch follows a declared incident trigger, and no new unsafe task action can be added after recovery starts.
-- A contained ending verifies that every affected payment or access layer finishes in a contained state, rather than inferring success from recovery action IDs alone.
+- A contained ending verifies that every affected payment, access, or content layer finishes in a contained state, rather than inferring success from recovery action IDs alone.
 - The review accurately lists completed actions, evidence, outcome, and missed recovery.
 - Follow-up answers cite only evidence discovered in the current run and approved source facts.
 - The new situation evaluates only the explicit action selected there.
-- The new-context action is recorded before the built-in transfer rule or guided Evidence Coach prompts are revealed.
+- The new-context action follows rehearsal feedback but is recorded before the explicit transfer rule or guided Evidence Coach prompts are revealed.
 - The facilitator report connects the rehearsal, transfer result, and approved guidance without storing learner identity.
 - Learner screens contain no provider, model, hackathon, fixture, fallback, schema, canonical, or deterministic terminology.
 
@@ -186,11 +200,13 @@ These guarantees belong in code and tests, not in immersion-breaking learner dis
 - Invalid or unavailable adaptive output cannot break the complete product path.
 - Desktop layouts remain usable from 1366x768 through 1920x1080.
 - Responsive chapters and Scenario Studio remain usable at 390x844 without horizontal overflow.
+- Core product states pass an automated serious/critical accessibility gate, including keyboard focus, modal isolation, contrast, and reduced motion.
+- A privacy-preserving pilot kit accepts only session-level aggregate counts and states its evidence limitations.
 - Lint, type checking, unit/API/component tests, production build, and browser tests pass.
 
 ## Next Product Priorities
 
-1. Add more scenarios that test different judgment patterns, not just different attack skins.
-2. Improve educator editing so facts, actions, evidence, and transfer prompts can be refined without editing code.
-3. Test whether learners can explain the strength and limits of a verification channel without guided prompts.
-4. Add accessibility checks for keyboard navigation, focus order, contrast, and reduced motion.
+1. Add a third reviewed rehearsal around authentication binding or account recovery, using the same package and workspace contract.
+2. Extend educator editing to role and channel copy while keeping facts, state mutations, sources, and ending predicates protected.
+3. Run a small real formative pilot with the aggregate-only kit, then report the sample and limitations without learner-level data.
+4. Compare explanation quality across the two current judgment patterns and refine transfer prompts where learners remain ambiguous.

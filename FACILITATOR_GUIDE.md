@@ -14,8 +14,9 @@ Learners should be able to:
 1. Distinguish familiarity from verified identity.
 2. Explain what a verification channel establishes and what it does not.
 3. Keep high-impact actions behind an independently known channel.
-4. Identify separate containment, recovery, communication, and reporting steps.
-5. Apply the same judgment rule in a different task.
+4. Match access audience and permission to the work being done.
+5. Identify separate containment, recovery, communication, and reporting steps.
+6. Apply the same judgment rule in a different task.
 
 ## Session Formats
 
@@ -27,7 +28,7 @@ Learners should be able to:
 
 ## Before The Session
 
-1. Open `/rehearsal` for the flagship experience or `/` to choose another case.
+1. Open `/rehearsal` for identity verification, `/rehearsal/sharing-scope` for access scope, or `/` to choose another case.
 2. Complete one practice run yourself and open the facilitator report.
 3. Decide whether learners will act individually, in pairs, or through a shared projected screen.
 4. Do not announce which action is safest. Introduce the ordinary task and let the pressure work.
@@ -38,8 +39,9 @@ Learners should be able to:
 Use prompts that preserve the decision:
 
 - What are you trying to finish right now?
-- What does this channel actually prove?
+- What does this channel, audience, or permission actually establish?
 - Which information came from the request itself?
+- Who can act after this choice, and what can they change?
 - What would change if the deadline were removed?
 - Which action changes payment, access, or account state?
 
@@ -58,7 +60,7 @@ After the outcome:
 1. Compare the recorded action sequence with the evidence discovered at each step.
 2. Ask learners to state a tentative judgment rule in their own words.
 3. Complete the new situation before the product reveals its built-in rule or guided evidence questions.
-4. Compare the learner's action with the revealed rule, then use Evidence Coach to examine only channels discovered in that run.
+4. Compare the learner's action with the revealed rule, then use Evidence Coach to examine only evidence discovered in that run.
 5. Open the facilitator report and discuss the rehearsal result, final operational state, and transfer result together.
 
 The transfer decision is more useful than the first ending alone. A safe first run may reflect prior knowledge or a lucky choice; applying the rule in a different task is stronger evidence that the judgment carried forward.
@@ -74,19 +76,20 @@ The transfer decision is more useful than the first ending alone. A safe first r
 
 ## Lightweight Learning Evidence
 
-One Step Wrong does not collect analytics. For a small pilot, use aggregate or anonymous evidence:
+One Step Wrong does not collect analytics. The [`pilot/`](./pilot/) kit provides a strict session-level template, measure definitions, and a local analyzer for a small formative pilot.
 
-- Count how many learners choose an independently known channel in the transfer situation.
-- Ask for a one-sentence anonymous exit response: "A verification channel is stronger when..."
-- Record which evidence distinctions caused the most disagreement.
-- Compare first-run and transfer outcomes at the group level, not by learner identity.
+1. Record one aggregate row for the whole session, never one row per learner.
+2. Count first rehearsal outcomes, new-situation results, explanation categories, and material technical blockers.
+3. Categorize explanations with the predefined rubric; do not retain learner wording or quotes.
+4. Do not record names, contact details, demographics, class or institution identifiers, timestamps, open notes, or real incident descriptions.
+5. Run `npm run pilot:analyze -- pilot/local/session-aggregate.csv` to validate totals and produce an aggregate summary.
 
-Do not treat an ending as a grade. The useful evidence is whether learners can explain the causal chain and reuse the judgment in a changed context.
+Do not treat an ending as a grade. Report the result as exploratory group-level evidence, not proof of causal improvement or individual competence. The template and analyzer are not evidence until a real session has occurred.
 
 ## Accessibility And Inclusion
 
 - Let learners read at their own pace and replay a critical moment.
-- Use the reduced-motion control when animation affects comfort or concentration.
+- Use the operating-system or browser reduced-motion setting when animation affects comfort or concentration. Final Submission also provides an in-app control.
 - Read role messages and evidence aloud for a shared-screen session.
 - Allow a partner to operate the interface while both learners discuss the decision.
 - Avoid requiring personal disclosure about past security incidents.

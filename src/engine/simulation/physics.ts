@@ -3,6 +3,7 @@ import {
   type CanonicalState,
   type ScenarioPackage,
 } from "@/ai/schemas/scenario";
+import { actionIsAvailableForTrace } from "@/engine/simulation/availability";
 
 export type SimulationState = {
   canonical: CanonicalState;
@@ -42,27 +43,7 @@ export function createSimulationState(scenario: ScenarioPackage): SimulationStat
 }
 
 export function actionIsAvailable(scenario: ScenarioPackage, actionId: string, performedActionIds: string[]) {
-  const action = scenario.criticalActions.find((candidate) => candidate.id === actionId);
-  if (!action || performedActionIds.includes(action.id)) return false;
-  const performed = new Set(performedActionIds);
-  const recoveryStarted = scenario.recoveryActionIds.some((id) => performed.has(id));
-  if (recoveryStarted && action.phase !== "recovery") return false;
-  const allSatisfied = action.availableAfterAllActionIds.every((id) => performed.has(id));
-  const anySatisfied = action.availableAfterAnyActionIds.length === 0
-    || action.availableAfterAnyActionIds.some((id) => performed.has(id));
-  if (action.phase === "recovery") {
-    const incidentTriggered = action.requiredAfterActionIds.some((id) => performed.has(id));
-    if (!incidentTriggered) return false;
-    const consequenceStillHidden = scenario.criticalActions.some((candidate) => {
-      if (candidate.kind !== "inspect" || performed.has(candidate.id)) return false;
-      const candidateAllSatisfied = candidate.availableAfterAllActionIds.every((id) => performed.has(id));
-      const candidateAnySatisfied = candidate.availableAfterAnyActionIds.length === 0
-        || candidate.availableAfterAnyActionIds.some((id) => performed.has(id));
-      return candidateAllSatisfied && candidateAnySatisfied;
-    });
-    if (consequenceStillHidden) return false;
-  }
-  return allSatisfied && anySatisfied;
+  return actionIsAvailableForTrace(scenario, actionId, performedActionIds);
 }
 
 function triggeredIncidentLayersRecovered(scenario: ScenarioPackage, state: SimulationState) {
@@ -104,6 +85,13 @@ export function applyCriticalAction(
 
   const canonical = { ...state.canonical };
   for (const change of action.stateChanges) {
+    if (
+      change.field === "identity"
+      && canonical.identity.startsWith("verified-")
+      && !change.value.startsWith("verified-")
+    ) {
+      continue;
+    }
     Object.assign(canonical, { [change.field]: change.value });
   }
   const actionIds = [...state.actionIds, actionId];

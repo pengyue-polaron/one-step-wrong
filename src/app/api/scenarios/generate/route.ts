@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { scenarioGenerationRequestSchema, generateScenario } from "@/ai/scenarios/generate";
 import { hasOpenAIApiKey } from "@/ai/openai/server";
-import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
-import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
+import { getReviewedScenario } from "@/fixtures/reviewedScenarioRegistry";
 import { readBoundedJson } from "@/app/api/request";
 
 export const runtime = "nodejs";
@@ -26,11 +25,12 @@ export async function POST(request: Request) {
   }
 
   if (parsed.data.useFixture) {
+    const bundle = getReviewedScenario(parsed.data.reviewedScenarioId);
     return NextResponse.json({
-      scenario: voiceYouKnowScenario,
-      profile: reviewedNyuInstitutionProfile,
+      scenario: bundle.scenario,
+      profile: bundle.profile,
       provenance: "reviewed-fixture",
-      notice: "The reviewed example rehearsal is ready.",
+      notice: `${bundle.scenario.title} is ready for review.`,
     });
   }
   if (!hasOpenAIApiKey()) {

@@ -13,17 +13,20 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Bounded adaptive dialogue | `src/ai/simulation/turn.ts`, minimum-context, leakage, invalid-event, and timeout tests | Verified with mocked provider output |
 | Free text cannot perform high-impact actions | Studio browser tests and simulation physics tests | Verified |
 | Explicit actions, trigger-bound recovery, contained final state, outcomes, and replay | `src/engine/simulation/physics.ts`, schema and prerequisite tests, and complete safe/incident browser routes | Verified |
-| Competing verification channels reveal distinct evidence | `src/fixtures/voiceYouKnow.ts`, simulation tests, desktop and mobile evidence-board flows | Verified |
+| A first verification channel is chosen under pressure and each alternative has distinct evidence | `src/fixtures/voiceYouKnow.ts`, exclusive-action physics, simulation tests, desktop and mobile evidence-board flows | Verified |
+| Access audience and permission scope are independently practiced | `src/fixtures/sharingScope.ts`, exclusive-action physics, direct route, layered access/content recovery, and browser flow | Verified |
 | Unsafe actions produce delayed, inspectable consequences | Action-delivered dialogue, inspection prerequisites, and incident browser flow | Verified |
 | Containment restores every affected operational layer | Schema checks, payment-hold and access-revocation physics tests, facilitator final-state report | Verified |
 | Review is grounded in recorded actions | Debrief adapter, route tests, and the safe and incident browser paths | Verified |
-| New-context learning transfer before rule reveal | Three-outcome transfer validation, direct evaluation tests, ordering assertions, desktop and mobile browser paths | Verified |
+| Immediate new-context application before explicit rule reveal | Three-outcome transfer validation, direct evaluation tests, ordering assertions, desktop and mobile browser paths | Verified as a formative signal |
 | Evidence-grounded learner questions | `src/ai/debrief/evidenceCoach.ts`, citation-boundary tests, `/api/coach`, and the browser debrief flow | Verified with reviewed fallback and mocked provider output |
 | Discussion-ready facilitator report | Rehearsal result, transfer evidence, approved guidance, print layout, and browser assertions | Verified |
-| Ready-to-run classroom use | Bilingual `FACILITATOR_GUIDE.md` with 10–35 minute formats, discussion prompts, and a privacy-preserving pilot measurement plan | Documented |
+| Ready-to-run classroom use | Bilingual `FACILITATOR_GUIDE.md` with 10–35 minute formats and discussion prompts | Documented |
+| Privacy-preserving formative pilot readiness | Header-only aggregate template, defined measures, strict validation, aggregate-only output, and analyzer tests in `pilot/`, `scripts/analyze-pilot.mjs`, and `src/pilot/analyze-pilot.test.ts` | Documented and validated; no participant results collected |
 | Featured rehearsal is immediately playable | Case-library entry and direct `/rehearsal` browser path | Verified |
 | Complete no-key product path | **Use example institution**, then **Use example rehearsal** in `/studio` | Verified |
 | Desktop and mobile product quality | `artifacts/screenshots/` and Playwright layout tests | Verified |
+| Core accessibility states | Axe serious/critical gate, skip navigation, stage focus, modal focus isolation, toggle semantics, and reduced-motion tests | Verified by automated checks; not a certification |
 | Automated quality gate | `.github/workflows/ci.yml` | Runs on `main` |
 
 ## Local Verification
@@ -36,9 +39,10 @@ npm test
 npm run verify:ai
 npm run build
 npm run test:e2e
+npm run pilot:analyze -- pilot/templates/session-aggregate.csv
 ```
 
-The current suite contains 105 schema, API, state, and component tests plus 15 browser tests. Browser coverage includes the featured direct entry, case library, all published case routes, Scenario Studio authoring, source lineage, outcome coverage, delayed consequences, affected-layer recovery, the evidence board, pre-rule transfer, Evidence Coach, facilitator reporting, desktop layout boundaries, and 390x844 phone flows.
+The current suite covers both reviewed direct entries, the case library, Studio authoring and the bounded label-editor state, source lineage, outcome coverage, delayed consequences, access/content recovery, the evidence board, immediate new-context application, Evidence Coach, facilitator reporting, keyboard focus, serious/critical Axe checks, modal isolation, desktop layout boundaries, and 390x844 phone flows. Component tests separately verify which label fields remain editable and which narrative fields stay locked.
 
 When a server is running with `OPENAI_API_KEY`, `npm run verify:live` requires live provenance for institution research, scenario generation, role dialogue, trace-grounded review, and Evidence Coach. It fails if any path falls back to reviewed content.
 
@@ -62,4 +66,6 @@ For meaningful interface changes:
 - A passing build does not prove a hosted environment.
 - Reviewed examples prove the complete product path, not the behavior of an external model.
 - Screenshots support visual review but do not replace browser assertions.
+- The pilot template, analyzer, and synthetic unit-test inputs are evaluation infrastructure, not participant evidence.
+- No pilot result or learning-effect claim exists until real sessions occur and a reviewed aggregate is reported with its sample and limitations.
 - Capability claims in `README.md` must match working code and automated evidence.

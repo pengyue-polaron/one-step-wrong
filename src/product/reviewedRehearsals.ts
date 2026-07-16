@@ -1,0 +1,24 @@
+export const reviewedRehearsals = [
+  {
+    id: "the-voice-you-know",
+    title: "The Voice You Know",
+    summary: "A familiar adviser voice asks for an urgent payment change. Compare channels, follow the operational result, and practice the rule again elsewhere.",
+    location: "Northbridge University",
+    duration: "About 8 minutes",
+    href: "/rehearsal",
+    testId: "featured-rehearsal",
+    icon: "message",
+    kicker: "IDENTITY · PAYMENT",
+  },
+  {
+    id: "sharing-scope",
+    title: "Sharing Scope",
+    summary: "A real teammate needs access before a deadline. Match the audience and permission to the task, then respond if a link travels farther.",
+    location: "Northbridge University",
+    duration: "About 9 minutes",
+    href: "/rehearsal/sharing-scope",
+    testId: "rehearsal-sharing-scope",
+    icon: "folder",
+    kicker: "AUDIENCE · PERMISSION",
+  },
+] as const;

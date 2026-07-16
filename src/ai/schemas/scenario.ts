@@ -10,22 +10,26 @@ import {
   type ValidationResult,
 } from "@/ai/schemas/common";
 import { publicationModeSchema } from "@/ai/schemas/institution";
+import { reachableActionIdsForScenario } from "@/engine/simulation/availability";
 
 export const canonicalStateSchema = z.object({
   identity: z.enum(["unverified", "claimed-legitimate", "verified-legitimate", "verified-false"]),
   payment: z.enum(["pending", "paused", "released", "redirected"]),
   access: z.enum(["restricted", "shared", "revoked"]),
+  content: z.enum(["intact", "modified", "restored"]),
   evidence: z.enum(["unpreserved", "preserved"]),
   people: z.enum(["unnotified", "notified"]),
   report: z.enum(["not-reported", "reported"]),
 });
 
 export type CanonicalState = z.infer<typeof canonicalStateSchema>;
+const canonicalFieldSchema = z.enum(["identity", "payment", "access", "content", "evidence", "people", "report"]);
 
 const recoveredCanonicalValues: Record<keyof CanonicalState, readonly string[]> = {
   identity: ["verified-legitimate", "verified-false"],
   payment: ["pending", "paused"],
   access: ["restricted", "revoked"],
+  content: ["intact", "restored"],
   evidence: ["preserved"],
   people: ["notified"],
   report: ["reported"],
@@ -36,7 +40,7 @@ export function isRecoveredCanonicalValue(field: keyof CanonicalState, value: st
 }
 
 const stateChangeSchema = z.object({
-  field: z.enum(["identity", "payment", "access", "evidence", "people", "report"]),
+  field: canonicalFieldSchema,
   value: z.string().trim().min(1).max(40),
 });
 
@@ -44,7 +48,7 @@ const criticalActionSchema = z.object({
   id: idSchema,
   label: shortTextSchema,
   description: bodyTextSchema,
-  kind: z.enum(["verify", "inspect", "pause", "approve", "share", "preserve", "revoke", "notify", "report"]),
+  kind: z.enum(["verify", "inspect", "pause", "approve", "share", "preserve", "revoke", "restore", "notify", "report"]),
   phase: z.enum(["containment", "recovery", "either"]),
   availableAfterAllActionIds: z.array(idSchema).max(10),
   availableAfterAnyActionIds: z.array(idSchema).max(10),
@@ -97,6 +101,41 @@ const transferProbeActionSchema = z.object({
   resultSummary: bodyTextSchema,
 });
 
+const learnerPresentationSchema = z.object({
+  openingEventId: idSchema,
+  workspace: z.object({
+    appName: shortTextSchema,
+    sectionLabel: shortTextSchema,
+    itemTitle: shortTextSchema,
+    itemDescription: bodyTextSchema,
+    metadata: z
+      .array(z.object({ label: shortTextSchema, value: shortTextSchema }))
+      .min(2)
+      .max(6),
+  }),
+  statusFields: z
+    .array(
+      z.object({
+        field: canonicalFieldSchema,
+        label: shortTextSchema,
+        concealedLabel: shortTextSchema,
+        revealAfterAnyActionIds: z.array(idSchema).max(6),
+      }),
+    )
+    .min(2)
+    .max(6),
+  actionHeadings: z.object({
+    verify: shortTextSchema,
+    task: shortTextSchema,
+    inspect: shortTextSchema,
+    recovery: shortTextSchema,
+  }),
+  coachPrompts: z
+    .array(z.object({ evidenceId: idSchema, question: bodyTextSchema }))
+    .min(1)
+    .max(10),
+});
+
 export const scenarioPackageOutputSchema = z
   .object({
     schemaVersion: z.literal("1.0"),
@@ -133,6 +172,14 @@ export const scenarioPackageOutputSchema = z
       initialState: canonicalStateSchema,
     }),
     criticalActions: z.array(criticalActionSchema).min(3).max(14),
+    exclusiveActionGroups: z
+      .array(
+        z.object({
+          id: idSchema,
+          actionIds: z.array(idSchema).min(2).max(6),
+        }),
+      )
+      .max(6),
     evidence: z
       .array(
         z.object({
@@ -168,6 +215,7 @@ export const scenarioPackageOutputSchema = z
       actions: z.array(transferProbeActionSchema).length(3),
     }),
     transferRules: z.array(bodyTextSchema).min(1).max(6),
+    learnerPresentation: learnerPresentationSchema,
     sourceFactIds: z.array(idSchema).min(1).max(20),
   });
 
@@ -181,6 +229,7 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       ["fallbackDialogue", scenario.fallbackDialogue.map((item) => item.id)],
       ["endings", scenario.endings.map((item) => item.id)],
       ["transferProbe.actions", scenario.transferProbe.actions.map((item) => item.id)],
+      ["exclusiveActionGroups", scenario.exclusiveActionGroups.map((item) => item.id)],
     ] as const;
     for (const [path, ids] of groups) {
       for (const duplicate of findDuplicates([...ids])) {
@@ -228,6 +277,7 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       identity: ["unverified", "claimed-legitimate", "verified-legitimate", "verified-false"],
       payment: ["pending", "paused", "released", "redirected"],
       access: ["restricted", "shared", "revoked"],
+      content: ["intact", "modified", "restored"],
       evidence: ["unpreserved", "preserved"],
       people: ["unnotified", "notified"],
       report: ["not-reported", "reported"],
@@ -273,21 +323,29 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
         }
       });
     });
-    const reachableActionIds = new Set<string>();
-    let foundReachableAction = true;
-    while (foundReachableAction) {
-      foundReachableAction = false;
-      scenario.criticalActions.forEach((action) => {
-        if (reachableActionIds.has(action.id)) return;
-        const allReachable = action.availableAfterAllActionIds.every((id) => reachableActionIds.has(id));
-        const anyReachable = action.availableAfterAnyActionIds.length === 0
-          || action.availableAfterAnyActionIds.some((id) => reachableActionIds.has(id));
-        if (allReachable && anyReachable) {
-          reachableActionIds.add(action.id);
-          foundReachableAction = true;
+    const groupedActionIds = new Set<string>();
+    scenario.exclusiveActionGroups.forEach((group, groupIndex) => {
+      group.actionIds.forEach((id, actionIndex) => {
+        assertAction(id, ["exclusiveActionGroups", groupIndex, "actionIds", actionIndex]);
+        if (groupedActionIds.has(id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["exclusiveActionGroups", groupIndex, "actionIds", actionIndex],
+            message: `An action may belong to only one exclusive group: ${id}`,
+          });
+        }
+        groupedActionIds.add(id);
+        const action = actionById.get(id);
+        if (action?.phase === "recovery") {
+          context.addIssue({
+            code: "custom",
+            path: ["exclusiveActionGroups", groupIndex, "actionIds", actionIndex],
+            message: "Recovery actions cannot be mutually exclusive.",
+          });
         }
       });
-    }
+    });
+    const reachableActionIds = reachableActionIdsForScenario(scenario);
     scenario.criticalActions.forEach((action, index) => {
       if (!reachableActionIds.has(action.id)) {
         context.addIssue({ code: "custom", path: ["criticalActions", index], message: "Action prerequisites are unreachable." });
@@ -349,6 +407,62 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
             message: "An action-delivered event must unlock continued dialogue with the same role.",
           });
         }
+      }
+    });
+    const openingEvent = scenario.allowedEvents.find(
+      (event) => event.id === scenario.learnerPresentation.openingEventId,
+    );
+    if (!openingEvent) {
+      context.addIssue({
+        code: "custom",
+        path: ["learnerPresentation", "openingEventId"],
+        message: `Unknown opening event: ${scenario.learnerPresentation.openingEventId}`,
+      });
+    } else {
+      if (openingEvent.delivery !== "on-message") {
+        context.addIssue({
+          code: "custom",
+          path: ["learnerPresentation", "openingEventId"],
+          message: "The opening event must be delivered as an on-message event.",
+        });
+      }
+      if (openingEvent.allowedAfterActionIds.length > 0) {
+        context.addIssue({
+          code: "custom",
+          path: ["learnerPresentation", "openingEventId"],
+          message: "The opening event cannot require completed actions.",
+        });
+      }
+    }
+    const statusFields = scenario.learnerPresentation.statusFields.map((item) => item.field);
+    for (const duplicate of findDuplicates(statusFields)) {
+      context.addIssue({
+        code: "custom",
+        path: ["learnerPresentation", "statusFields"],
+        message: `Duplicate status field: ${duplicate}`,
+      });
+    }
+    scenario.learnerPresentation.statusFields.forEach((item, fieldIndex) => {
+      item.revealAfterAnyActionIds.forEach((id, actionIndex) =>
+        assertAction(id, ["learnerPresentation", "statusFields", fieldIndex, "revealAfterAnyActionIds", actionIndex]),
+      );
+    });
+    const evidenceIds = new Set(scenario.evidence.map((item) => item.id));
+    const coachedEvidenceIds = scenario.learnerPresentation.coachPrompts.map((item) => item.evidenceId);
+    for (const duplicate of findDuplicates(coachedEvidenceIds)) {
+      context.addIssue({
+        code: "custom",
+        path: ["learnerPresentation", "coachPrompts"],
+        message: `Duplicate coach evidence: ${duplicate}`,
+      });
+    }
+    scenario.learnerPresentation.coachPrompts.forEach((item, index) => {
+      if (!evidenceIds.has(item.evidenceId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["learnerPresentation", "coachPrompts", index, "evidenceId"],
+          message: `Unknown evidence: ${item.evidenceId}`,
+        });
       }
     });
     scenario.roleCards.forEach((role, index) => {

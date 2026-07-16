@@ -36,7 +36,8 @@ Every published case must include:
 
 ```text
 src/
-  app/studio/                  Educator research, review, compile, rehearsal UI
+  app/studio/                  Educator workflow, label editor, shared rehearsal UI
+  app/rehearsal/               Direct reviewed-rehearsal routes
   app/api/                     Server-only adaptive and trace routes
   ai/                          Prompts, adapters, runtime schemas, guardrails
   fixtures/                    Reviewed profile, scenario, and dialogue content
@@ -52,14 +53,15 @@ src/
 ### Product layer
 
 - `src/product/Game.tsx` owns only active-case selection and session completion.
-- `src/product/CaseLibrary.tsx` renders registry metadata; it must not contain story logic.
-- `src/product/caseRegistry.ts` is the only published-case registry.
+- `src/product/CaseLibrary.tsx` renders catalog metadata; it must not contain story logic.
+- `src/product/caseRegistry.ts` owns legacy case modules. `src/fixtures/reviewedScenarioRegistry.ts` owns atomic reviewed profile/scenario bundles.
+- `src/product/reviewedRehearsals.ts` is the lightweight learner-facing catalog for reviewed rehearsals; keep it synchronized with the validated registry.
 - Do not branch on concrete case IDs in the product shell.
 - The featured rehearsal may link directly to `/rehearsal`, but it must reuse the same validated scenario, simulation engine, review, transfer, and facilitator-report implementation as Scenario Studio.
 
 ### Case modules
 
-- Put every case in `src/cases/<case-id>/`.
+- Put every legacy decision or deep case module in `src/cases/<case-id>/`.
 - A case owns its copy, scene-specific UI, state model, recovery rules, and focused tests.
 - Export a runner implementing `CaseRunnerProps` and a `CaseSummary`.
 - Register the resulting `CaseModule` once in `src/product/caseRegistry.ts`.
@@ -86,6 +88,7 @@ src/
 - `src/engine/simulation/physics.ts` is the only module allowed to apply critical actions, select endings, and create the canonical trace.
 - `src/engine/simulation/coverage.ts` may explore legal action states through the physics API, but it must not duplicate or replace runtime action, recovery, or ending rules.
 - `src/app/studio/` may orchestrate API calls and presentation state, but must not contain OpenAI client code or infer canonical consequences from dialogue.
+- Rehearsal routes must pass a reviewed profile and scenario as one atomic bundle. Do not import a scenario under an unrelated profile.
 - `src/app/api/` returns bounded JSON with generic browser-facing errors. Do not log raw prompts, model output, dialogue, or traces.
 - Follow the bounded runtime architecture in `PRODUCT_PLAN.md`: one Simulation Director and no more than three role agents for the featured case.
 - Define every role with a stable identity, allowed knowledge, forbidden facts, allowed channels, conversational moves, and disclosure policy.
@@ -94,6 +97,10 @@ src/
 - Mark immutable facts as `public` or `hidden`. Hidden incident truth stays in the validated world bible and deterministic engine; it must not be included in Director public facts or role-agent context.
 - Free-form learner text may affect dialogue, pressure, and pacing, but it must never directly mutate payment, file, account, access, report, recovery, score, or ending state.
 - High-impact actions must remain explicit typed UI actions handled by a pure reducer.
+- Put mutually exclusive one-time decisions in `exclusiveActionGroups`; after one action is performed, the engine and UI must reject alternatives in that group.
+- Schema reachability must use the same shared availability rules as runtime, including exclusive groups, recovery phase boundaries, incident triggers, and pending consequence checks. Do not validate prerequisites by ID accumulation alone.
+- Put learner-safe workspace labels, visible status fields, action headings, opening event, and Evidence Coach prompts in `learnerPresentation`. Presentation metadata must not contain hidden truth.
+- Show only status fields relevant to the current scenario. Delayed status values may remain concealed until one of their declared reveal actions occurs.
 - Keep role identity status, private facts, and adversarial classification out of learner-facing rehearsal UI. Those fields may appear in the educator's validated-package preview and server-side agent context only.
 - Show only conversation channels the learner has actually opened. An independently known contact, team channel, or other validating role must not appear before the explicit action that reaches it.
 - Deliver action-triggered dialogue once when its typed prerequisite becomes true, record the delivered event ID, and keep later free-form replies inside the currently selected open channel.
@@ -102,6 +109,7 @@ src/
 - Every `on-action` event that opens or selects a role channel must also unlock an `on-message` event for that same role under the completed action set.
 - When verification is part of the lesson, present plausible competing channels rather than one button whose wording reveals the answer. Same-thread, request-supplied, social, and independently known channels should reveal different evidence.
 - Show evidence during the rehearsal as the learner discovers it. Do not wait until the debrief to reveal every clue that informed the outcome.
+- On phone layouts, keep the opening request or a transcript-backed request summary before the action list so the evidence and pressure remain adjacent to the decision.
 - When delayed consequences are part of the lesson, use non-mutating inspection actions to separate apparent task success from the later anomaly. Do not expose recovery controls before that anomaly is visible.
 - Once any recovery action begins, do not allow new containment or unsafe task actions in the same trace; finish all triggered consequence checks before entering recovery.
 - Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
@@ -111,11 +119,14 @@ src/
 - Recovery mutations must move canonical state to a contained value, and ending selection must verify the final affected-layer state rather than trusting completed recovery IDs alone.
 - Debrief models may select only canonical cause-chain, performed-action, missed-recovery, and transfer-rule IDs. Compose learner-facing coaching from validated scenario and trace text on the server; do not accept unconstrained model-authored event claims.
 - Evidence Coach answers may use only evidence discovered in the recorded trace and approved source facts attached to the scenario. Reject undiscovered evidence, unsupported policy, invented actions, and unrelated facts.
+- Evidence Coach matching must use the current scenario's evidence and prompt metadata. Do not hardcode flagship evidence IDs in shared adapters.
 - Every generated flagship scenario must include one short transfer probe that applies the primary judgment rule to a different task, surface, and pressure. Its three actions remain unmarked until selection and cover demonstrated, developing, and not-yet outcomes.
 - Evaluate transfer probes in `src/engine/simulation/physics.ts` from the learner's explicit action. Models may generate validated probe content, but they must not select the action, score the learner, or rewrite the recorded result.
 - Reject role leakage, invented institution facts, out-of-scope events, prompt injection, executable instructions, and claims that unrecorded actions occurred.
 - On invalid output, timeout, or model failure, use a reviewed fallback dialogue line and preserve the deterministic path.
+- While an adaptive role turn is pending, disable critical actions, role switching, and additional message input so returned dialogue cannot describe a stale action trace.
 - Treat a reviewed fixture scenario and its approved Institution Profile as one atomic example. Load it only through an explicit example action, and never display or launch it under an unrelated profile ID or publication mode.
+- Educator label editing may change only the scenario title, tagline, workspace application/section/item labels, and action-group headings. Task facts, pressure, role dialogue, action/evidence descriptions, status values, sources, prerequisites, state changes, recovery triggers, endings, and transfer content remain locked. Revalidate schema and outcome coverage before applying.
 - Research and generation requests must fail clearly when live authoring is unavailable. Never return a successful but unrelated institution or scenario in response to user-authored input.
 - Keep conflicting facts blocked until an educator resolves them, and require at least one explicitly approved source for every verified fact. Do not silently convert rejected or pending evidence into approved evidence.
 - Do not create an unconstrained agent swarm, dynamically invented roles or tools, real messages, real service calls, or autonomous side effects.
@@ -175,6 +186,8 @@ src/
 - Preserve the quiet, utilitarian, work-focused interface. Avoid marketing layouts, oversized hero copy, decorative gradients, or card-within-card composition.
 - Use Lucide icons for familiar actions and provide accessible labels for icon-only buttons.
 - Keep primary choices reachable by keyboard and visibly focused.
+- Keep a working skip link, focus the new stage heading after workflow transitions, trap focus in modal overlays, restore focus when they close, and expose toggle state with `aria-pressed` or `aria-expanded`.
+- The Playwright Axe gate must remain free of serious and critical violations across the case library, reviewed rehearsal, Studio authoring/review/transfer/report, and deep-case modal states.
 - Do not rely on color alone for incident, success, or completion state.
 - Text and controls must not overflow at supported viewport sizes.
 - Decision chapters must remain usable at 390 px wide. The deep desktop case may require 1100 px, but its small-screen gate must let the player return.
@@ -207,6 +220,17 @@ Test requirements scale with the change:
 - Transfer-probe changes need schema coverage for all three outcomes, direct deterministic evaluation tests, and a browser path that verifies the result stays usable without overflow.
 - Keep the built-in transfer rule and Evidence Coach hidden until the learner records the new-context action; tests must protect this ordering.
 - Scenario-generation changes need coverage tests proving safe, caution, contained, and expanded endings are each reachable through legal action prerequisites.
+- Reviewed-scenario additions need registry, schema, coverage, physics, direct-route, and browser-flow coverage.
+- Reviewed media assets must be local, fictional, transcript-backed, scenario-registered, and covered by a direct browser assertion. Do not clone a real person's voice or add runtime text-to-speech.
+- Accessibility changes need Axe, keyboard-focus, modal-isolation, and reduced-motion checks where relevant.
+
+## Formative Pilot Data
+
+- `pilot/` accepts one aggregate row per facilitated session, never one learner per row.
+- Do not record names, contact details, demographics, timestamps, raw explanations, open notes, class/institution identifiers, or real incident descriptions.
+- Keep templates header-only and synthetic test data inside tests. Do not commit invented participant results.
+- The analyzer must reject unknown fields, PII-like values, negative or fractional counts, duplicate sessions, and inconsistent totals.
+- Pilot infrastructure is not evidence of learning impact. Any future report must state the real sample, procedure, and limitations.
 
 The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.
 

@@ -5,11 +5,12 @@ import {
 } from "@/ai/debrief/evidenceCoach";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+import { sharingScopeScenario } from "@/fixtures/sharingScope";
 
 const request = {
   scenario: voiceYouKnowScenario,
   profile: reviewedNyuInstitutionProfile,
-  actionIds: ["call-request-number", "ask-team-chat", "verify-adviser", "pause-payment"],
+  actionIds: ["call-request-number", "pause-payment"],
   question: "Why did the callback not prove who sent the request?",
 };
 
@@ -57,5 +58,17 @@ describe("evidence coach", () => {
     const result = await answerEvidenceQuestion(request, provider);
     expect(result.provenance).toBe("live-coach");
     expect(result.evidenceIds).toEqual(["callback-controlled"]);
+  });
+
+  it("grounds reviewed answers in a second scenario without flagship evidence IDs", async () => {
+    const result = await answerEvidenceQuestion({
+      scenario: sharingScopeScenario,
+      profile: reviewedNyuInstitutionProfile,
+      actionIds: ["share-public-edit-link", "review-sharing-activity"],
+      question: "What changed when access depended on possession of a link?",
+    }, null);
+    expect(result.provenance).toBe("reviewed-coach");
+    expect(result.evidenceIds).toEqual(["public-link-transferability"]);
+    expect(result.answer).toContain("Access follows the link");
   });
 });

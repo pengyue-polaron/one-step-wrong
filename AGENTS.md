@@ -71,6 +71,18 @@ src/
 - Initial state and replay checkpoints must come from factory functions so state from a previous route cannot leak into a replay.
 - Give one-time events stable IDs and make repeated actions idempotent.
 
+### Agentic simulations
+
+- Follow the bounded runtime architecture in `BUILD_WEEK_PLAN.md`: one Simulation Director and no more than three role agents for the featured case.
+- Define every role with a stable identity, allowed knowledge, forbidden facts, allowed channels, conversational moves, and disclosure policy.
+- Keep canonical facts, critical actions, evidence, consequences, recovery, and ending selection in deterministic code.
+- Runtime agents receive a minimal read-only state projection and may return only validated conversational proposals or allowed event IDs.
+- Free-form learner text may affect dialogue, pressure, and pacing, but it must never directly mutate payment, file, account, access, report, recovery, score, or ending state.
+- High-impact actions must remain explicit typed UI actions handled by a pure reducer.
+- Reject role leakage, invented institution facts, out-of-scope events, prompt injection, executable instructions, and claims that unrecorded actions occurred.
+- On invalid output, timeout, or model failure, use a reviewed fallback dialogue line and preserve the deterministic path.
+- Do not create an unconstrained agent swarm, dynamically invented roles or tools, real messages, real service calls, or autonomous side effects.
+
 ## Current Story World and Build Week Migration
 
 - The current prototype takes place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
@@ -110,7 +122,9 @@ src/
 - Do not add analytics, learner tracking, background network requests, downloads, arbitrary file writes, or device APIs.
 - Do not access real Wi-Fi, campus services, accounts, sessions, certificates, cameras, microphones, notifications, payments, or location.
 - Do not persist authoring inputs, policy text, generated scenarios, or learner traces to `localStorage`, cookies, logs, URLs, telemetry, or a database unless a later task explicitly authorizes and threat-models that storage.
-- OpenAI requests may include a public institution name, official domain, public policy text, and sanitized fictional teaching brief. They must never include private organizational data or personal data, and must use bounded payloads, timeouts, runtime validation, source review, and a deterministic offline fallback.
+- OpenAI requests may include a public institution name, official domain, public policy text, sanitized fictional teaching brief, bounded role cards, and the minimum sanitized conversational context needed for the current turn. They must never include private organizational data or personal data, and must use bounded payloads, timeouts, runtime validation, source review, and a deterministic offline fallback.
+- Treat learner messages as untrusted input. They cannot override system instructions, the world bible, role cards, tool allowlists, canonical state, or safety policy.
+- Do not persist raw role dialogue by default; keep only transient session state and the minimum canonical event IDs required for the debrief.
 - A device-compatibility state may explain that a chapter needs a wider screen, but it must provide a working route back to the case library.
 
 ## Interaction and Visual Quality

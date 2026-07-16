@@ -2,7 +2,9 @@
 
 ## Mission
 
-`one-step-wrong` is a playable digital-safety story collection set at New York University. It teaches cause and effect through ordinary student tasks, believable pressure, unmarked choices, delayed consequences, individual recovery actions, and a causal debrief.
+`one-step-wrong` is a playable digital-safety story collection. It teaches cause and effect through ordinary student tasks, believable pressure, unmarked choices, delayed consequences, individual recovery actions, and a causal debrief.
+
+For OpenAI Build Week work, `BUILD_WEEK_PLAN.md` is the canonical implementation brief. Its scoped requirements for GPT-5.6 integration, fictional branding, runtime validation, privacy, demo behavior, and submission evidence take precedence over older planning assumptions when they conflict.
 
 The first screen is always the playable case library. Do not replace it with a landing page, feature tour, or marketing introduction.
 
@@ -69,9 +71,12 @@ src/
 - Initial state and replay checkpoints must come from factory functions so state from a previous route cannot leak into a replay.
 - Give one-time events stable IDs and make repeated actions idempotent.
 
-## NYU Story World
+## Current Story World and Build Week Migration
 
-- The story takes place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
+- The current prototype takes place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
+- The Build Week demo must migrate to a fictional institution and generic product names as specified in `BUILD_WEEK_PLAN.md`, unless explicit permission exists for a third-party mark.
+- Treat the current NYU implementation as a behavioral reference during migration; preserve task pressure, decision structure, delayed consequences, recovery mechanics, and tests rather than retaining the brand.
+- New AI-generated cases must be fictional and must not contain real people, credentials, payment details, domains, logos, or proprietary trade dress.
 - The course platform is NYU Brightspace. Display `brightspace.nyu.edu` and use familiar concepts such as Course Home, Content, Assignments, Discussions, Grades, submission history, and allowed file extensions.
 - Official wireless names are lowercase `nyu`, `nyuguest`, and `eduroam`.
 - A suspicious service may imitate a real name, but the interface must not reveal that judgment before the debrief.
@@ -92,9 +97,12 @@ src/
 - Never show in-game meta disclaimers such as “this is only a simulation,” “this will not affect your computer,” or “no data is collected.”
 - Enforce safety in implementation and tests instead of narrating it to the player.
 - Use fixed, read-only story credentials and personal details.
-- Do not add application network requests, analytics, persistence, downloads, file writes, or device APIs.
-- Do not access real Wi-Fi, accounts, sessions, certificates, cameras, microphones, notifications, or location.
-- Do not write story inputs to `localStorage`, cookies, logs, URLs, or telemetry.
+- The only new application network requests allowed for Build Week are explicit server-side OpenAI routes described in `BUILD_WEEK_PLAN.md`. Do not call OpenAI directly from client components.
+- Keep OpenAI credentials server-side. Never expose secrets through `NEXT_PUBLIC_*`, browser bundles, storage, URLs, logs, fixtures, screenshots, or error payloads.
+- Do not add analytics, learner tracking, background network requests, downloads, arbitrary file writes, or device APIs.
+- Do not access real Wi-Fi, campus services, accounts, sessions, certificates, cameras, microphones, notifications, payments, or location.
+- Do not persist authoring inputs, policy text, generated scenarios, or learner traces to `localStorage`, cookies, logs, URLs, telemetry, or a database unless a later task explicitly authorizes and threat-models that storage.
+- OpenAI requests must use fictional or sanitized inputs, bounded payloads, timeouts, runtime validation, and a deterministic offline fallback.
 - A device-compatibility state may explain that a chapter needs a wider screen, but it must provide a working route back to the case library.
 
 ## Interaction and Visual Quality
@@ -135,6 +143,7 @@ The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×84
 
 - `README.md` is the English canonical README.
 - `README.zh-CN.md` is the Simplified Chinese counterpart.
+- `BUILD_WEEK_PLAN.md` is the canonical Build Week product story and implementation brief; keep planned capabilities labeled as planned until they actually work.
 - Keep their structure, commands, screenshots, architecture, test counts, and limitations synchronized.
 - Use relative paths for repository screenshots so they render on GitHub and in forks.
 - Do not claim a deployment, integration, license, or compatibility level that the repository does not provide.

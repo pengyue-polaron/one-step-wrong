@@ -1,5 +1,6 @@
 @import "./tokens.css";
 @import "./case-library.css";
+@import "./studio.css";
 @import "../engine/decision/decision-case.css";
 
 * { box-sizing: border-box; }

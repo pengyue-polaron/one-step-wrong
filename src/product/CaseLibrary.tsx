@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Clock3, FolderKey, MapPin, ShieldCheck, Wifi } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, FolderKey, MapPin, ShieldCheck, Sparkles, Wifi } from "lucide-react";
+import Link from "next/link";
 import { caseCatalog } from "@/product/caseRegistry";
 import type { CaseEnding, ProductCaseId } from "@/cases/types";
 
@@ -22,7 +23,7 @@ export function CaseLibrary({
     <main className="case-library">
       <header className="library-topbar">
         <div className="system-brand"><span className="brand-mark">N</span><span>一步之差</span></div>
-        <div className="library-progress"><span>NYU DIGITAL SAFETY FILES</span><strong>{completedCount} / {caseCatalog.length} 已完成</strong></div>
+        <div className="library-progress"><span>NYU DIGITAL SAFETY FILES</span><strong>{completedCount} / {caseCatalog.length} 已完成</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
       </header>
 
       <div className="library-body">

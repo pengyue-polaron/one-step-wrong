@@ -33,9 +33,14 @@ Every published case must include:
 
 ```text
 src/
+  app/studio/                  Educator research, review, compile, rehearsal UI
+  app/api/                     Server-only OpenAI and deterministic trace routes
+  ai/                          Prompts, adapters, runtime schemas, guardrails
+  fixtures/                    Reviewed profile, scenario, dialogue fallback
   product/                     Case library, session progress, case registry
   cases/                       Case-owned content, UI, state, and tests
   engine/decision/             Generic short-chapter state and shared views
+  engine/simulation/           Canonical actions, endings, evidence, traces
   components/ui/               Domain-neutral UI primitives
   styles/                      Global tokens and product-level styles
   tests/e2e/                   Cross-module browser and layout checks
@@ -73,6 +78,10 @@ src/
 
 ### Agentic simulations
 
+- `src/ai/schemas/` is the contract boundary for all model-shaped data. TypeScript types alone are not acceptance.
+- `src/engine/simulation/physics.ts` is the only Build Week module allowed to apply critical actions, select endings, and create the canonical trace.
+- `src/app/studio/` may orchestrate API calls and presentation state, but must not contain OpenAI client code or infer canonical consequences from dialogue.
+- `src/app/api/` returns bounded JSON with generic browser-facing errors. Do not log raw prompts, model output, dialogue, or traces.
 - Follow the bounded runtime architecture in `BUILD_WEEK_PLAN.md`: one Simulation Director and no more than three role agents for the featured case.
 - Define every role with a stable identity, allowed knowledge, forbidden facts, allowed channels, conversational moves, and disclosure policy.
 - Keep canonical facts, critical actions, evidence, consequences, recovery, and ending selection in deterministic code.
@@ -83,14 +92,14 @@ src/
 - On invalid output, timeout, or model failure, use a reviewed fallback dialogue line and preserve the deterministic path.
 - Do not create an unconstrained agent swarm, dynamically invented roles or tools, real messages, real service calls, or autonomous side effects.
 
-## Current Story World and Build Week Migration
+## Current Story Worlds
 
-- The current prototype takes place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
-- The Build Week demo must migrate to a fictional institution and generic product names as specified in `BUILD_WEEK_PLAN.md`, unless explicit permission exists for a third-party mark.
+- The three legacy cases take place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
+- The implemented Build Week flagship uses fictional Northbridge University and generic product names as specified in `BUILD_WEEK_PLAN.md`.
 - Treat the current NYU implementation as a behavioral reference during migration; preserve task pressure, decision structure, delayed consequences, recovery mechanics, and tests rather than retaining the brand.
 - New AI-generated cases must not contain real people, credentials, payment details, restricted content, logos, or proprietary trade dress.
 - Exact institution terminology may be published only in an explicitly authorized exact mode with approved sources. Public demos default to brand-safe fictionalized output.
-- The remaining NYU-specific rules below apply only to the unmigrated legacy prototype. Do not use them for new Build Week surfaces or generated cases, and remove them once the bounded migration is complete.
+- The remaining NYU-specific rules below apply only to legacy cases. Do not use them for Scenario Studio, the Northbridge fixture, or newly generated cases.
 - The course platform is NYU Brightspace. Display `brightspace.nyu.edu` and use familiar concepts such as Course Home, Content, Assignments, Discussions, Grades, submission history, and allowed file extensions.
 - Official wireless names are lowercase `nyu`, `nyuguest`, and `eduroam`.
 - A suspicious service may imitate a real name, but the interface must not reveal that judgment before the debrief.
@@ -158,6 +167,8 @@ Test requirements scale with the change:
 - UI changes need keyboard-accessible queries rather than brittle text-position selectors.
 - Layout changes need screenshots and overflow checks at relevant desktop and mobile sizes.
 - Privacy rules need negative tests proving forbidden disclaimer copy and real side effects remain absent.
+- Schema and API changes need malformed input, broken reference, oversized content, and offline fallback coverage.
+- Agent-turn changes need tests proving free text cannot mutate canonical state or unlock an event without its typed prerequisite action.
 
 The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.
 
@@ -165,7 +176,7 @@ The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×84
 
 - `README.md` is the English canonical README.
 - `README.zh-CN.md` is the Simplified Chinese counterpart.
-- `BUILD_WEEK_PLAN.md` is the canonical Build Week product story and implementation brief; keep planned capabilities labeled as planned until they actually work.
+- `BUILD_WEEK_PLAN.md` is the canonical Build Week product story and implementation brief; README capability claims must match working code and automated evidence.
 - Keep their structure, commands, screenshots, architecture, test counts, and limitations synchronized.
 - Use relative paths for repository screenshots so they render on GitHub and in forks.
 - Do not claim a deployment, integration, license, or compatibility level that the repository does not provide.

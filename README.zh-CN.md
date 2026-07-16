@@ -9,10 +9,11 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-24%20unit%20%2B%2010%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-49%20unit%20%2B%2012%20E2E-456b52" />
+  <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
-**《一步之差》**是一套以纽约大学为背景的数字安全互动故事。玩家进入普通的学生任务，在可信的工具界面中作出选择，经历延迟出现的后果，并通过一份根据实际操作生成的因果复盘理解安全知识。
+**《一步之差》**是一台“数字判断力飞行模拟器”。学习者进入普通学生任务，在可信的工具界面中作出选择，经历延迟出现的后果，再通过根据实际操作生成的因果复盘理解安全知识。教师还可以使用 **Scenario Studio**，把经过审核的学校画像与教学简报编译成一场有边界、可游玩的演练。
 
 它不是知识问答。结果发生前，任何选择都不会被标注为安全、危险、正确或推荐。
 
@@ -28,13 +29,22 @@
 4. 要求玩家分别处理账号、设备、内容和社交影响。
 5. 最后在复盘中还原完整因果链。
 
-## OpenAI Build Week 方向
+## OpenAI Build Week 体验
 
-**这不是一棵固定分支的剧情树，而是一场会呼吸的安全演练。** 在计划中的 Build Week 版本里，教师先输入学校名称或官方域名。GPT-5.6 的 Institution Research Agent 从官方公开资料建立带引用的学校画像；教师审核后，Scenario Architect 把画像编译成包含不可变事实、关键动作、恢复规则和有边界角色的模拟世界。游玩过程中，Simulation Director 与最多三个角色 Agent 会根据玩家的行为动态调整人物对话、压力和节奏；但所有高影响动作、后果和结局仍由确定性引擎掌管。最后，Debrief Analyst 只依据玩家的规范化操作轨迹和已批准来源生成个性化复盘。
+**这不是一棵固定分支的剧情树，而是一场会呼吸的安全演练。** 打开 [`/studio`](http://localhost:3000/studio) 可以体验已经实现的 Build Week 完整链路：
+
+1. 从官方公开来源研究一所学校，或载入审核过的 Northbridge 离线样例。
+2. 查看引用、置信度、冲突和明确未知项；编辑并批准 Institution Profile。
+3. 向 Scenario Architect 提交一份有长度与范围限制的教学简报。
+4. 对生成的世界设定、关键动作、证据、恢复步骤、结局与最多三个角色执行运行时验证。
+5. 与有知识和频道边界的角色自然对话；所有高影响行为仍须通过明确的界面动作完成。
+6. 到达确定性结局，并获得只依据规范化动作轨迹生成的复盘。
+
+GPT-5.6 在演练前负责学校研究和场景编译，演练中负责有边界的角色表演，演练后负责基于轨迹的辅导文案。Zod schema、来源校验、事件白名单、类型化状态转换和确定性结局选择拥有最终解释权。每条 OpenAI 路径都有审核过的离线回退，因此没有 API key 也能完整体验旗舰案例。
 
 > **Agents 演出这个世界，确定性代码定义它的物理规则。**
 
-以上 AI 能力目前仍是实施目标，不属于当前静态原型。完整产品故事、旗舰案例、架构、安全边界、验收标准、演示脚本和实施顺序见 [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md)。
+旗舰案例 **The Voice You Know** 使用虚构的 Northbridge University，不包含真实人物、声音、付款信息或校园操作。产品规格见 [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md)，已执行的架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
 
 ## 可玩案例
 
@@ -47,6 +57,21 @@
 每个案例都有普通任务、无预警选择、必要时出现的延迟后果、逐项响应、多种结局和可重玩的因果复盘。完成进度只保留在当前浏览会话中。
 
 ## 产品截图
+
+### Scenario Studio
+
+<table>
+  <tr>
+    <td width="50%"><img alt="通过验证的 Scenario Studio 场景包" src="./artifacts/screenshots/studio-preview.png" /></td>
+    <td width="50%"><img alt="有边界角色参与的实时演练" src="./artifacts/screenshots/studio-live.png" /></td>
+  </tr>
+  <tr>
+    <td align="center">通过验证的世界、角色与关键动作</td>
+    <td align="center">自适应对话与确定性操作控件</td>
+  </tr>
+</table>
+
+![以证据和确定性轨迹为基础的 Studio 复盘](./artifacts/screenshots/studio-debrief.png)
 
 ### 情境中的选择
 
@@ -78,13 +103,15 @@
 ## 技术栈
 
 - Next.js 16、React 19 和严格模式 TypeScript
+- OpenAI Responses API、GPT-5.6、Structured Outputs 与 Web Search
+- 对所有模型输出执行 Zod 运行时 schema 和跨引用验证
 - 原生 CSS 设计系统，克制使用 NYU Violet
 - Lucide React 图标
-- 使用 `useReducer` 构建可复现的剧情状态机
+- 使用纯 reducer 与模拟物理层构建可复现的剧情状态
 - Vitest 与 React Testing Library 状态/组件测试
 - Playwright 完整流程与响应式布局测试
 
-应用完全在本地、以静态页面运行，不包含后端、分析服务、账号系统或真实校园服务集成。
+案例库可以完全在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；否则自动使用审核过的 fixture。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
 
 ## 快速开始
 
@@ -103,6 +130,14 @@ npm run dev
 ```
 
 打开 [http://localhost:3000](http://localhost:3000)。追加 `?dev=1` 可以显示只在开发阶段使用的剧情检查点面板。
+
+GPT-5.6 的在线研究、生成、对话和复盘是可选能力。根据 [`.env.example`](./.env.example) 创建 `.env.local`，并设置仅供服务端读取的密钥：
+
+```bash
+OPENAI_API_KEY=your_key_here
+```
+
+不要给这个密钥添加 `NEXT_PUBLIC_` 前缀。没有密钥时，在 Scenario Studio 中选择 **Load reviewed example** 即可走完离线流程。
 
 首次运行 Playwright 前执行：
 
@@ -127,7 +162,16 @@ npx playwright install chromium
 
 ```text
 src/
-  app/                              Next.js 路由与页面元数据
+  app/
+    api/                            仅服务端研究、生成、对话与复盘路由
+    studio/                         教师工作流与旗舰案例实时预览
+  ai/
+    schemas/                        运行时契约、跨引用与安全验证
+    research/                       Institution Research Agent 适配层
+    scenarios/                      Scenario Architect 适配层
+    simulation/                     Director 与角色回合边界验证
+    debrief/                        依据轨迹生成复盘的适配层
+  fixtures/                         审核过的画像、场景与回退对话
   product/
     Game.tsx                        会话级案例选择与完成状态
     CaseLibrary.tsx                 可直接游玩的第一屏
@@ -142,18 +186,20 @@ src/
     reducer.ts                      纯状态转换与结局派生
     components/                     通用章节外壳与选择控件
     views/                          结果、响应与复盘页面
+  engine/simulation/               纯关键动作、结局与规范化轨迹
   components/ui/                    只包含可复用按钮原语
   styles/                           设计变量、通用样式与案例库样式
   tests/e2e/                        浏览器流程和响应式布局检查
 artifacts/screenshots/              已验收的产品截图
 ```
 
-注册表只依赖一个很小的 `CaseModule` 契约：案例元数据加运行组件。产品层不需要知道某一章使用通用决策引擎还是独立状态机。
+注册表只依赖一个很小的 `CaseModule` 契约：案例元数据加运行组件。产品层不需要知道某一章使用通用决策引擎还是独立状态机。Scenario Studio 是单独的创作路由，不会替换默认的可玩案例库。
 
 项目有意保留两种章节模型：
 
 - **决策章节**使用 `intro → decision → outcome → response? → debrief`，只提供剧情数据和该案例拥有的场景。
 - **深度模拟**拥有自己的状态机与界面，但仍从同一个注册表进入产品。
+- **Agentic 模拟**只接受通过运行时验证的声明式场景包。模型对话属于会话状态；只有显式、类型化的界面动作能够改变规范化状态。
 
 架构边界、内容约束和完成检查清单见 [`AGENTS.md`](./AGENTS.md)。
 
@@ -179,15 +225,20 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 24 个状态/组件测试和 10 个浏览器测试。浏览器覆盖安全与事故完整路线、止损结局、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
+当前测试集包含 49 个 schema、API、状态与组件测试，以及 12 个浏览器测试。覆盖范围包括异常模型输出、来源域名、prompt/凭据诱导拒绝、确定性结局、离线回退、安全与事故完整路线、1366×768 至 1920×1080 桌面布局，以及 390×844 手机流程。
+
+## Build Week 开发说明
+
+Codex 加速了仓库分析、架构提取、schema 与 fixture 实现、确定性引擎、API 接入、界面搭建和浏览器验证。GPT-5.6 只作为上述可选服务端路径中的产品运行时能力，绝不选择规范化动作或结局。原有基础是三个案例的案例库、通用决策引擎和深度桌面章节；Build Week 新增了 Scenario Studio、运行时 schema、Northbridge 画像、**The Voice You Know**、四条服务端路由、有边界对话、确定性模拟物理层、基于轨迹的复盘与离线 fixture。
 
 ## 安全与隐私
 
 - 账号和个人信息都是固定、只读的剧情数据。
-- 任何表单数据都不会被持久化或发送。
+- 创作输入和对话只在当前会话存在；仅在使用对应功能时发送给明确的服务端路由，本应用不会持久化它们。
 - 不使用真实 Wi-Fi、账号、证书、下载或设备 API。
 - 真实服务名称和域名只作为静态界面文本出现。
-- 应用不会请求 NYU、Brightspace、Google Workspace、Duo 或其他校园服务。
+- 在线学校研究仅通过 OpenAI Web Search 访问公开资料；应用不会登录或调用校园服务。
+- OpenAI 密钥只存在于服务端，请求有长度限制；模型输出无效或不可用时自动回退到审核内容。
 
 这些保证应落实在代码和测试中，而不是用破坏沉浸感的免责声明显示在游戏里。
 
@@ -200,7 +251,8 @@ npm run test:e2e
 - 第一章的多窗口工作区需要至少 1100 px，因此有意只支持桌面体验。
 - 桌面窗口使用固定位置，不支持自由拖拽和缩放。
 - 音效由浏览器即时合成，没有背景音乐或配音。
-- 当前没有后端、登录、跨会话进度、国际化框架或真实校园集成。
+- 当前没有登录、数据库、跨会话进度、协作系统、国际化框架或真实校园集成。
+- 在线 GPT-5.6 能力需要有效 API key 和网络；没有二者时仍可通过 fixture 完成评审路径。
 
 ## 许可证
 

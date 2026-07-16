@@ -91,8 +91,8 @@ function StageRail({ stage }: { stage: StudioStage }) {
 
 export function ScenarioStudio() {
   const [stage, setStage] = useState<StudioStage>("research");
-  const [institutionName, setInstitutionName] = useState("Northbridge University");
-  const [officialDomain, setOfficialDomain] = useState("northbridge.example");
+  const [institutionName, setInstitutionName] = useState("New York University");
+  const [officialDomain, setOfficialDomain] = useState("nyu.edu");
   const [publicationMode, setPublicationMode] = useState<InstitutionProfile["publicationMode"]>("brand-safe-fictionalized");
   const [profile, setProfile] = useState<InstitutionProfile | null>(null);
   const [profileProvenance, setProfileProvenance] = useState<Provenance | null>(null);
@@ -189,7 +189,17 @@ export function ScenarioStudio() {
       const response = await fetch("/api/simulation/turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario, learnerMessage: learnerContent, completedActionIds: simulation.actionIds, preferredRoleId: selectedRoleId }),
+        body: JSON.stringify({
+          scenario,
+          learnerMessage: learnerContent,
+          completedActionIds: simulation.actionIds,
+          preferredRoleId: selectedRoleId,
+          conversationHistory: messages.slice(-8).map((line) => ({
+            speaker: line.roleId === "learner" ? "learner" : "role",
+            roleId: line.roleId === "learner" ? null : line.roleId,
+            content: line.content,
+          })),
+        }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Role response failed.");

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { northbridgeInstitutionProfile } from "@/fixtures/institutionProfile";
+import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { institutionResearchRequestSchema, researchInstitution } from "@/ai/research/institution";
 import { readBoundedJson } from "@/app/api/request";
 
@@ -22,11 +22,11 @@ export async function POST(request: Request) {
 
   if (parsed.data.useFixture || !process.env.OPENAI_API_KEY) {
     return NextResponse.json({
-      profile: northbridgeInstitutionProfile,
+      profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
       notice: parsed.data.useFixture
-        ? "Loaded the reviewed Northbridge demo profile."
-        : "OpenAI is not configured, so the reviewed Northbridge profile was loaded.",
+        ? "Loaded the reviewed NYU source profile for a brand-safe demo."
+        : "OpenAI is not configured, so the reviewed NYU source profile was loaded.",
     });
   }
 
@@ -39,9 +39,9 @@ export async function POST(request: Request) {
     });
   } catch {
     return NextResponse.json({
-      profile: northbridgeInstitutionProfile,
+      profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
-      notice: "Live research was unavailable. The reviewed Northbridge profile was loaded instead.",
+      notice: "Live research was unavailable. The reviewed NYU source profile was loaded instead.",
     });
   }
 }

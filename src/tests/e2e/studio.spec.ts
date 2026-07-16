@@ -1,10 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function openValidatedScenario(page: Page) {
+async function openValidatedScenario(page: Page, captureProfile = false) {
   await page.goto("/studio");
   await page.getByRole("button", { name: "Load reviewed example" }).click();
   await expect(page.getByTestId("studio-profile")).toBeVisible();
   await expect(page.getByText("Unknown remains unknown")).toBeVisible();
+  if (captureProfile) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: "artifacts/screenshots/studio-profile.png", fullPage: true });
+  }
   await page.getByRole("button", { name: "Approve profile" }).click();
   await expect(page.getByTestId("studio-brief")).toBeVisible();
   await page.getByRole("button", { name: "Compile flagship example" }).click();
@@ -13,7 +17,7 @@ async function openValidatedScenario(page: Page) {
 }
 
 test("studio completes the reviewed research-to-debrief path", async ({ page }) => {
-  await openValidatedScenario(page);
+  await openValidatedScenario(page, true);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-preview.png", fullPage: true });
   await page.getByRole("button", { name: "Launch rehearsal" }).click();
@@ -34,6 +38,30 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByText("Call adviser on known number")).toBeVisible();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-debrief.png", fullPage: true });
+
+  await page.getByRole("button", { name: "Replay scenario" }).click();
+  await expect(page.getByTestId("studio-live")).toBeVisible();
+  await expect(page.getByText("0 actions recorded")).toBeVisible();
+  await expect(page.locator(".dialogue-log article")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /Call adviser on known number/ })).toBeEnabled();
+});
+
+test("studio contains an expanded incident through explicit recovery actions", async ({ page }) => {
+  await openValidatedScenario(page);
+  await page.getByRole("button", { name: "Launch rehearsal" }).click();
+  for (const action of [
+    /Approve new payment details/,
+    /Share finance folder/,
+    /Preserve message evidence/,
+    /Revoke shared access/,
+    /Notify affected people/,
+    /Report to Safety Desk/,
+  ]) {
+    await page.getByRole("button", { name: action }).click();
+  }
+  await page.getByRole("button", { name: "Resolve and debrief" }).click();
+  await expect(page.getByText("CONTAINED", { exact: true })).toBeVisible();
+  await expect(page.getByText("All required recovery actions were completed.")).toBeVisible();
 });
 
 test("studio remains usable without horizontal overflow on mobile", async ({ page }) => {

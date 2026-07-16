@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { POST } from "@/app/api/scenarios/generate/route";
 import type { InstitutionProfile } from "@/ai/schemas/institution";
-import { northbridgeInstitutionProfile } from "@/fixtures/institutionProfile";
+import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 
 const brief = {
   threatTopic: "Voice impersonation",
@@ -16,7 +16,7 @@ const brief = {
 
 describe("POST /api/scenarios/generate", () => {
   it("requires an approved profile", async () => {
-    const profile: InstitutionProfile = structuredClone(northbridgeInstitutionProfile);
+    const profile: InstitutionProfile = structuredClone(reviewedNyuInstitutionProfile);
     profile.approval.status = "review-required";
     const response = await POST(
       new Request("http://localhost/api/scenarios/generate", {
@@ -31,7 +31,7 @@ describe("POST /api/scenarios/generate", () => {
     const response = await POST(
       new Request("http://localhost/api/scenarios/generate", {
         method: "POST",
-        body: JSON.stringify({ profile: northbridgeInstitutionProfile, brief, useFixture: true }),
+        body: JSON.stringify({ profile: reviewedNyuInstitutionProfile, brief, useFixture: true }),
       }),
     );
     const result = await response.json();

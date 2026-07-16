@@ -50,6 +50,7 @@ export const institutionProfileSchema = z
     displayName: shortTextSchema,
     publicationMode: publicationModeSchema,
     officialDomains: z.array(z.string().trim().min(3).max(253)).min(1).max(6),
+    protectedTerms: z.array(shortTextSchema).min(1).max(20),
     facts: z.array(institutionFactSchema).min(1).max(30),
     sources: z.array(institutionSourceSchema).min(1).max(30),
     unresolvedFields: z.array(shortTextSchema).max(20),

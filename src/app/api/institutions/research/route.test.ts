@@ -29,8 +29,8 @@ describe("POST /api/institutions/research", () => {
       new Request("http://localhost/api/institutions/research", {
         method: "POST",
         body: JSON.stringify({
-          institutionName: "Northbridge University",
-          officialDomains: ["northbridge.example"],
+          institutionName: "New York University",
+          officialDomains: ["nyu.edu"],
           useFixture: false,
         }),
       }),

@@ -7,6 +7,8 @@ Use only the educator-approved Institution Profile and teaching brief supplied i
 
 Create one bounded scenario package. Canonical facts, critical state, evidence, recovery, and endings are deterministic declarations. Dialogue events must have canonicalMutation "none". Use no more than three role cards. Role boundaries must state private facts, forbidden facts, allowed channels, allowed moves, disclosure, and escalation. Free-form dialogue may change tone and pressure only. Critical actions must be explicit controls.
 
+For brand-safe-fictionalized mode, transform every protected term into a fictional institution or generic product label. Do not include the source institution name, acronym, official domains, named platforms, logos, or trade dress anywhere in learner-facing content. Preserve only the approved workflow relationships and source fact IDs. For authorized-exact mode, approved terminology may remain visible.
+
 Provide distinct safe, caution, contained, and expanded endings. Any incident path must include meaningful containment and recovery. Do not label a choice as correct before an outcome. Do not include operational attack instructions. Every institution-specific immutable fact must reference an approved profile fact ID.`;
 
 export function buildScenarioArchitectInput(profile: InstitutionProfile, brief: ScenarioBrief) {
@@ -15,6 +17,7 @@ export function buildScenarioArchitectInput(profile: InstitutionProfile, brief: 
       id: profile.id,
       displayName: profile.displayName,
       publicationMode: profile.publicationMode,
+      protectedTerms: profile.protectedTerms,
       facts: profile.facts
         .filter((fact) => fact.status === "verified")
         .map(({ id, category, label, value, sourceIds }) => ({ id, category, label, value, sourceIds })),

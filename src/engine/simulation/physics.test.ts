@@ -37,6 +37,12 @@ describe("deterministic simulation physics", () => {
     expect(createCanonicalTrace(voiceYouKnowScenario, contained).recoveryRequired).toBe(true);
   });
 
+  it("covers the caution ending when useful friction is incomplete", () => {
+    const trace = createCanonicalTrace(voiceYouKnowScenario, run(["pause-payment"]));
+    expect(trace.endingId).toBe("caution");
+    expect(trace.recoveryRequired).toBe(false);
+  });
+
   it("does not unlock verification dialogue from free text or unrelated actions", () => {
     expect(eventIsAllowed(voiceYouKnowScenario, "adviser-confirmation", [])).toBe(false);
     expect(eventIsAllowed(voiceYouKnowScenario, "adviser-confirmation", ["pause-payment"])).toBe(false);
@@ -46,6 +52,18 @@ describe("deterministic simulation physics", () => {
   it("returns the same state when an action is repeated", () => {
     const once = run(["pause-payment"]);
     expect(applyCriticalAction(voiceYouKnowScenario, once, "pause-payment")).toBe(once);
+  });
+
+  it("creates fresh replay state without canonical or trace leakage", () => {
+    const firstRun = run(["approve-change", "share-folder"]);
+    const replay = createSimulationState(voiceYouKnowScenario);
+    expect(replay).toEqual({
+      canonical: voiceYouKnowScenario.worldBible.initialState,
+      actionIds: [],
+      evidenceIds: [],
+    });
+    expect(replay.canonical).not.toBe(firstRun.canonical);
+    expect(JSON.stringify(createCanonicalTrace(voiceYouKnowScenario, firstRun))).not.toContain("Dr. Maya Chen");
   });
 
   it("selects endings from declarative package rules rather than flagship IDs", () => {

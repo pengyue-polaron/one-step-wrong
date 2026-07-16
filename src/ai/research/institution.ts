@@ -24,6 +24,7 @@ const researchOutputSchema = z.object({
   id: idSchema,
   displayName: shortTextSchema,
   officialDomains: z.array(z.string().trim().min(3).max(253)).min(1).max(6),
+  protectedTerms: z.array(shortTextSchema).min(1).max(20),
   facts: z
     .array(
       z.object({

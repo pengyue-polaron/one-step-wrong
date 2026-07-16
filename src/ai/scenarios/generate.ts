@@ -41,6 +41,20 @@ export function validateScenarioAgainstProfile(scenario: ScenarioPackage, profil
   }
 }
 
+export function validateScenarioPublicationMode(scenario: ScenarioPackage, profile: z.infer<typeof institutionProfileSchema>) {
+  if (scenario.sourceProfileId !== profile.id) {
+    throw new Error("Scenario does not reference the approved Institution Profile.");
+  }
+  if (scenario.publicationMode !== profile.publicationMode) {
+    throw new Error("Scenario publication mode does not match the approved profile.");
+  }
+  if (profile.publicationMode !== "brand-safe-fictionalized") return;
+
+  const serialized = JSON.stringify(scenario).toLowerCase();
+  const leakedTerm = profile.protectedTerms.find((term) => serialized.includes(term.toLowerCase()));
+  if (leakedTerm) throw new Error(`Brand-safe scenario leaked a protected term: ${leakedTerm}`);
+}
+
 export async function generateScenario(
   request: z.infer<typeof scenarioGenerationRequestSchema>,
   provider: ScenarioGenerationProvider | null = getOpenAIClient(),
@@ -66,5 +80,6 @@ export async function generateScenario(
       .map((fact) => fact.id),
   );
   validateScenarioAgainstProfile(scenario, approvedFactIds);
+  validateScenarioPublicationMode(scenario, request.profile);
   return scenario;
 }

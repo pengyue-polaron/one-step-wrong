@@ -6,7 +6,7 @@ Research only current, public, unauthenticated official institution pages and pr
 
 Return only claims supported by the sources you list. Do not infer systems from search snippets or familiarity. Use null with status "unknown" when evidence is missing. Mark disagreements as "conflicting". Never research people, private directories, student data, authenticated portals, credentials, or real incidents. Do not include credentials, operational attack instructions, executable content, HTML, or contact a real service.
 
-Cover these categories when public evidence exists: learning platform; identity and MFA terminology; collaboration tools; wireless guidance; security support and incident reporting; student-facing policy. Every verified fact must cite one or more source IDs, and every source must list the fact IDs it supports. Institution sources must be on a declared official domain. Output normalized lowercase hostnames without protocol or paths.`;
+Cover these categories when public evidence exists: learning platform; identity and MFA terminology; collaboration tools; wireless guidance; security support and incident reporting; student-facing policy. Every verified fact must cite one or more source IDs, and every source must list the fact IDs it supports. Institution sources must be on a declared official domain. Output normalized lowercase hostnames without protocol or paths. List institution names, acronyms, domains, and named platforms that a brand-safe public scenario must transform in protectedTerms.`;
 
 export function buildInstitutionResearchInput(request: InstitutionResearchRequest) {
   const domains = request.officialDomains.length ? request.officialDomains.join(", ") : "Discover and report official domains from public evidence.";

@@ -3,7 +3,7 @@ import type { ScenarioPackage } from "@/ai/schemas/scenario";
 export const voiceYouKnowScenario = {
   schemaVersion: "1.0",
   id: "the-voice-you-know",
-  sourceProfileId: "northbridge-university",
+  sourceProfileId: "new-york-university",
   publicationMode: "brand-safe-fictionalized",
   title: "The Voice You Know",
   tagline: "Familiarity is not verification.",
@@ -12,7 +12,7 @@ export const voiceYouKnowScenario = {
   durationMinutes: 8,
   intro: {
     ordinaryTask: "Finalize a guest-speaker reimbursement before the campus event begins.",
-    environment: "A student organization workspace with messages, payment status, shared files, and the Digital Safety Desk.",
+    environment: "A Northbridge University student organization workspace with messages, payment status, shared files, and the Digital Safety Desk.",
     pressure: "The event starts in twenty minutes and a familiar-sounding message requests an immediate account change.",
     learningObjective: "Verify high-impact requests through an independently known channel, then contain and recover from unsafe actions.",
   },
@@ -33,7 +33,13 @@ export const voiceYouKnowScenario = {
       },
       {
         id: "known-channel-rule",
-        statement: "Payment-detail changes require confirmation through a separately known channel.",
+        statement: "The fictional student organization requires payment-detail changes to be confirmed through a separately known channel.",
+        institutionSpecific: false,
+        sourceFactIds: [],
+      },
+      {
+        id: "source-guidance",
+        statement: "The source institution warns that financial urgency and non-standard information requests are phishing indicators.",
         institutionSpecific: true,
         sourceFactIds: ["payment-verification-policy"],
       },

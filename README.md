@@ -6,10 +6,11 @@
 </p>
 
 <p>
+  <img alt="CI" src="https://github.com/pengyue-polaron/one-step-wrong/actions/workflows/ci.yml/badge.svg" />
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-49%20unit%20%2B%2012%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-61%20unit%20%2B%2013%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
 </p>
 
@@ -33,7 +34,7 @@ Most security training explains the answer before learners feel the pressure tha
 
 **Not a branching story. A living security rehearsal.** Open [`/studio`](http://localhost:3000/studio) to run the implemented Build Week loop:
 
-1. Research a school from public official sources, or load the reviewed Northbridge fixture.
+1. Research a school from public official sources, or load the reviewed NYU source profile.
 2. Inspect citations, confidence, conflicts, and explicit unknowns; edit and approve the profile.
 3. Give the Scenario Architect a bounded teaching brief.
 4. Validate the generated world bible, critical actions, evidence, recovery, endings, and up to three role cards at runtime.
@@ -45,6 +46,8 @@ GPT-5.6 is used before play for institution research and scenario compilation, d
 > **Agents perform the world; deterministic code defines its physics.**
 
 The flagship case, **The Voice You Know**, uses fictional Northbridge University and no real person, voice, payment detail, or campus action. See [`BUILD_WEEK_PLAN.md`](./BUILD_WEEK_PLAN.md) for the product brief and [`AGENTS.md`](./AGENTS.md) for the enforced architecture and safety boundaries.
+
+The reviewed offline profile is grounded in public NYU pages for [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system), [Duo and file sharing](https://tisch.nyu.edu/cit/information-technology/faq), [Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu), [wireless access](https://library.nyu.edu/services/computing/on-campus/wifi/), [phishing indicators and reporting](https://wp.nyu.edu/itsecurity/2024/08/02/salary-adjustment-acknowledgement-phishing-message/), and [student reimbursement documentation](https://www.stern.nyu.edu/portal-partners/budget/students). The profile explicitly leaves a university-wide payment-change callback rule unknown. Brand-safe compilation then transforms protected names, domains, and platforms while retaining source fact IDs.
 
 ## Playable Cases
 
@@ -59,6 +62,8 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 ## Screenshots
 
 ### Scenario Studio
+
+![Reviewed NYU Institution Profile with citations, confidence, and an explicit unknown](./artifacts/screenshots/studio-profile.png)
 
 <table>
   <tr>
@@ -225,11 +230,11 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 49 schema, API, state, and component tests plus 12 browser tests. Coverage includes malformed AI output, source-domain checks, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
+The current suite contains 61 schema, API, state, and component tests plus 13 browser tests. Coverage includes malformed AI output, source-domain checks, prompt/credential instruction rejection, deterministic endings, offline fallbacks, complete safe and incident paths, 1366×768 through 1920×1080 desktop layouts, and 390×844 phone flows.
 
 ## Build Week Development
 
-Codex accelerated repository analysis, architecture extraction, schema and fixture implementation, deterministic engine work, API integration, UI construction, and browser verification. GPT-5.6 is a product runtime dependency only on the optional server paths described above; it never chooses a canonical action or ending. The pre-existing foundation was the three-case library, decision engine, and deep desktop chapter. Build Week added Scenario Studio, runtime schemas, the Northbridge profile, **The Voice You Know**, four server routes, bounded dialogue, deterministic simulation physics, trace-grounded debriefing, and offline fixtures.
+Codex accelerated repository analysis, architecture extraction, schema and fixture implementation, deterministic engine work, API integration, UI construction, and browser verification. GPT-5.6 is a product runtime dependency only on the optional server paths described above; it never chooses a canonical action or ending. The pre-existing foundation was the three-case library, decision engine, and deep desktop chapter. Build Week added Scenario Studio, runtime schemas, a reviewed NYU source profile, the fictionalized Northbridge **The Voice You Know** scenario, four server routes, bounded dialogue, deterministic simulation physics, trace-grounded debriefing, and offline fixtures.
 
 ## Safety and Privacy
 

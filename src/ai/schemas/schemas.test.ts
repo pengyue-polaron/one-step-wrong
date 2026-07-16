@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { validateInstitutionProfile, validateProfileForApproval } from "@/ai/schemas/institution";
 import { validateScenarioPackage } from "@/ai/schemas/scenario";
-import { northbridgeInstitutionProfile } from "@/fixtures/institutionProfile";
+import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 
 describe("InstitutionProfile", () => {
-  it("accepts the reviewed fictional fixture", () => {
-    expect(validateInstitutionProfile(northbridgeInstitutionProfile).success).toBe(true);
-    expect(validateProfileForApproval(northbridgeInstitutionProfile).success).toBe(true);
+  it("accepts the reviewed official-source fixture", () => {
+    expect(validateInstitutionProfile(reviewedNyuInstitutionProfile).success).toBe(true);
+    expect(validateProfileForApproval(reviewedNyuInstitutionProfile).success).toBe(true);
   });
 
   it("rejects an institution source outside the declared domain", () => {
-    const profile = structuredClone(northbridgeInstitutionProfile);
+    const profile = structuredClone(reviewedNyuInstitutionProfile);
     profile.sources[0].url = "https://unreviewed.example/coursehub";
     const result = validateInstitutionProfile(profile);
     expect(result.success).toBe(false);
@@ -19,7 +19,7 @@ describe("InstitutionProfile", () => {
   });
 
   it("rejects a verified fact without reciprocal source support", () => {
-    const profile = structuredClone(northbridgeInstitutionProfile);
+    const profile = structuredClone(reviewedNyuInstitutionProfile);
     profile.sources[0].supportsFactIds = ["secure-push"];
     const result = validateInstitutionProfile(profile);
     expect(result.success).toBe(false);
@@ -30,6 +30,21 @@ describe("InstitutionProfile", () => {
 describe("ScenarioPackage", () => {
   it("accepts the reviewed flagship scenario", () => {
     expect(validateScenarioPackage(voiceYouKnowScenario).success).toBe(true);
+  });
+
+  it("defines knowledge and channel boundaries for every registered role", () => {
+    expect(voiceYouKnowScenario.roleCards.map((role) => role.id)).toEqual([
+      "faculty-adviser",
+      "impersonator",
+      "teammate",
+    ]);
+    for (const role of voiceYouKnowScenario.roleCards) {
+      expect(role.privateFacts.length).toBeGreaterThan(0);
+      expect(role.forbiddenFacts.length).toBeGreaterThan(0);
+      expect(role.allowedChannels.length).toBeGreaterThan(0);
+      expect(role.allowedMoves.length).toBeGreaterThan(0);
+      expect(voiceYouKnowScenario.allowedEvents.filter((event) => event.roleId === role.id).length).toBeGreaterThan(0);
+    }
   });
 
   it("rejects invalid references and missing recovery", () => {
@@ -53,7 +68,8 @@ describe("ScenarioPackage", () => {
 
   it("requires source references for institution-specific facts", () => {
     const scenario = structuredClone(voiceYouKnowScenario);
-    scenario.worldBible.immutableFacts[2].sourceFactIds = [];
+    const sourcedFact = scenario.worldBible.immutableFacts.find((fact) => fact.id === "source-guidance")!;
+    sourcedFact.sourceFactIds = [];
     const result = validateScenarioPackage(scenario);
     expect(result.success).toBe(false);
     expect(result.issues.some((issue) => issue.message.includes("source references"))).toBe(true);

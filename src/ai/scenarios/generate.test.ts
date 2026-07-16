@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { generateScenario, type ScenarioGenerationProvider } from "@/ai/scenarios/generate";
-import { northbridgeInstitutionProfile } from "@/fixtures/institutionProfile";
+import {
+  generateScenario,
+  validateScenarioPublicationMode,
+  type ScenarioGenerationProvider,
+} from "@/ai/scenarios/generate";
+import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+import type { InstitutionProfile } from "@/ai/schemas/institution";
+import type { ScenarioPackage } from "@/ai/schemas/scenario";
 
 const brief = {
   threatTopic: "Voice impersonation",
@@ -19,7 +25,7 @@ describe("Scenario Architect adapter", () => {
     const parse = vi.fn().mockResolvedValue({ output_parsed: voiceYouKnowScenario });
     const provider = { responses: { parse } } as unknown as ScenarioGenerationProvider;
     const scenario = await generateScenario(
-      { profile: northbridgeInstitutionProfile, brief, useFixture: false },
+      { profile: reviewedNyuInstitutionProfile, brief, useFixture: false },
       provider,
     );
     expect(scenario.id).toBe("the-voice-you-know");
@@ -31,6 +37,21 @@ describe("Scenario Architect adapter", () => {
     const generated = structuredClone(voiceYouKnowScenario);
     generated.sourceFactIds.push("invented-campus-service");
     const provider = { responses: { parse: vi.fn().mockResolvedValue({ output_parsed: generated }) } } as unknown as ScenarioGenerationProvider;
-    await expect(generateScenario({ profile: northbridgeInstitutionProfile, brief, useFixture: false }, provider)).rejects.toThrow("unapproved institution facts");
+    await expect(generateScenario({ profile: reviewedNyuInstitutionProfile, brief, useFixture: false }, provider)).rejects.toThrow("unapproved institution facts");
+  });
+
+  it("rejects protected institution terms in brand-safe output", () => {
+    const leaked = structuredClone(voiceYouKnowScenario);
+    leaked.summary = "An NYU student handles an urgent payment request.";
+    expect(() => validateScenarioPublicationMode(leaked, reviewedNyuInstitutionProfile)).toThrow("protected term");
+  });
+
+  it("allows approved terminology only in matching authorized-exact mode", () => {
+    const profile: InstitutionProfile = structuredClone(reviewedNyuInstitutionProfile);
+    profile.publicationMode = "authorized-exact";
+    const exact: ScenarioPackage = structuredClone(voiceYouKnowScenario);
+    exact.publicationMode = "authorized-exact";
+    exact.summary = "An NYU student handles an urgent payment request.";
+    expect(() => validateScenarioPublicationMode(exact, profile)).not.toThrow();
   });
 });

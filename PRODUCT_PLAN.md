@@ -3,7 +3,7 @@
 > Status: active product brief  
 > Product thesis: **Security judgment is a skill. Skills are learned through practice, not reminders.**
 
-This document defines the product direction for One Step Wrong. `PLAN.md` preserves the original case-library foundation; this plan covers Scenario Studio, institution-aware authoring, adaptive rehearsal, evidence, recovery, and learning transfer.
+This document defines the current product direction for One Step Wrong, including the case library, Scenario Studio, institution-aware authoring, adaptive rehearsal, evidence, recovery, and learning transfer.
 
 ## Product Promise
 
@@ -83,7 +83,7 @@ When identity verification is part of the lesson, the scenario must offer plausi
 - **Verification choices:** call the number attached to the request, ask the organization group chat, or call the saved directory number.
 - **Convenient path:** approve the change and share workspace access.
 - **Safer friction:** pause the payment and verify through an independently known channel.
-- **Recovery:** preserve evidence, pause payment, revoke access, notify affected people, and report through the approved fictional channel.
+- **Recovery:** request a finance hold, preserve evidence, revoke access where needed, notify affected people, and report through the approved fictional channel.
 - **Transfer rule:** a familiar voice is a clue, not proof of identity.
 
 The public scenario contains no real person, voice, payment information, or campus operation.
@@ -122,7 +122,9 @@ Failures must:
 - preserve the last valid state;
 - return a concise user-facing message;
 - avoid exposing provider, prompt, schema, stack, or credential details;
-- fall back only to content reviewed for the same institution profile and publication mode.
+- keep user-authored institution details and briefs intact;
+- load reviewed examples only after an explicit example action;
+- use reviewed dialogue fallback only inside the same validated scenario.
 
 ## Safety And Privacy
 
@@ -166,11 +168,16 @@ These guarantees belong in code and tests, not in immersion-breaking learner dis
 - The rehearsal begins with an ordinary task and credible pressure.
 - Verification choices do not reveal the answer in their labels.
 - Each verification channel reveals distinct evidence.
+- New channels appear only after the learner explicitly reaches them.
+- Unsafe task actions can appear successful before a separate status check reveals the consequence.
 - Free text can influence conversation but cannot mutate high-impact state.
 - Recovery appears only for layers actually affected by completed actions.
+- Recovery begins only after every triggered consequence is visible; every availability branch follows a declared incident trigger, and no new unsafe task action can be added after recovery starts.
+- A contained ending verifies that every affected payment or access layer finishes in a contained state, rather than inferring success from recovery action IDs alone.
 - The review accurately lists completed actions, evidence, outcome, and missed recovery.
 - Follow-up answers cite only evidence discovered in the current run and approved source facts.
 - The new situation evaluates only the explicit action selected there.
+- The new-context action is recorded before the built-in transfer rule or guided Evidence Coach prompts are revealed.
 - The facilitator report connects the rehearsal, transfer result, and approved guidance without storing learner identity.
 - Learner screens contain no provider, model, hackathon, fixture, fallback, schema, canonical, or deterministic terminology.
 

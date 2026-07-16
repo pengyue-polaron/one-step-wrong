@@ -8,13 +8,34 @@ export async function readBoundedJson(request: Request, maxBytes: number): Promi
     return { success: false, status: 413, error: "Request body is too large." };
   }
 
+  const reader = request.body?.getReader();
+  if (!reader) {
+    return { success: false, status: 400, error: "Request body must be valid JSON." };
+  }
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
   try {
-    const text = await request.text();
-    if (Buffer.byteLength(text, "utf8") > maxBytes) {
-      return { success: false, status: 413, error: "Request body is too large." };
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > maxBytes) {
+        await reader.cancel().catch(() => undefined);
+        return { success: false, status: 413, error: "Request body is too large." };
+      }
+      chunks.push(value);
     }
-    return { success: true, data: JSON.parse(text) };
+    const bytes = new Uint8Array(totalBytes);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return { success: true, data: JSON.parse(new TextDecoder().decode(bytes)) };
   } catch {
     return { success: false, status: 400, error: "Request body must be valid JSON." };
+  } finally {
+    reader.releaseLock();
   }
 }

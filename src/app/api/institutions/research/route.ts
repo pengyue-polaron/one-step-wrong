@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { institutionResearchRequestSchema, researchInstitution } from "@/ai/research/institution";
+import { hasOpenAIApiKey } from "@/ai/openai/server";
 import { readBoundedJson } from "@/app/api/request";
 
 export const runtime = "nodejs";
@@ -20,12 +21,18 @@ export async function POST(request: Request) {
     );
   }
 
-  if (parsed.data.useFixture || !process.env.OPENAI_API_KEY) {
+  if (parsed.data.useFixture) {
     return NextResponse.json({
       profile: reviewedNyuInstitutionProfile,
       provenance: "reviewed-fixture",
       notice: "The reviewed example institution is ready.",
     });
+  }
+  if (!hasOpenAIApiKey()) {
+    return NextResponse.json(
+      { error: "New source research is not available in this workspace. Use the reviewed example institution." },
+      { status: 503 },
+    );
   }
 
   try {
@@ -36,10 +43,9 @@ export async function POST(request: Request) {
       notice: "Public guidance is ready for review. No fact is approved yet.",
     });
   } catch {
-    return NextResponse.json({
-      profile: reviewedNyuInstitutionProfile,
-      provenance: "reviewed-fixture",
-      notice: "Source research could not be completed, so the reviewed example institution was loaded.",
-    });
+    return NextResponse.json(
+      { error: "Source research could not be completed. Keep the current institution details or use the reviewed example." },
+      { status: 502 },
+    );
   }
 }

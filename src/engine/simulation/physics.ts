@@ -1,4 +1,8 @@
-import type { CanonicalState, ScenarioPackage } from "@/ai/schemas/scenario";
+import {
+  isRecoveredCanonicalValue,
+  type CanonicalState,
+  type ScenarioPackage,
+} from "@/ai/schemas/scenario";
 
 export type SimulationState = {
   canonical: CanonicalState;
@@ -9,6 +13,7 @@ export type SimulationState = {
 export type CanonicalTrace = {
   scenarioId: string;
   objective: string;
+  finalState: CanonicalState;
   actionIds: string[];
   actionLabels: string[];
   evidenceIds: string[];
@@ -40,10 +45,41 @@ export function actionIsAvailable(scenario: ScenarioPackage, actionId: string, p
   const action = scenario.criticalActions.find((candidate) => candidate.id === actionId);
   if (!action || performedActionIds.includes(action.id)) return false;
   const performed = new Set(performedActionIds);
+  const recoveryStarted = scenario.recoveryActionIds.some((id) => performed.has(id));
+  if (recoveryStarted && action.phase !== "recovery") return false;
   const allSatisfied = action.availableAfterAllActionIds.every((id) => performed.has(id));
   const anySatisfied = action.availableAfterAnyActionIds.length === 0
     || action.availableAfterAnyActionIds.some((id) => performed.has(id));
+  if (action.phase === "recovery") {
+    const incidentTriggered = action.requiredAfterActionIds.some((id) => performed.has(id));
+    if (!incidentTriggered) return false;
+    const consequenceStillHidden = scenario.criticalActions.some((candidate) => {
+      if (candidate.kind !== "inspect" || performed.has(candidate.id)) return false;
+      const candidateAllSatisfied = candidate.availableAfterAllActionIds.every((id) => performed.has(id));
+      const candidateAnySatisfied = candidate.availableAfterAnyActionIds.length === 0
+        || candidate.availableAfterAnyActionIds.some((id) => performed.has(id));
+      return candidateAllSatisfied && candidateAnySatisfied;
+    });
+    if (consequenceStillHidden) return false;
+  }
   return allSatisfied && anySatisfied;
+}
+
+function triggeredIncidentLayersRecovered(scenario: ScenarioPackage, state: SimulationState) {
+  const performed = new Set(state.actionIds);
+  const triggeredIncidentIds = new Set(
+    scenario.recoveryActionIds.flatMap((recoveryId) => {
+      const recovery = scenario.criticalActions.find((action) => action.id === recoveryId);
+      return recovery?.requiredAfterActionIds.filter((triggerId) => performed.has(triggerId)) ?? [];
+    }),
+  );
+  return [...triggeredIncidentIds].every((triggerId) => {
+    const trigger = scenario.criticalActions.find((action) => action.id === triggerId);
+    return trigger?.stateChanges.every((change) => {
+      const finalValue = state.canonical[change.field];
+      return finalValue !== change.value && isRecoveredCanonicalValue(change.field, finalValue);
+    }) ?? false;
+  });
 }
 
 export function requiredRecoveryActionIds(scenario: ScenarioPackage, performedActionIds: string[]) {
@@ -87,7 +123,11 @@ export function selectEnding(scenario: ScenarioPackage, state: SimulationState):
         ending.requiredActionIds.every((id) => performed.has(id)) &&
         (ending.requiredAnyActionIds.length === 0 || ending.requiredAnyActionIds.some((id) => performed.has(id))) &&
         (!ending.requiresTriggeredRecoveryComplete
-          || (requiredRecovery.length > 0 && requiredRecovery.every((id) => performed.has(id)))) &&
+          || (
+            requiredRecovery.length > 0
+            && requiredRecovery.every((id) => performed.has(id))
+            && triggeredIncidentLayersRecovered(scenario, state)
+          )) &&
         ending.forbiddenActionIds.every((id) => !performed.has(id)),
     );
   return matched?.id ?? "expanded";
@@ -100,6 +140,7 @@ export function createCanonicalTrace(scenario: ScenarioPackage, state: Simulatio
   return {
     scenarioId: scenario.id,
     objective: scenario.intro.learningObjective,
+    finalState: structuredClone(state.canonical),
     actionIds: [...state.actionIds],
     actionLabels: state.actionIds.map(
       (id) => scenario.criticalActions.find((action) => action.id === id)?.label ?? id,

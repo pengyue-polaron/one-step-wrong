@@ -12,6 +12,7 @@ export const simulationTurnRequestSchema = z
     learnerMessage: z.string().trim().min(1).max(500),
     completedActionIds: z.array(idSchema).max(20),
     preferredRoleId: idSchema.nullable().default(null),
+    deliveredEventIds: z.array(idSchema).max(20).default([]),
     conversationHistory: z
       .array(
         z.object({
@@ -25,6 +26,8 @@ export const simulationTurnRequestSchema = z
   })
   .superRefine((request, context) => {
     const actionIds = new Set(request.scenario.criticalActions.map((action) => action.id));
+    const roleIds = new Set(request.scenario.roleCards.map((role) => role.id));
+    const eventIds = new Set(request.scenario.allowedEvents.map((event) => event.id));
     const performed: string[] = [];
     request.completedActionIds.forEach((id, index) => {
       if (!actionIds.has(id)) {
@@ -36,6 +39,29 @@ export const simulationTurnRequestSchema = z
         return;
       }
       performed.push(id);
+    });
+    if (request.preferredRoleId && !roleIds.has(request.preferredRoleId)) {
+      context.addIssue({ code: "custom", path: ["preferredRoleId"], message: `Unknown role: ${request.preferredRoleId}` });
+    }
+    if (
+      request.preferredRoleId
+      && !request.scenario.allowedEvents.some(
+        (event) =>
+          event.roleId === request.preferredRoleId
+          && event.delivery === "on-message"
+          && eventIsAllowed(request.scenario, event.id, request.completedActionIds),
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["preferredRoleId"],
+        message: "The selected role channel is not available for dialogue.",
+      });
+    }
+    request.deliveredEventIds.forEach((id, index) => {
+      if (!eventIds.has(id)) {
+        context.addIssue({ code: "custom", path: ["deliveredEventIds", index], message: `Unknown event: ${id}` });
+      }
     });
   });
 
@@ -62,27 +88,41 @@ function eligibleEvents(scenario: ScenarioPackage, completedActionIds: string[])
   return scenario.allowedEvents.filter((event) => eventIsAllowed(scenario, event.id, completedActionIds));
 }
 
+function eventsForTurn(
+  scenario: ScenarioPackage,
+  completedActionIds: string[],
+  deliveredEventIds: string[],
+  preferredRoleId: string | null,
+) {
+  const available = eligibleEvents(scenario, completedActionIds).filter((event) => event.delivery === "on-message");
+  const delivered = new Set(deliveredEventIds);
+  if (preferredRoleId) {
+    const preferred = available.filter((event) => event.roleId === preferredRoleId);
+    const freshPreferred = preferred.filter((event) => !delivered.has(event.id));
+    return freshPreferred.length > 0 ? freshPreferred : preferred;
+  }
+  const fresh = available.filter((event) => !delivered.has(event.id));
+  return fresh.length > 0 ? fresh : available;
+}
+
 export function fallbackTurn(
   scenario: ScenarioPackage,
   completedActionIds: string[],
   learnerMessage: string,
   preferredRoleId: string | null,
+  deliveredEventIds: string[] = [],
 ): SimulationTurn {
-  const available = eligibleEvents(scenario, completedActionIds);
+  const available = eventsForTurn(scenario, completedActionIds, deliveredEventIds, preferredRoleId);
   const messageTokens = learnerMessage.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3);
-  let event =
-    available.find(
-      (candidate) =>
-        candidate.allowedAfterActionIds.length > 0 &&
-        candidate.allowedAfterActionIds.every((id) => completedActionIds.includes(id)),
-    ) ||
-    (preferredRoleId && available.find((candidate) => candidate.roleId === preferredRoleId)) ||
-    available.find((candidate) => messageTokens.some((token) => `${candidate.label} ${candidate.trigger}`.toLowerCase().includes(token))) ||
-    available[0];
+  const event = available.find(
+    (candidate) => messageTokens.some((token) => `${candidate.label} ${candidate.trigger}`.toLowerCase().includes(token)),
+  ) || available[0];
 
-  if (!event) event = scenario.allowedEvents[0];
-  const line = scenario.fallbackDialogue.find((candidate) => candidate.eventId === event.id && candidate.roleId === event.roleId)
-    ?? scenario.fallbackDialogue[0];
+  if (!event) throw new Error("No eligible event is available for this role channel.");
+  const line = scenario.fallbackDialogue.find(
+    (candidate) => candidate.eventId === event.id && candidate.roleId === event.roleId,
+  );
+  if (!line) throw new Error(`No fallback dialogue is registered for event: ${event.id}`);
   const suggestedActionId = scenario.criticalActions.find(
     (action) => actionIsAvailable(scenario, action.id, completedActionIds) && action.phase !== "recovery" && action.kind === "verify",
   )?.id ?? scenario.criticalActions.find(
@@ -126,9 +166,22 @@ export async function createSimulationTurn(
   request: z.infer<typeof simulationTurnRequestSchema>,
   provider: SimulationTurnProvider | null = getOpenAIClient(),
 ): Promise<SimulationTurn> {
-  if (!provider) return fallbackTurn(request.scenario, request.completedActionIds, request.learnerMessage, request.preferredRoleId);
+  if (!provider) {
+    return fallbackTurn(
+      request.scenario,
+      request.completedActionIds,
+      request.learnerMessage,
+      request.preferredRoleId,
+      request.deliveredEventIds,
+    );
+  }
 
-  const available = eligibleEvents(request.scenario, request.completedActionIds);
+  const available = eventsForTurn(
+    request.scenario,
+    request.completedActionIds,
+    request.deliveredEventIds,
+    request.preferredRoleId,
+  );
   const availableRoleIds = new Set(available.map((event) => event.roleId));
   const directorRoleSummaries = request.scenario.roleCards
     .filter((role) => availableRoleIds.has(role.id))
@@ -152,6 +205,7 @@ export async function createSimulationTurn(
       input: JSON.stringify({
         publicFacts,
         completedActionIds: request.completedActionIds,
+        deliveredEventIds: request.deliveredEventIds,
         availableEvents: available,
         roleSummaries: directorRoleSummaries,
         allowedActionIds: availableActionIds,
@@ -190,6 +244,12 @@ export async function createSimulationTurn(
     }
     return { ...decision, content: performance.content, provenance: "live-role" };
   } catch {
-    return fallbackTurn(request.scenario, request.completedActionIds, request.learnerMessage, request.preferredRoleId);
+    return fallbackTurn(
+      request.scenario,
+      request.completedActionIds,
+      request.learnerMessage,
+      request.preferredRoleId,
+      request.deliveredEventIds,
+    );
   }
 }

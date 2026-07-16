@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-91%20unit%20%2B%2015%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-105%20unit%20%2B%2015%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -19,7 +19,7 @@
 
 它不是知识问答。结果发生前，任何选择都不会被标注为安全、危险、正确或推荐。
 
-![包含一个旗舰自适应演练和三个 NYU 数字安全故事的案例库](./artifacts/screenshots/case-library.png)
+![包含一个旗舰互动演练和三个 NYU 数字安全故事的案例库](./artifacts/screenshots/case-library.png)
 
 ## 为什么做这个项目
 
@@ -38,14 +38,14 @@
 1. 从官方公开来源研究一所学校，或载入审核过的 NYU 来源画像。
 2. 审核引用、冲突、研究警告和明确未知项，再批准学校环境。
 3. 定义受众、普通任务、压力、威胁和学习目标。
-4. 预览角色、学习者动作、证据、响应步骤和可能结局。
-5. 进入演练，询问相关人物，选择验证方式并收集证据。
-6. 根据实际完成的动作复盘发生了什么。
-7. 把同一条判断规则用到另一个任务。
+4. 跟踪审核来源如何进入虚构化发布环境，再预览角色、动作、恢复和结局覆盖。
+5. 进入演练，通过明确动作打开验证渠道，并看到每个动作返回证据和剧情回应。
+6. 根据实际完成的动作复盘因果链与最终操作状态。
+7. 在内置迁移规则显示前，先在不同任务中完成一次选择。
 
-学习者可以从案例库直接进入旗舰演练，也可以打开 [`/rehearsal`](http://localhost:3000/rehearsal)。结果出现后，Evidence Coach 只依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、证据、讨论问题、审核指导和打印视图。
+学习者可以从案例库直接进入旗舰演练，也可以打开 [`/rehearsal`](http://localhost:3000/rehearsal)。新情境动作记录后，Evidence Coach 才会依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、最终操作状态、证据、讨论问题、审核指导和打印视图。
 
-自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。每条自适应路径都有审核过的示例，因此没有 API key 也能完整体验旗舰演练。
+自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。没有 API key 时，旗舰直达入口和明确的 **Use example...** 路径仍然完整；实时创作按钮会清楚显示不可用，不会悄悄把学校或教学简报替换成无关数据。
 
 > **对话可以变化，后果由学习者完成的动作决定。**
 
@@ -80,7 +80,7 @@
   </tr>
   <tr>
     <td align="center">通过验证的世界、角色与关键动作</td>
-    <td align="center">自适应对话与明确的学习者动作</td>
+    <td align="center">由动作解锁的渠道与明确的学习者动作</td>
   </tr>
 </table>
 
@@ -133,7 +133,7 @@
 - Vitest 与 React Testing Library 状态/组件测试
 - Playwright 完整流程与响应式布局测试
 
-案例库可以完全在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；否则自动使用审核过的示例。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
+案例库和完整的审核旗舰演练都可以在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；没有 key 时，明确的审核示例按钮仍然可用，实时创作请求会返回清楚的错误。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
 
 ## 技术证据
 
@@ -147,7 +147,11 @@ GPT-5.6 承担五项有边界的职责：
 
 GPT-5.6 不执行关键动作，不修改付款或访问状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，所有浏览器调用都通过 [`src/app/api`](./src/app/api) 中有大小限制的服务端路由。
 
-生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
+生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。审核旗舰目前会检查 704 个合法动作状态。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
+
+同一份 schema 还会证明每一条恢复可用路径都经过事故触发点、contained 事故中每个被改变的状态字段都有真正有效的恢复动作，而且受影响层的最终状态确实已被控制。旗舰案例里，付款批准会先表现为成功，后续状态复查才揭示异常；真正的 contained 还必须单独请求财务冻结。对话渠道只有在学习者明确打开后才出现；自由对话会留在当前选中的角色频道，动作触发事件会记录 ID，避免审核对话无限重复。
+
+迁移动作会在内置规则和 Evidence Coach 引导问题出现前被记录。因此第二个情境提供的是可观察的学习证据，而不是刚看完答案后的复述。
 
 Codex 参与了整个仓库的实现，把产品设想落成模块化案例架构、确定性模拟引擎、来源审核流程、Scenario Studio、产品界面、测试套件和文档。主要工程决策是让学习者动作拥有最终解释权、在游玩过程中显示证据、保留完整无密钥路径，并把生成内容视为必须通过验证的提案，而不是世界状态。
 
@@ -177,7 +181,7 @@ npm run dev
 OPENAI_API_KEY=your_key_here
 ```
 
-不要给这个密钥添加 `NEXT_PUBLIC_` 前缀。没有密钥时，在 Scenario Studio 中选择 **Use example institution** 即可走完离线流程。
+不要给这个密钥添加 `NEXT_PUBLIC_` 前缀。没有密钥时，使用 **Use example institution** 和 **Use example rehearsal**，或直接打开 `/rehearsal`。
 
 首次运行 Playwright 前执行：
 
@@ -187,7 +191,7 @@ npx playwright install chromium
 
 ### 运行生产容器
 
-镜像使用 Next.js standalone 输出，并以非特权用户运行。不提供 API key 时，仍可通过审核过的示例完整游玩。
+镜像使用 Next.js standalone 输出，并以非特权用户运行。不提供 API key 时，仍可通过明确的审核示例路径完整游玩。
 
 ```bash
 docker build -t one-step-wrong .
@@ -286,7 +290,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 91 个 schema、API、状态与组件测试，以及 15 个浏览器测试。覆盖范围包括旗舰演练直达入口、画像审核、精确品牌授权、权威 hostname 校验、来源证据、多种验证渠道、证据发现、Evidence Coach 引用边界、动作前置条件、四结局自动可达性、受影响层恢复、基于记录的复盘、迁移评估、教师报告、异常自适应输出、指令注入拒绝、全部结局、审核示例、安全与事故完整路线、1366x768 至 1920x1080 桌面布局，以及 390x844 手机流程。
+当前测试集包含 105 个 schema、API、状态与组件测试，以及 15 个浏览器测试。覆盖范围包括旗舰演练直达入口、画像审核、精确品牌授权、权威 hostname 校验、流式请求上限、来源转换链、动作解锁渠道、事件投递记录、延迟后果、四结局自动可达性、受影响层恢复、最终操作状态、规则揭示前迁移、Evidence Coach 引用边界、教师报告、异常自适应输出、指令注入拒绝、安全与事故完整路线、生产构建、1366x768 至 1920x1080 桌面布局，以及 390x844 手机流程。
 
 ## 安全与隐私
 
@@ -295,7 +299,7 @@ npm run test:e2e
 - 不使用真实 Wi-Fi、账号、证书、下载或设备 API。
 - 真实服务名称和域名只作为静态界面文本出现。
 - 在线学校研究仅通过 OpenAI Web Search 访问公开资料；应用不会登录或调用校园服务。
-- OpenAI 密钥只存在于服务端，请求有长度限制；模型输出无效或不可用时使用审核内容。
+- OpenAI 密钥只存在于服务端，请求有长度限制。对话或复盘输出无效时只使用同场景审核内容；研究和生成失败会返回清楚错误，不替换教师输入。
 
 这些保证应落实在代码和测试中，而不是用破坏沉浸感的免责声明显示在游戏里。
 
@@ -309,7 +313,7 @@ npm run test:e2e
 - 桌面窗口使用固定位置，不支持自由拖拽和缩放。
 - 音效由浏览器即时合成，没有背景音乐或配音。
 - 当前没有登录、数据库、跨会话进度、协作系统、运行时国际化框架或真实校园集成。
-- 在线自适应能力需要有效 API key 和网络；没有二者时仍可通过审核示例完成完整产品流程。
+- 在线自适应创作需要有效 API key 和网络；没有二者时仍可通过明确的审核示例路径完成完整产品流程。
 
 ## 许可证
 

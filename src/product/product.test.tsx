@@ -12,7 +12,7 @@ describe("case library and decision chapters", () => {
     render(<CaseLibrary completed={{ "final-submission": "verified" }} onStart={onStart} />);
     expect(screen.getByRole("heading", { name: "Choose a rehearsal" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "The Voice You Know" })).toBeInTheDocument();
-    expect(screen.getByText("1 / 3 complete")).toBeInTheDocument();
+    expect(screen.getByText("Archive 1 / 3 complete")).toBeInTheDocument();
     expect(screen.getAllByText("Complete")).toHaveLength(1);
     await user.click(screen.getByTestId("case-shared-draft"));
     expect(onStart).toHaveBeenCalledWith("shared-draft");

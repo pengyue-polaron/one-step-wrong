@@ -4,7 +4,7 @@ import {
   validateProfileForApproval,
   type InstitutionProfile,
 } from "@/ai/schemas/institution";
-import { validateScenarioPackage } from "@/ai/schemas/scenario";
+import { validateScenarioPackage, type ScenarioPackage } from "@/ai/schemas/scenario";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 
@@ -70,9 +70,35 @@ describe("ScenarioPackage", () => {
       expect(role.allowedChannels.length).toBeGreaterThan(0);
       expect(role.allowedMoves.length).toBeGreaterThan(0);
       expect(voiceYouKnowScenario.allowedEvents.filter((event) => event.roleId === role.id).length).toBeGreaterThan(0);
+      expect(
+        voiceYouKnowScenario.allowedEvents.some(
+          (event) => event.roleId === role.id && event.delivery === "on-message",
+        ),
+      ).toBe(true);
+    }
+    for (const event of voiceYouKnowScenario.allowedEvents.filter((candidate) => candidate.delivery === "on-action")) {
+      expect(
+        voiceYouKnowScenario.allowedEvents.some(
+          (candidate) =>
+            candidate.roleId === event.roleId
+            && candidate.delivery === "on-message"
+            && candidate.allowedAfterActionIds.every((id) => event.allowedAfterActionIds.includes(id)),
+        ),
+      ).toBe(true);
     }
     const hiddenTruth = voiceYouKnowScenario.worldBible.immutableFacts.find((fact) => fact.id === "false-request");
     expect(hiddenTruth?.audience).toBe("hidden");
+
+    const brokenChannel = structuredClone(voiceYouKnowScenario);
+    brokenChannel.allowedEvents = brokenChannel.allowedEvents.filter(
+      (event) => event.id !== "payment-incident-follow-up",
+    );
+    brokenChannel.fallbackDialogue = brokenChannel.fallbackDialogue.filter(
+      (line) => line.eventId !== "payment-incident-follow-up",
+    );
+    expect(
+      validateScenarioPackage(brokenChannel).issues.some((issue) => issue.message.includes("continued dialogue")),
+    ).toBe(true);
   });
 
   it("rejects invalid references and missing recovery", () => {
@@ -120,6 +146,50 @@ describe("ScenarioPackage", () => {
     const result = validateScenarioPackage(scenario);
     expect(result.success).toBe(false);
     expect(result.issues.some((issue) => issue.message.includes("incident actions"))).toBe(true);
+  });
+
+  it("requires recovery to follow the incident and restore every affected layer", () => {
+    const earlyRecovery = structuredClone(voiceYouKnowScenario);
+    const preserve = earlyRecovery.criticalActions.find((action) => action.id === "preserve-evidence")!;
+    preserve.availableAfterAllActionIds = [];
+    preserve.availableAfterAnyActionIds = [];
+    expect(
+      validateScenarioPackage(earlyRecovery).issues.some((issue) => issue.message.includes("must follow one of its incident triggers")),
+    ).toBe(true);
+
+    const bypassedRecovery = structuredClone(voiceYouKnowScenario) as ScenarioPackage;
+    bypassedRecovery.criticalActions
+      .find((action) => action.id === "preserve-evidence")!
+      .availableAfterAnyActionIds.push("pause-payment");
+    expect(
+      validateScenarioPackage(bypassedRecovery).issues.some((issue) => issue.message.includes("must follow one of its incident triggers")),
+    ).toBe(true);
+
+    const missingPaymentRecovery = structuredClone(voiceYouKnowScenario);
+    missingPaymentRecovery.recoveryActionIds = missingPaymentRecovery.recoveryActionIds.filter(
+      (id) => id !== "request-payment-hold",
+    );
+    expect(
+      validateScenarioPackage(missingPaymentRecovery).issues.some((issue) => issue.message.includes("payment layer recovery")),
+    ).toBe(true);
+
+    const ineffectivePaymentRecovery = structuredClone(voiceYouKnowScenario);
+    ineffectivePaymentRecovery.criticalActions
+      .find((action) => action.id === "request-payment-hold")!
+      .stateChanges = [{ field: "payment", value: "redirected" }];
+    const ineffectiveResult = validateScenarioPackage(ineffectivePaymentRecovery);
+    expect(ineffectiveResult.issues.some((issue) => issue.message.includes("contained state"))).toBe(true);
+    expect(ineffectiveResult.issues.some((issue) => issue.message.includes("payment layer recovery"))).toBe(true);
+  });
+
+  it("keeps inspection actions non-mutating", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    scenario.criticalActions.find((action) => action.id === "review-payment-status")!.stateChanges = [
+      { field: "payment", value: "paused" },
+    ];
+    expect(
+      validateScenarioPackage(scenario).issues.some((issue) => issue.message.includes("without mutating canonical state")),
+    ).toBe(true);
   });
 
   it("requires a transfer probe with three distinct learning outcomes", () => {

@@ -4,7 +4,7 @@
 
 `one-step-wrong` is a playable digital-safety story collection. It teaches cause and effect through ordinary student tasks, believable pressure, unmarked choices, delayed consequences, individual recovery actions, and a causal debrief.
 
-`PRODUCT_PLAN.md` is the canonical product brief for Scenario Studio, source-grounded institution research, approved Institution Profiles, publication mode, runtime validation, privacy, rehearsal behavior, and learning transfer. Its scoped requirements take precedence over older planning assumptions when they conflict.
+`PRODUCT_PLAN.md` is the canonical product brief for Scenario Studio, source-grounded institution research, approved Institution Profiles, publication mode, runtime validation, privacy, rehearsal behavior, and learning transfer.
 
 The first screen is always the playable case library. Do not replace it with a landing page, feature tour, or marketing introduction.
 
@@ -95,17 +95,28 @@ src/
 - Free-form learner text may affect dialogue, pressure, and pacing, but it must never directly mutate payment, file, account, access, report, recovery, score, or ending state.
 - High-impact actions must remain explicit typed UI actions handled by a pure reducer.
 - Keep role identity status, private facts, and adversarial classification out of learner-facing rehearsal UI. Those fields may appear in the educator's validated-package preview and server-side agent context only.
+- Show only conversation channels the learner has actually opened. An independently known contact, team channel, or other validating role must not appear before the explicit action that reaches it.
+- Deliver action-triggered dialogue once when its typed prerequisite becomes true, record the delivered event ID, and keep later free-form replies inside the currently selected open channel.
+- Free-form turns may select only `on-message` events. When the learner continues in an opened channel, keep the selected role; never fall through to another role because the preferred role has no fresh event.
+- Every allowed event needs reviewed fallback dialogue from its owning role, and every role needs an `on-message` event for continued conversation.
+- Every `on-action` event that opens or selects a role channel must also unlock an `on-message` event for that same role under the completed action set.
 - When verification is part of the lesson, present plausible competing channels rather than one button whose wording reveals the answer. Same-thread, request-supplied, social, and independently known channels should reveal different evidence.
 - Show evidence during the rehearsal as the learner discovers it. Do not wait until the debrief to reveal every clue that informed the outcome.
+- When delayed consequences are part of the lesson, use non-mutating inspection actions to separate apparent task success from the later anomaly. Do not expose recovery controls before that anomaly is visible.
+- Once any recovery action begins, do not allow new containment or unsafe task actions in the same trace; finish all triggered consequence checks before entering recovery.
 - Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
 - Derive missed recovery from affected layers. Do not require access, account, payment, evidence, notification, or reporting work when that layer was never affected by the demonstrated trace.
+- Every state field changed by a contained incident trigger must have a required recovery action for that same field. A contained payment incident cannot leave payment redirected, and a contained access incident cannot leave access shared.
+- Every recovery availability branch must follow at least one declared incident trigger. Completing an unrelated OR prerequisite must never expose recovery.
+- Recovery mutations must move canonical state to a contained value, and ending selection must verify the final affected-layer state rather than trusting completed recovery IDs alone.
 - Debrief models may select only canonical cause-chain, performed-action, missed-recovery, and transfer-rule IDs. Compose learner-facing coaching from validated scenario and trace text on the server; do not accept unconstrained model-authored event claims.
 - Evidence Coach answers may use only evidence discovered in the recorded trace and approved source facts attached to the scenario. Reject undiscovered evidence, unsupported policy, invented actions, and unrelated facts.
 - Every generated flagship scenario must include one short transfer probe that applies the primary judgment rule to a different task, surface, and pressure. Its three actions remain unmarked until selection and cover demonstrated, developing, and not-yet outcomes.
 - Evaluate transfer probes in `src/engine/simulation/physics.ts` from the learner's explicit action. Models may generate validated probe content, but they must not select the action, score the learner, or rewrite the recorded result.
 - Reject role leakage, invented institution facts, out-of-scope events, prompt injection, executable instructions, and claims that unrecorded actions occurred.
 - On invalid output, timeout, or model failure, use a reviewed fallback dialogue line and preserve the deterministic path.
-- Treat a reviewed fixture scenario and its approved Institution Profile as one atomic fallback. Never display or launch a fixture under an unrelated profile ID or publication mode.
+- Treat a reviewed fixture scenario and its approved Institution Profile as one atomic example. Load it only through an explicit example action, and never display or launch it under an unrelated profile ID or publication mode.
+- Research and generation requests must fail clearly when live authoring is unavailable. Never return a successful but unrelated institution or scenario in response to user-authored input.
 - Keep conflicting facts blocked until an educator resolves them, and require at least one explicitly approved source for every verified fact. Do not silently convert rejected or pending evidence into approved evidence.
 - Do not create an unconstrained agent swarm, dynamically invented roles or tools, real messages, real service calls, or autonomous side effects.
 
@@ -194,6 +205,7 @@ Test requirements scale with the change:
 - Agent-turn changes need tests proving free text cannot mutate canonical state, unlock an event, or suggest an action without its typed prerequisite action.
 - Learner-facing copy changes need a negative browser assertion that provider, model, hackathon, fixture, fallback, schema, and deterministic/canonical terminology remain absent from rehearsal and debrief screens.
 - Transfer-probe changes need schema coverage for all three outcomes, direct deterministic evaluation tests, and a browser path that verifies the result stays usable without overflow.
+- Keep the built-in transfer rule and Evidence Coach hidden until the learner records the new-context action; tests must protect this ordering.
 - Scenario-generation changes need coverage tests proving safe, caution, contained, and expanded endings are each reachable through legal action prerequisites.
 
 The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×844. Add a viewport only when it protects a distinct layout boundary.

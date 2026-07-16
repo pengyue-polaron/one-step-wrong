@@ -23,12 +23,15 @@ describe("deterministic simulation physics", () => {
     expect(first.endingId).toBe("safe");
     expect(first.recoveryRequired).toBe(false);
     expect(first.missedRecoveryActionIds).toEqual([]);
+    expect(createCanonicalTrace(voiceYouKnowScenario, run(["verify-adviser"])).endingId).toBe("safe");
   });
 
   it("distinguishes expanded and contained outcomes", () => {
     expect(createCanonicalTrace(voiceYouKnowScenario, run(["approve-change"])).endingId).toBe("expanded");
     const contained = run([
       "approve-change",
+      "review-payment-status",
+      "request-payment-hold",
       "preserve-evidence",
       "notify-team",
       "report-incident",
@@ -38,12 +41,21 @@ describe("deterministic simulation physics", () => {
     expect(trace.recoveryRequired).toBe(true);
     expect(trace.missedRecoveryActionIds).toEqual([]);
     expect(trace.completedRecoveryActionIds).not.toContain("revoke-access");
+    expect(trace.finalState.payment).toBe("paused");
   });
 
   it("blocks premature recovery and requires only recovery for affected layers", () => {
     expect(() => run(["revoke-access"])).toThrow("not available");
+    expect(() => run(["preserve-evidence"])).toThrow("not available");
 
-    const exposedAccess = run(["share-folder", "preserve-evidence", "notify-team", "report-incident"]);
+    const exposedAccess = run([
+      "call-request-number",
+      "share-folder",
+      "review-folder-access",
+      "preserve-evidence",
+      "notify-team",
+      "report-incident",
+    ]);
     const incomplete = createCanonicalTrace(voiceYouKnowScenario, exposedAccess);
     expect(incomplete.endingId).toBe("expanded");
     expect(incomplete.missedRecoveryActionIds).toEqual(["revoke-access"]);
@@ -89,7 +101,7 @@ describe("deterministic simulation physics", () => {
   });
 
   it("creates fresh replay state without canonical or trace leakage", () => {
-    const firstRun = run(["approve-change", "share-folder"]);
+    const firstRun = run(["call-request-number", "approve-change", "share-folder"]);
     const replay = createSimulationState(voiceYouKnowScenario);
     expect(replay).toEqual({
       canonical: voiceYouKnowScenario.worldBible.initialState,
@@ -98,6 +110,51 @@ describe("deterministic simulation physics", () => {
     });
     expect(replay.canonical).not.toBe(firstRun.canonical);
     expect(JSON.stringify(createCanonicalTrace(voiceYouKnowScenario, firstRun))).not.toContain("Dr. Maya Chen");
+  });
+
+  it("requires the consequence check before recovery can begin", () => {
+    const unsafe = run(["approve-change"]);
+    expect(() => applyCriticalAction(voiceYouKnowScenario, unsafe, "request-payment-hold")).toThrow("not available");
+    const revealed = applyCriticalAction(voiceYouKnowScenario, unsafe, "review-payment-status");
+    const recovering = applyCriticalAction(voiceYouKnowScenario, revealed, "request-payment-hold");
+    expect(recovering.canonical.payment).toBe("paused");
+    expect(() => applyCriticalAction(voiceYouKnowScenario, recovering, "call-request-number")).toThrow("not available");
+  });
+
+  it("waits for every triggered consequence before exposing recovery", () => {
+    const bothAffected = run(["call-request-number", "approve-change", "share-folder", "review-payment-status"]);
+    expect(() => applyCriticalAction(voiceYouKnowScenario, bothAffected, "preserve-evidence")).toThrow("not available");
+    const bothRevealed = applyCriticalAction(voiceYouKnowScenario, bothAffected, "review-folder-access");
+    expect(applyCriticalAction(voiceYouKnowScenario, bothRevealed, "preserve-evidence").canonical.evidence).toBe("preserved");
+  });
+
+  it("does not unlock recovery through an unrelated OR prerequisite", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    scenario.criticalActions
+      .find((action) => action.id === "preserve-evidence")!
+      .availableAfterAnyActionIds = ["pause-payment"];
+    const paused = applyCriticalAction(scenario, createSimulationState(scenario), "pause-payment");
+    expect(() => applyCriticalAction(scenario, paused, "preserve-evidence")).toThrow("not available");
+  });
+
+  it("does not award containment when a completed recovery leaves the incident state in place", () => {
+    const scenario = structuredClone(voiceYouKnowScenario);
+    scenario.criticalActions
+      .find((action) => action.id === "request-payment-hold")!
+      .stateChanges = [{ field: "payment", value: "redirected" }];
+    const state = [
+      "approve-change",
+      "review-payment-status",
+      "request-payment-hold",
+      "preserve-evidence",
+      "notify-team",
+      "report-incident",
+    ].reduce(
+      (current, action) => applyCriticalAction(scenario, current, action),
+      createSimulationState(scenario),
+    );
+    expect(createCanonicalTrace(scenario, state).endingId).toBe("expanded");
+    expect(state.canonical.payment).toBe("redirected");
   });
 
   it("selects endings from declarative package rules rather than flagship IDs", () => {

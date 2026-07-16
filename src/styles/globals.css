@@ -9,7 +9,7 @@ body { color: var(--ink-950); font-family: var(--font-ui); font-size: 14px; lett
 button, input, select, textarea { color: inherit; font: inherit; letter-spacing: 0; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: 0.58; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--amber-500); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid var(--amber-500); outline-offset: 2px; }
 svg { flex: 0 0 auto; }
 
 .desktop-shell {

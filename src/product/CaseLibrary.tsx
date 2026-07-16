@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BrainCircuit, CheckCircle2, Clock3, FolderKey, MapPin, ShieldCheck, Sparkles, Wifi } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, FolderKey, MapPin, MessageSquareText, ShieldCheck, Sparkles, Wifi } from "lucide-react";
 import Link from "next/link";
 import { caseCatalog } from "@/product/caseRegistry";
 import type { CaseEnding, ProductCaseId } from "@/cases/types";
@@ -23,7 +23,7 @@ export function CaseLibrary({
     <main className="case-library">
       <header className="library-topbar">
         <div className="system-brand"><span className="brand-mark">1</span><span>One Step Wrong</span></div>
-        <div className="library-progress"><span>DIGITAL JUDGMENT REHEARSALS</span><strong>{completedCount} / {caseCatalog.length} complete</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
+        <div className="library-progress"><span>DIGITAL JUDGMENT REHEARSALS</span><strong>Archive {completedCount} / {caseCatalog.length} complete</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
       </header>
 
       <div className="library-body">
@@ -33,11 +33,11 @@ export function CaseLibrary({
         </header>
 
         <section className="featured-rehearsal" aria-labelledby="featured-rehearsal-title">
-          <div className="featured-rehearsal-mark"><BrainCircuit size={30} /></div>
+          <div className="featured-rehearsal-mark"><MessageSquareText size={30} /></div>
           <div>
-            <span>FEATURED · ADAPTIVE REHEARSAL</span>
+            <span>FEATURED · INTERACTIVE REHEARSAL</span>
             <h2 id="featured-rehearsal-title">The Voice You Know</h2>
-            <p>A familiar voice requests an urgent payment change. Compare verification channels, collect evidence, and carry the judgment into a different task.</p>
+            <p>A voice message appears to come from a trusted adviser. Compare verification channels, follow what changes, and carry the judgment into a different task.</p>
             <dl><div><MapPin size={13} /><span>Northbridge University</span></div><div><Clock3 size={13} /><span>About 8 minutes</span></div></dl>
           </div>
           <div className="featured-rehearsal-flow"><span>Practice</span><i /><span>Review</span><i /><span>Apply</span></div>

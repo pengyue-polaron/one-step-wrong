@@ -9,34 +9,53 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Run unit, API, and component tests
+        run: npm test
+      - name: Verify adaptive boundaries
+        run: npm run verify:ai
+      - name: Build production application
+        run: npm run build
 
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Install dependencies
+        run: npm ci
+      - name: Build production application
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run browser flows against next start
+        run: npm run test:e2e
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v7
@@ -51,9 +70,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
-      - run: docker build --tag one-step-wrong:ci .
-      - run: docker run --detach --name one-step-wrong --publish 3000:3000 one-step-wrong:ci
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Build container
+        run: docker build --tag one-step-wrong:ci .
+      - name: Start container
+        run: docker run --detach --name one-step-wrong --publish 3000:3000 one-step-wrong:ci
       - name: Wait for the application
         run: |
           for attempt in {1..30}; do
@@ -67,6 +89,7 @@ jobs:
       - name: Verify production routes and runtime user
         run: |
           test "$(docker exec one-step-wrong id -u)" = "1001"
+          test "$(curl --silent --head http://127.0.0.1:3000/ | tr -d '\r' | awk -F ': ' 'tolower($1) == "x-content-type-options" { print $2 }')" = "nosniff"
           curl --fail --silent http://127.0.0.1:3000/studio > /dev/null
           curl --fail --silent http://127.0.0.1:3000/rehearsal > /dev/null
           curl --fail --silent \
@@ -74,6 +97,10 @@ jobs:
             --data '{"institutionName":"New York University","officialDomains":["nyu.edu"],"useFixture":true}' \
             http://127.0.0.1:3000/api/institutions/research \
             | jq --exit-status '.provenance == "reviewed-fixture"'
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --header 'content-type: application/json' \
+            --data '{"institutionName":"Another University","officialDomains":["example.edu"],"useFixture":false}' \
+            http://127.0.0.1:3000/api/institutions/research)" = "503"
       - name: Stop the application
         if: always()
         run: docker rm --force one-step-wrong

@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-91%20unit%20%2B%2015%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-105%20unit%20%2B%2015%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -19,7 +19,7 @@
 
 It is not a quiz. Choices are not labeled safe, risky, correct, or recommended before the outcome.
 
-![The case library with a featured adaptive rehearsal and three NYU digital-safety stories](./artifacts/screenshots/case-library.png)
+![The case library with a featured interactive rehearsal and three NYU digital-safety stories](./artifacts/screenshots/case-library.png)
 
 ## Why This Project
 
@@ -38,14 +38,14 @@ Most security training explains the answer before learners feel the pressure tha
 1. Research a school from public official sources, or load the reviewed NYU source profile.
 2. Review citations, conflicts, warnings, and explicit unknowns before approving the institution context.
 3. Define the audience, ordinary task, pressure, threat, and learning objective.
-4. Preview the roles, learner actions, evidence, response steps, and possible outcomes.
-5. Enter the rehearsal, question the people involved, choose how to verify the request, and collect evidence.
-6. Review what happened from the actions actually completed.
-7. Apply the same judgment rule to a different task.
+4. Trace approved source facts into a fictionalized published setting, then preview roles, actions, recovery, and outcome coverage.
+5. Enter the rehearsal, open verification channels through explicit actions, and see each action return evidence and dialogue.
+6. Review the causal chain and final operational state from the actions actually completed.
+7. Choose an action in a different task before the built-in transfer rule is revealed.
 
-Learners can start the flagship immediately from the case library or open [`/rehearsal`](http://localhost:3000/rehearsal) directly. After the result, Evidence Coach answers follow-up questions using only evidence discovered in that run and approved source facts. Completing the new situation unlocks a transient facilitator report with the action sequence, evidence, discussion prompts, approved guidance, and a print view.
+Learners can start the flagship immediately from the case library or open [`/rehearsal`](http://localhost:3000/rehearsal) directly. After the new-context action is recorded, Evidence Coach answers follow-up questions using only evidence discovered in that run and approved source facts. Completing the new situation unlocks a transient facilitator report with the action sequence, final operational state, evidence, discussion prompts, approved guidance, and a print view.
 
-Adaptive generation and dialogue are optional server-side capabilities. Source checks, reviewed institution context, typed actions, recorded evidence, ending selection, and transfer evaluation remain authoritative. Every adaptive path has a reviewed example, so the complete flagship rehearsal works without an API key.
+Adaptive generation and dialogue are optional server-side capabilities. Source checks, reviewed institution context, typed actions, recorded evidence, ending selection, and transfer evaluation remain authoritative. Without an API key, the direct flagship and the explicit **Use example...** path remain complete; live authoring controls are clearly unavailable instead of silently replacing a school or brief with unrelated data.
 
 > **Conversation can adapt. Completed actions determine the consequences.**
 
@@ -80,7 +80,7 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
   </tr>
   <tr>
     <td align="center">Validated world, roles, and critical actions</td>
-    <td align="center">Adaptive dialogue with explicit learner actions</td>
+    <td align="center">Action-unlocked channels with explicit learner actions</td>
   </tr>
 </table>
 
@@ -133,7 +133,7 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 - Vitest and React Testing Library for state and component tests
 - Playwright for complete user flows and responsive layout checks
 
-The case library works locally. Scenario Studio uses narrowly scoped Next.js server routes when `OPENAI_API_KEY` is configured and automatically uses reviewed examples otherwise. There is no database, analytics, account system, persistence, or production campus-service integration.
+The case library and complete reviewed flagship work locally. Scenario Studio uses narrowly scoped Next.js server routes when `OPENAI_API_KEY` is configured; without it, the explicit reviewed-example buttons remain available and live authoring requests return a clear error. There is no database, analytics, account system, persistence, or production campus-service integration.
 
 ## Technical Evidence
 
@@ -147,7 +147,11 @@ GPT-5.6 has five bounded responsibilities:
 
 It does not perform critical actions, mutate payment or access state, choose an ending, or evaluate the learner's transfer action. Those decisions remain in [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts). Runtime validation lives in [`src/ai/schemas`](./src/ai/schemas), model adapters live in [`src/ai`](./src/ai), and all browser-facing calls pass through bounded server routes in [`src/app/api`](./src/app/api).
 
-Before a generated rehearsal can launch, [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) explores every reachable action set through the production physics API. Generation fails if safe, caution, contained, or expanded has no legal path; the educator preview shows a shortest representative trace for each outcome.
+Before a generated rehearsal can launch, [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) explores every reachable action set through the production physics API. The reviewed flagship currently checks 704 legal action states. Generation fails if safe, caution, contained, or expanded has no legal path; the educator preview shows a shortest representative trace for each outcome.
+
+The same schema proves that every recovery availability branch follows an incident trigger, every state field changed by a contained incident has an effective recovery action for that field, and the final affected-layer state is actually contained. In the flagship, approving payment first appears to work, a later status check reveals the changed route, and containment requires a separate finance hold. Conversation channels appear only after the learner explicitly reaches them; free-form turns remain with the selected role, and action-triggered events are recorded so reviewed dialogue does not loop indefinitely.
+
+The transfer action is recorded before the built-in rule and guided Evidence Coach prompts appear. This turns the second situation into observable learning evidence rather than a restatement immediately after being shown the answer.
 
 Codex was used throughout the repository's implementation to translate the product thesis into the modular case architecture, deterministic simulation engine, source-review workflow, Scenario Studio, product UI, test suite, and documentation. The main engineering decisions were to keep learner actions authoritative, make evidence visible during play, preserve a complete no-key path, and treat generated content as validated proposals rather than world state.
 
@@ -177,7 +181,7 @@ Adaptive research, generation, dialogue, and review are optional. Create `.env.l
 OPENAI_API_KEY=your_key_here
 ```
 
-Never prefix this key with `NEXT_PUBLIC_`. Without it, use **Use example institution** in Scenario Studio for the full offline path.
+Never prefix this key with `NEXT_PUBLIC_`. Without it, use **Use example institution** and **Use example rehearsal**, or open `/rehearsal` directly.
 
 For the first Playwright run:
 
@@ -187,7 +191,7 @@ npx playwright install chromium
 
 ### Run the production container
 
-The image uses Next.js standalone output and runs as an unprivileged user. It remains fully playable through reviewed examples when no API key is supplied.
+The image uses Next.js standalone output and runs as an unprivileged user. It remains fully playable through the explicit reviewed-example path when no API key is supplied.
 
 ```bash
 docker build -t one-step-wrong .
@@ -286,7 +290,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 91 schema, API, state, and component tests plus 15 browser tests. Coverage includes the featured direct entry, profile review, exact-brand authorization, authoritative hostname validation, source evidence, competing verification channels, evidence discovery, Evidence Coach citations, action prerequisites, automatic four-outcome reachability, affected-layer recovery, recorded-action review, transfer evaluation, facilitator reporting, malformed adaptive output, instruction-injection rejection, all outcomes, reviewed examples, complete safe and incident paths, 1366x768 through 1920x1080 desktop layouts, and 390x844 phone flows.
+The current suite contains 105 schema, API, state, and component tests plus 15 browser tests. Coverage includes the featured direct entry, profile review, exact-brand authorization, authoritative hostname validation, streaming request limits, source lineage, action-unlocked channels, delivered-event tracking, delayed consequences, automatic four-outcome reachability, affected-layer recovery, final operational state, pre-rule transfer, Evidence Coach citations, facilitator reporting, malformed adaptive output, instruction-injection rejection, complete safe and incident paths, production builds, 1366x768 through 1920x1080 desktop layouts, and 390x844 phone flows.
 
 ## Safety and Privacy
 
@@ -295,7 +299,7 @@ The current suite contains 91 schema, API, state, and component tests plus 15 br
 - No real Wi-Fi, account, certificate, download, or device API is used.
 - Real service names and domains appear only as inert interface text.
 - Live institution research is limited to public documentation through OpenAI Web Search; the app never logs in to or invokes campus services.
-- OpenAI credentials remain server-only, requests are bounded, and invalid or unavailable model output uses reviewed content.
+- OpenAI credentials remain server-only and requests are bounded. Invalid dialogue or review output stays on same-scenario reviewed content; research and generation failures return clear errors without replacing educator input.
 
 These guarantees belong in code and tests, not as immersion-breaking disclaimers inside the game.
 
@@ -309,7 +313,7 @@ Focused issues and pull requests are welcome. Preserve the product rules in `AGE
 - Desktop windows have fixed positions and cannot be freely dragged or resized.
 - Sound is synthesized in the browser; there is no music or voice acting.
 - There is no login, database, saved progress, collaboration system, runtime localization framework, or real campus integration.
-- Live adaptive behavior requires a valid API key and network access; reviewed examples keep the complete product flow available without either.
+- Live adaptive authoring requires a valid API key and network access; the explicit reviewed-example path keeps the complete product flow available without either.
 
 ## License
 

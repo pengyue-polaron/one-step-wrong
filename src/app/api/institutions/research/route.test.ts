@@ -22,7 +22,7 @@ describe("POST /api/institutions/research", () => {
     expect(response.status).toBe(413);
   });
 
-  it("returns the reviewed fallback without an API key", async () => {
+  it("keeps the reviewed example available without an API key", async () => {
     const previous = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
     const response = await POST(
@@ -31,7 +31,7 @@ describe("POST /api/institutions/research", () => {
         body: JSON.stringify({
           institutionName: "New York University",
           officialDomains: ["nyu.edu"],
-          useFixture: false,
+          useFixture: true,
         }),
       }),
     );
@@ -41,6 +41,33 @@ describe("POST /api/institutions/research", () => {
     expect(result.profile.approval.status).toBe("approved");
     if (previous === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = previous;
+  });
+
+  it("does not relabel live research as a reviewed example when no key is present", async () => {
+    const previous = process.env.OPENAI_API_KEY;
+    try {
+      for (const apiKey of [undefined, "   "]) {
+        if (apiKey === undefined) delete process.env.OPENAI_API_KEY;
+        else process.env.OPENAI_API_KEY = apiKey;
+        const response = await POST(
+          new Request("http://localhost/api/institutions/research", {
+            method: "POST",
+            body: JSON.stringify({
+              institutionName: "Another University",
+              officialDomains: ["example.edu"],
+              useFixture: false,
+            }),
+          }),
+        );
+        const result = await response.json();
+        expect(response.status).toBe(503);
+        expect(result.error).toContain("Use the reviewed example institution");
+        expect(result).not.toHaveProperty("profile");
+      }
+    } finally {
+      if (previous === undefined) delete process.env.OPENAI_API_KEY;
+      else process.env.OPENAI_API_KEY = previous;
+    }
   });
 
   it("rejects exact-brand research without explicit authorization", async () => {

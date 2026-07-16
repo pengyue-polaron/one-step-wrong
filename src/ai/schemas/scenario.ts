@@ -20,6 +20,21 @@ export const canonicalStateSchema = z.object({
   report: z.enum(["not-reported", "reported"]),
 });
 
+export type CanonicalState = z.infer<typeof canonicalStateSchema>;
+
+const recoveredCanonicalValues: Record<keyof CanonicalState, readonly string[]> = {
+  identity: ["verified-legitimate", "verified-false"],
+  payment: ["pending", "paused"],
+  access: ["restricted", "revoked"],
+  evidence: ["preserved"],
+  people: ["notified"],
+  report: ["reported"],
+};
+
+export function isRecoveredCanonicalValue(field: keyof CanonicalState, value: string) {
+  return recoveredCanonicalValues[field].includes(value);
+}
+
 const stateChangeSchema = z.object({
   field: z.enum(["identity", "payment", "access", "evidence", "people", "report"]),
   value: z.string().trim().min(1).max(40),
@@ -29,12 +44,12 @@ const criticalActionSchema = z.object({
   id: idSchema,
   label: shortTextSchema,
   description: bodyTextSchema,
-  kind: z.enum(["verify", "pause", "approve", "share", "preserve", "revoke", "notify", "report"]),
+  kind: z.enum(["verify", "inspect", "pause", "approve", "share", "preserve", "revoke", "notify", "report"]),
   phase: z.enum(["containment", "recovery", "either"]),
   availableAfterAllActionIds: z.array(idSchema).max(10),
   availableAfterAnyActionIds: z.array(idSchema).max(10),
   requiredAfterActionIds: z.array(idSchema).max(10),
-  stateChanges: z.array(stateChangeSchema).min(1).max(4),
+  stateChanges: z.array(stateChangeSchema).max(4),
 });
 
 const roleCardSchema = z.object({
@@ -57,6 +72,7 @@ const allowedEventSchema = z.object({
   label: shortTextSchema,
   trigger: bodyTextSchema,
   allowedAfterActionIds: z.array(idSchema).max(10),
+  delivery: z.enum(["on-action", "on-message"]),
   canonicalMutation: z.literal("none"),
 });
 
@@ -87,10 +103,12 @@ export const scenarioPackageOutputSchema = z
     id: idSchema,
     sourceProfileId: idSchema,
     publicationMode: publicationModeSchema,
+    publishedSetting: shortTextSchema,
     title: shortTextSchema,
     tagline: shortTextSchema,
     summary: bodyTextSchema,
     targetLearner: shortTextSchema,
+    learnerRole: shortTextSchema,
     durationMinutes: z.number().int().min(3).max(30),
     intro: z.object({
       ordinaryTask: bodyTextSchema,
@@ -114,7 +132,7 @@ export const scenarioPackageOutputSchema = z
         .max(20),
       initialState: canonicalStateSchema,
     }),
-    criticalActions: z.array(criticalActionSchema).min(3).max(12),
+    criticalActions: z.array(criticalActionSchema).min(3).max(14),
     evidence: z
       .array(
         z.object({
@@ -171,11 +189,31 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
     }
 
     const actionIds = new Set(scenario.criticalActions.map((action) => action.id));
+    const actionById = new Map(scenario.criticalActions.map((action) => [action.id, action]));
     const roleIds = new Set(scenario.roleCards.map((role) => role.id));
     const eventIds = new Set(scenario.allowedEvents.map((event) => event.id));
     const sourceFactIds = new Set(scenario.sourceFactIds);
     const assertAction = (id: string, path: (string | number)[]) => {
       if (!actionIds.has(id)) context.addIssue({ code: "custom", path, message: `Unknown action: ${id}` });
+    };
+    const followsAnIncidentTrigger = (
+      candidateId: string,
+      triggerIds: Set<string>,
+      visited = new Set<string>(),
+    ): boolean => {
+      if (triggerIds.has(candidateId)) return true;
+      if (visited.has(candidateId)) return false;
+      visited.add(candidateId);
+      const candidate = actionById.get(candidateId);
+      if (!candidate) return false;
+      const requiredPathFollows = candidate.availableAfterAllActionIds.some((prerequisiteId) =>
+        followsAnIncidentTrigger(prerequisiteId, triggerIds, new Set(visited)),
+      );
+      const alternatePathsFollow = candidate.availableAfterAnyActionIds.length > 0
+        && candidate.availableAfterAnyActionIds.every((prerequisiteId) =>
+          followsAnIncidentTrigger(prerequisiteId, triggerIds, new Set(visited)),
+        );
+      return requiredPathFollows || alternatePathsFollow;
     };
 
     scenario.worldBible.immutableFacts.forEach((fact, index) => {
@@ -212,12 +250,25 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       if (action.phase !== "recovery" && action.requiredAfterActionIds.length > 0) {
         context.addIssue({ code: "custom", path: ["criticalActions", actionIndex, "requiredAfterActionIds"], message: "Only recovery actions may declare incident triggers." });
       }
+      if (action.kind === "inspect" && action.stateChanges.length > 0) {
+        context.addIssue({ code: "custom", path: ["criticalActions", actionIndex, "stateChanges"], message: "Inspection actions reveal evidence without mutating canonical state." });
+      }
+      if (action.kind !== "inspect" && action.stateChanges.length === 0) {
+        context.addIssue({ code: "custom", path: ["criticalActions", actionIndex, "stateChanges"], message: "State-changing actions require at least one canonical mutation." });
+      }
       action.stateChanges.forEach((change, changeIndex) => {
         if (!stateValues[change.field].includes(change.value)) {
           context.addIssue({
             code: "custom",
             path: ["criticalActions", actionIndex, "stateChanges", changeIndex, "value"],
             message: `Invalid ${change.field} state: ${change.value}`,
+          });
+        }
+        if (action.phase === "recovery" && !isRecoveredCanonicalValue(change.field, change.value)) {
+          context.addIssue({
+            code: "custom",
+            path: ["criticalActions", actionIndex, "stateChanges", changeIndex, "value"],
+            message: `Recovery must move ${change.field} to a contained state.`,
           });
         }
       });
@@ -251,6 +302,13 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       if (action && action.requiredAfterActionIds.length === 0) {
         context.addIssue({ code: "custom", path: ["recoveryActionIds", index], message: "Recovery actions must declare the incident actions that require them." });
       }
+      if (action && !followsAnIncidentTrigger(action.id, new Set(action.requiredAfterActionIds))) {
+        context.addIssue({
+          code: "custom",
+          path: ["recoveryActionIds", index],
+          message: "Every recovery availability path must follow one of its incident triggers.",
+        });
+      }
     });
     if (!scenario.recoveryActionIds.some((id) => scenario.criticalActions.find((action) => action.id === id)?.phase === "recovery")) {
       context.addIssue({ code: "custom", path: ["recoveryActionIds"], message: "At least one recovery-phase action is required." });
@@ -265,6 +323,42 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
       const event = scenario.allowedEvents.find((candidate) => candidate.id === line.eventId);
       if (!eventIds.has(line.eventId)) context.addIssue({ code: "custom", path: ["fallbackDialogue", index, "eventId"], message: `Unknown event: ${line.eventId}` });
       if (event && event.roleId !== line.roleId) context.addIssue({ code: "custom", path: ["fallbackDialogue", index], message: "Fallback role does not own its event." });
+    });
+    scenario.allowedEvents.forEach((event, index) => {
+      const hasFallback = scenario.fallbackDialogue.some(
+        (line) => line.eventId === event.id && line.roleId === event.roleId,
+      );
+      if (!hasFallback) {
+        context.addIssue({
+          code: "custom",
+          path: ["allowedEvents", index],
+          message: "Every allowed event requires fallback dialogue from its owning role.",
+        });
+      }
+      if (event.delivery === "on-action") {
+        const hasContinuingEvent = scenario.allowedEvents.some(
+          (candidate) =>
+            candidate.roleId === event.roleId
+            && candidate.delivery === "on-message"
+            && candidate.allowedAfterActionIds.every((id) => event.allowedAfterActionIds.includes(id)),
+        );
+        if (!hasContinuingEvent) {
+          context.addIssue({
+            code: "custom",
+            path: ["allowedEvents", index],
+            message: "An action-delivered event must unlock continued dialogue with the same role.",
+          });
+        }
+      }
+    });
+    scenario.roleCards.forEach((role, index) => {
+      if (!scenario.allowedEvents.some((event) => event.roleId === role.id && event.delivery === "on-message")) {
+        context.addIssue({
+          code: "custom",
+          path: ["roleCards", index],
+          message: "Every role requires an on-message event for continued channel dialogue.",
+        });
+      }
     });
     scenario.endings.forEach((ending, index) => {
       ending.requiredActionIds.forEach((id) => assertAction(id, ["endings", index, "requiredActionIds"]));
@@ -281,6 +375,25 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
           if (!hasRecovery) {
             context.addIssue({ code: "custom", path: ["endings", index, "requiredAnyActionIds"], message: `Incident trigger has no required recovery: ${triggerId}` });
           }
+          const trigger = actionById.get(triggerId);
+          trigger?.stateChanges.forEach((change) => {
+            const hasLayerRecovery = scenario.recoveryActionIds.some((recoveryId) => {
+              const recovery = actionById.get(recoveryId);
+              return recovery?.requiredAfterActionIds.includes(triggerId)
+                && recovery.stateChanges.some((recoveryChange) =>
+                  recoveryChange.field === change.field
+                  && recoveryChange.value !== change.value
+                  && isRecoveredCanonicalValue(recoveryChange.field, recoveryChange.value),
+                );
+            });
+            if (!hasLayerRecovery) {
+              context.addIssue({
+                code: "custom",
+                path: ["endings", index, "requiredAnyActionIds"],
+                message: `Incident trigger ${triggerId} has no ${change.field} layer recovery.`,
+              });
+            }
+          });
         });
       }
     });
@@ -300,7 +413,6 @@ export const scenarioPackageSchema = scenarioPackageOutputSchema.superRefine((sc
   });
 
 export type ScenarioPackage = z.infer<typeof scenarioPackageSchema>;
-export type CanonicalState = z.infer<typeof canonicalStateSchema>;
 
 export function validateScenarioPackage(value: unknown): ValidationResult<ScenarioPackage> {
   return toValidationResult(scenarioPackageSchema.safeParse(value));

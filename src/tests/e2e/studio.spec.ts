@@ -16,7 +16,8 @@ async function openValidatedScenario(page: Page, captureProfile = false) {
   await page.getByRole("button", { name: "Use example rehearsal" }).click();
   await expect(page.getByTestId("studio-preview")).toBeVisible();
   await expect(page.getByText("Scenario checks passed")).toBeVisible();
-  await expect(page.getByText(/New York University · fictionalized names/)).toBeVisible();
+  await expect(page.getByRole("region", { name: "Source-to-scenario trace" })).toContainText("New York University");
+  await expect(page.getByRole("region", { name: "Source-to-scenario trace" })).toContainText("Northbridge University");
   await expect(page.getByRole("region", { name: "Outcome coverage" })).toContainText("4 / 4 reachable");
 }
 
@@ -27,6 +28,9 @@ test("featured rehearsal opens directly from the case library", async ({ page })
   await expect(page.getByTestId("studio-live")).toBeVisible();
   await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Call the saved directory number/ })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /Dr\. Maya Chen Voice message/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).toHaveCount(0);
+  await expect(page.getByText("Northbridge University")).toBeVisible();
   await expect(page.getByTestId("studio-live")).not.toContainText(/GPT|Build Week|fixture|fallback|schema|deterministic|canonical/i);
 });
 
@@ -40,19 +44,27 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-live.png", fullPage: true });
 
-  await page.getByRole("button", { name: /Dr. Maya Chen/ }).click();
+  await page.getByRole("button", { name: /Dr\. Maya Chen Voice message/ }).click();
   await page.getByLabel("Message a role").fill("Can I confirm this through the number I already have?");
   await page.getByRole("button", { name: "Send message" }).click();
   await expect(page.locator(".dialogue-log article")).toHaveCount(3);
 
   await page.getByRole("button", { name: /Call the number attached to the message/ }).click();
+  await expect(page.locator(".dialogue-log")).toContainText("I also need the reimbursement folder shared");
   await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Callback came from the request");
-  await expect(page.getByText("callback claim only")).toBeVisible();
+  await expect(page.getByText("claimed again")).toBeVisible();
   await page.getByRole("button", { name: /Ask in the organization group chat/ }).click();
+  await expect(page.locator(".dialogue-log")).toContainText("I cannot confirm who sent that voice message");
   await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("The team recognizes the context, not the sender");
   await page.getByRole("button", { name: /Call the saved directory number/ }).click();
+  await expect(page.locator(".dialogue-log")).toContainText("I did not request any account change");
+  await expect(page.getByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).toBeVisible();
   await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Independent adviser confirmation");
-  await expect(page.getByText("request disproved")).toBeVisible();
+  await expect(page.getByText("contradicted")).toBeVisible();
+  await page.getByRole("button", { name: /Dr\. Maya Chen Saved directory call/ }).click();
+  await page.getByLabel("Message a role").fill("What should I do next?");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.locator(".dialogue-log")).toContainText("Keep the reimbursement pending");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-evidence.png" });
   await page.getByRole("button", { name: /Pause reimbursement/ }).click();
@@ -61,28 +73,32 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByTestId("studio-debrief")).not.toContainText(/GPT|Build Week|fixture|fallback|schema|deterministic|canonical/i);
   await expect(page.getByText("SAFE", { exact: true })).toBeVisible();
   await expect(page.getByText("Call the saved directory number")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Causal walkthrough" })).toContainText("Independent adviser confirmation");
   await expect(page.getByRole("region", { name: "How the result was determined" })).toContainText("The conversation could change");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-debrief.png", fullPage: true });
-  await page.getByRole("button", { name: "Why did the callback not prove who sent the request?" }).click();
-  await expect(page.locator(".coach-answers article")).toContainText("The callback number was supplied by the same message");
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: "artifacts/screenshots/studio-coach.png", fullPage: true });
 
-  await page.getByRole("button", { name: "Try a new situation" }).click();
+  await expect(page.getByText("A familiar voice is a clue, not proof of identity.")).toHaveCount(0);
+  await page.getByRole("button", { name: "Test in a new situation" }).click();
   await expect(page.getByTestId("studio-transfer")).toBeVisible();
   await expect(page.getByTestId("studio-transfer")).not.toContainText(/GPT|Build Week|fixture|fallback|schema|deterministic|canonical/i);
   await expect(page.getByText("The Name You Recognize")).toBeVisible();
   await page.getByRole("button", { name: /Open Campus Drive from your saved bookmark/ }).click();
   await expect(page.getByText("Rule transferred")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Learning evidence" })).toContainText("This result follows the action selected");
+  await expect(page.getByRole("region", { name: "Learning evidence" })).toContainText("before the built-in transfer rule appeared");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-transfer.png", fullPage: true });
+  await page.getByRole("button", { name: "What did the callback establish, and what remained unverified?" }).click();
+  await expect(page.locator(".coach-answers article")).toContainText("The callback number was supplied by the same message");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: "artifacts/screenshots/studio-coach.png", fullPage: true });
 
   await page.getByRole("button", { name: "Open facilitator report" }).click();
   await expect(page.getByTestId("studio-report")).toBeVisible();
   await expect(page.getByText("No learner identity stored")).toBeVisible();
   await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
+  await expect(page.getByText(/Source profile: New York University · Published setting: Northbridge University/)).toBeVisible();
+  await expect(page.getByText(/selected before rule reveal/)).toBeVisible();
   await expect(page.getByText("Approved institution guidance")).toBeVisible();
   await expect(page.getByRole("button", { name: "Print report" })).toBeEnabled();
   await page.screenshot({ path: "artifacts/screenshots/facilitator-report.png", fullPage: true });
@@ -100,11 +116,22 @@ test("studio contains an expanded incident through explicit recovery actions", a
   await expect(page.getByTestId("studio-live")).not.toContainText("adversarial");
   await expect(page.getByRole("button", { name: /Revoke shared access/ })).toHaveCount(0);
   await page.getByRole("button", { name: /Approve new payment details/ }).click();
-  await expect(page.getByRole("button", { name: /Preserve message evidence/ })).toBeVisible();
+  await expect(page.locator(".dialogue-log")).toContainText("The account change is showing on my side");
+  await expect(page.getByRole("button", { name: "Finish and review" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Preserve message evidence/ })).toHaveCount(0);
+  await page.getByRole("button", { name: /Review reimbursement status/ }).click();
+  await expect(page.locator(".dialogue-log")).toContainText("do not recognize the new payment details");
+  await expect(page.getByRole("button", { name: /Request a payment hold/ })).toBeVisible();
+  await page.getByRole("button", { name: /Jordan Lee Organization group chat/ }).click();
+  await page.getByLabel("Message a role").fill("What can we still do?");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.locator(".dialogue-log")).toContainText("Finance can still place a hold");
+  await page.getByRole("button", { name: /Call the number attached to the message/ }).click();
+  await page.getByRole("button", { name: /Share reimbursement folder/ }).click();
   await expect(page.getByRole("button", { name: /Revoke shared access/ })).toHaveCount(0);
-  await page.getByRole("button", { name: /Share finance folder/ }).click();
+  await page.getByRole("button", { name: /Review shared folder access/ }).click();
   await expect(page.getByRole("button", { name: /Revoke shared access/ })).toBeVisible();
-  for (const action of [/Preserve message evidence/, /Revoke shared access/, /Notify affected people/, /Report to Safety Desk/]) {
+  for (const action of [/Request a payment hold/, /Preserve message evidence/, /Revoke shared access/, /Notify affected people/, /Report to Safety Desk/]) {
     await page.getByRole("button", { name: action }).click();
   }
   await page.getByRole("button", { name: "Finish and review" }).click();
@@ -120,7 +147,7 @@ test("studio remains usable without horizontal overflow on mobile", async ({ pag
   await page.getByRole("button", { name: "Use exact names" }).click();
   await expect(page.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
   await page.getByRole("checkbox", { name: /Permission confirmed/ }).check();
-  await expect(page.getByRole("button", { name: "Find public guidance" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
   await page.getByRole("button", { name: "Fictionalized" }).click();
   await page.getByRole("button", { name: "Use example institution" }).click();
   await expect(page.getByTestId("studio-profile")).toBeVisible();
@@ -147,7 +174,7 @@ test("transfer evidence remains usable on mobile", async ({ page }) => {
   await page.getByRole("button", { name: /Call the saved directory number/ }).click();
   await page.getByRole("button", { name: /Pause reimbursement/ }).click();
   await page.getByRole("button", { name: "Finish and review" }).click();
-  await page.getByRole("button", { name: "Try a new situation" }).click();
+  await page.getByRole("button", { name: "Test in a new situation" }).click();
   await expect(page.getByTestId("studio-transfer")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.getByRole("button", { name: /Ask for confirmation in the same group chat/ }).click();

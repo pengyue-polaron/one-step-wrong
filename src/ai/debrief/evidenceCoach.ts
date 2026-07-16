@@ -50,6 +50,9 @@ function relevantEvidenceIds(
     normalized.match(/callback|attached|request number|same message/) ? "callback-controlled" : null,
     normalized.match(/group|team|chat|social/) ? "team-cannot-confirm" : null,
     normalized.match(/directory|independent|adviser|advisor|known channel/) ? "adviser-denial" : null,
+    normalized.match(/payment|reimbursement|account|route/) ? "payment-route-anomaly" : null,
+    normalized.match(/folder|guest|access|editor/) ? "unexpected-folder-guest" : null,
+    normalized.match(/preserve|message|metadata|record/) ? "message-mismatch" : null,
   ].filter((id): id is string => Boolean(id));
   const preferred = preferredIds.filter((id) => availableEvidence.some((item) => item.id === id));
   return preferred.length ? preferred : availableEvidence.slice(0, 3).map((item) => item.id);

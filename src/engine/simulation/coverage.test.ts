@@ -15,7 +15,6 @@ describe("scenario outcome coverage", () => {
     ]);
     expect(coverage.endingCoverage.find((result) => result.endingId === "safe")?.actionIds).toEqual([
       "verify-adviser",
-      "pause-payment",
     ]);
     expect(coverage.endingCoverage.find((result) => result.endingId === "expanded")?.actionIds).toEqual([
       "approve-change",

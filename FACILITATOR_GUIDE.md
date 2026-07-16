@@ -56,10 +56,10 @@ When learners disagree, ask each person to name the evidence behind the action r
 After the outcome:
 
 1. Compare the recorded action sequence with the evidence discovered at each step.
-2. Use Evidence Coach to examine one request-controlled channel and one independently known channel.
-3. Ask learners to state the transfer rule in their own words before showing the built-in rule.
-4. Complete the new situation without revisiting the original answer.
-5. Open the facilitator report and discuss the rehearsal result and transfer result together.
+2. Ask learners to state a tentative judgment rule in their own words.
+3. Complete the new situation before the product reveals its built-in rule or guided evidence questions.
+4. Compare the learner's action with the revealed rule, then use Evidence Coach to examine only channels discovered in that run.
+5. Open the facilitator report and discuss the rehearsal result, final operational state, and transfer result together.
 
 The transfer decision is more useful than the first ending alone. A safe first run may reflect prior knowledge or a lucky choice; applying the rule in a different task is stronger evidence that the judgment carried forward.
 

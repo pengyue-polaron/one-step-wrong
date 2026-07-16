@@ -35,7 +35,7 @@ test("Drive public link route can be contained through scoped actions", async ({
   await expect(page.getByRole("heading", { name: "Access pulled back" })).toBeVisible();
   await page.screenshot({ path: "artifacts/screenshots/drive-debrief.png", fullPage: true });
   await page.locator(".debrief-actions").getByRole("button", { name: "Return to case library" }).click();
-  await expect(page.getByText("1 / 3 complete")).toBeVisible();
+  await expect(page.getByText("Archive 1 / 3 complete")).toBeVisible();
 });
 
 test("Duo chapter binds approval to a player-initiated login", async ({ page }) => {

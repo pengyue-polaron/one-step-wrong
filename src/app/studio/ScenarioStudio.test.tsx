@@ -38,6 +38,32 @@ describe("Scenario Studio profile review", () => {
     expect(screen.getByRole("button", { name: "Find public guidance" })).toBeEnabled();
   });
 
+  it("makes the reviewed path primary when adaptive authoring is unavailable", () => {
+    render(<ScenarioStudio adaptiveAuthoringAvailable={false} />);
+
+    expect(screen.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Use example institution" })).toBeEnabled();
+    expect(screen.getByText("The reviewed institution is ready to use in this workspace.")).toBeInTheDocument();
+  });
+
+  it("reveals conversation channels only after the matching explicit action", async () => {
+    const user = userEvent.setup();
+    render(<ScenarioStudio mode="featured" />);
+
+    expect(screen.getByRole("button", { name: /Dr\. Maya Chen Voice message/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("Jordan Lee")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Share reimbursement folder/ })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Call the number attached to the message/ }));
+    expect(screen.getByText(/I also need the reimbursement folder shared/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Share reimbursement folder/ })).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: /Call the saved directory number/ }));
+    expect(screen.getByText(/I did not request any account change/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Dr\. Maya Chen Saved directory call/ })).toBeInTheDocument();
+  });
+
   it("requires the educator to resolve conflicts and approve supporting sources", async () => {
     const user = userEvent.setup();
     const profile = pendingConflictProfile();

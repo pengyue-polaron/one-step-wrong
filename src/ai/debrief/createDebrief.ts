@@ -34,7 +34,7 @@ export async function createDebrief(
   const ending = request.scenario.endings.find((item) => item.id === trace.endingId)!;
   const deterministic = {
     headline: ending.title,
-    summary: ending.summary,
+    summary: ending.causeChain[0],
     nextTime: trace.transferRules[0],
   };
   if (!provider) return { trace, coaching: deterministic, provenance: "deterministic-fallback" as const };

@@ -5,12 +5,15 @@ import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 describe("canonical debrief", () => {
   it("grounds completion and missed recovery in the deterministic trace", async () => {
     const result = await createDebrief(
-      { scenario: voiceYouKnowScenario, actionIds: ["approve-change", "preserve-evidence"] },
+      {
+        scenario: voiceYouKnowScenario,
+        actionIds: ["approve-change", "review-payment-status", "preserve-evidence"],
+      },
       null,
     );
     expect(result.trace.endingId).toBe("expanded");
     expect(result.trace.completedRecoveryActionIds).toEqual(["preserve-evidence"]);
-    expect(result.trace.missedRecoveryActionIds).toEqual(["notify-team", "report-incident"]);
+    expect(result.trace.missedRecoveryActionIds).toEqual(["request-payment-hold", "notify-team", "report-incident"]);
     expect(result.provenance).toBe("deterministic-fallback");
   });
 
@@ -49,7 +52,10 @@ describe("canonical debrief", () => {
       },
     } as unknown as DebriefProvider;
     const result = await createDebrief(
-      { scenario: voiceYouKnowScenario, actionIds: ["approve-change", "preserve-evidence"] },
+      {
+        scenario: voiceYouKnowScenario,
+        actionIds: ["approve-change", "review-payment-status", "preserve-evidence"],
+      },
       provider,
     );
     expect(result.provenance).toBe("live-debrief");

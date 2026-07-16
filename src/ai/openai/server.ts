@@ -4,6 +4,10 @@ let sharedClient: OpenAI | null | undefined;
 
 export const OPENAI_MODEL = "gpt-5.6";
 
+export function hasOpenAIApiKey() {
+  return Boolean(process.env.OPENAI_API_KEY?.trim());
+}
+
 export function getOpenAIClient() {
   if (sharedClient !== undefined) return sharedClient;
   const apiKey = process.env.OPENAI_API_KEY?.trim();

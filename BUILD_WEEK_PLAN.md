@@ -90,7 +90,6 @@ The current product does **not** yet provide:
 - A bounded runtime Simulation Director or live role agents.
 - A reviewed fallback dialogue trace.
 - An AI-generated personalized debrief.
-- A deployed testing path for judges.
 - Build Week documentation and evidence.
 
 ## Required Build Week Loop
@@ -309,7 +308,6 @@ Include at least one prefilled authoring example, one last-known-good scenario p
 
 The judge should be able to:
 
-- Open a deployed URL.
 - Generate or load the featured case.
 - Play without an account.
 - Exchange at least one unscripted message with a role.
@@ -347,10 +345,10 @@ The winning demo is not a large multi-agent platform. It is one polished, believ
 
 The product must support two publication modes:
 
-1. **Authorized exact mode** for a school deploying the product with permission. Approved public facts and institution terminology may be used with visible citations and human review.
+1. **Authorized exact mode** for an institution using the product with permission. Approved public facts and institution terminology may be used with visible citations and human review.
 2. **Brand-safe fictionalized mode** for public demos. The approved Institution Profile informs realistic categories and workflows, while names, visual identity, domains, people, and proprietary trade dress are transformed into a fictional institution.
 
-NYU is the reference adaptation example because the current prototype already models parts of its student environment. The research agent should be able to rebuild an NYU Institution Profile from official public sources rather than relying on hard-coded memory. For the public hackathon video, use NYU branding only if permission and event requirements allow it; otherwise demonstrate the same research-to-simulation pipeline and publish the playable output as Northbridge University.
+NYU is the reference adaptation example because the current prototype already models parts of its student environment. The research agent should be able to rebuild an NYU Institution Profile from official public sources rather than relying on hard-coded memory. For the public hackathon video, use NYU branding only if permission and event requirements allow it; otherwise demonstrate the same research-to-simulation pipeline with Northbridge University.
 
 Suggested fictionalization:
 
@@ -505,7 +503,6 @@ Do not spend Build Week on:
 - README explains exactly what GPT-5.6 does before, during, and after play.
 - README distinguishes pre-existing foundations from Build Week work.
 - Setup instructions include required environment variables without including secrets.
-- A deployed demo or frictionless test path exists.
 - The primary Codex build thread has a /feedback Session ID.
 - The final video is public, no longer than three minutes, and includes English narration or an English translation.
 - Repository access matches the event rules.
@@ -560,7 +557,7 @@ Before completion:
 12. Define the canonical action trace.
 13. Add the Debrief Analyst endpoint and deterministic fallback.
 14. Apply the bounded exact-brand or fictionalized publication mode.
-15. Add E2E coverage, deployment configuration, and screenshots.
+15. Add E2E coverage and screenshots.
 16. Update README files with actual—not planned—capabilities and test counts.
 17. Run the complete quality gate.
 18. Record the demo and finish submission evidence.
@@ -633,7 +630,6 @@ The Build Week adaptation is done only when:
 - The Director and role agents cannot change ground truth, critical state, or endings.
 - Critical actions remain explicit, typed, deterministic, and testable.
 - GPT-5.6 usage is visible and meaningful before, during, and after play.
-- A judge can test the product without rebuilding it.
 - A reviewed scenario and dialogue fallback keep the product usable when the model or network fails.
 - Documentation describes the implementation truthfully.
 - The final demo proves the complete loop within three minutes.

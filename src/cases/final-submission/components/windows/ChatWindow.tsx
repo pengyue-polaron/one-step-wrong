@@ -49,7 +49,7 @@ export function ChatWindow() {
               </fieldset>
             </div>
           ) : (
-            <div className="chat-composer"><span>Type a message...</span><PixelButton icon={<Send size={14} />} disabled={state.calmActions.includes("reply")} onClick={() => dispatch({ type: "CALM_ACTION", action: "reply" })}>{state.calmActions.includes("reply") ? "Replied" : "Reply"}</PixelButton></div>
+            <div className="chat-composer"><span>Type a message…</span><PixelButton icon={<Send size={14} />} disabled={state.calmActions.includes("reply")} onClick={() => dispatch({ type: "CALM_ACTION", action: "reply" })}>{state.calmActions.includes("reply") ? "Replied" : "Reply"}</PixelButton></div>
           )}
         </main>
       </div>

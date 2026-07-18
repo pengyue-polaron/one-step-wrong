@@ -3,7 +3,7 @@ import type { DecisionCaseDefinition } from "@/engine/decision/types";
 
 export const unexpectedPushSummary = {
   id: "unexpected-push",
-  number: "03",
+  number: "02",
   title: "Was That You?",
   kicker: "Login and verification",
   summary: "The meeting starts in two minutes and Duo requests keep arriving. Which login is actually yours?",

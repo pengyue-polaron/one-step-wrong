@@ -21,6 +21,7 @@ function WifiItem({ network }: { network: NetworkDefinition }) {
   return (
     <article className={`wifi-item ${active ? "is-active" : ""}`}>
       <button
+        aria-pressed={active}
         className="wifi-main"
         onClick={() => dispatch({ type: "SELECT_NETWORK", network: network.id })}
         data-testid={`network-${network.id}`}

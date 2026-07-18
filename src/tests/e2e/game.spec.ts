@@ -21,6 +21,8 @@ test("case library exposes three reviewed rehearsals and two archive chapters", 
   await expect(page.getByTestId("case-final-submission")).toBeVisible();
   await expect(page.getByTestId("case-shared-draft")).toHaveCount(0);
   await expect(page.getByTestId("case-unexpected-push")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Earlier rehearsals" })).toBeVisible();
+  await expect(page.locator(".case-number")).toHaveText(["01", "02"]);
 });
 
 test("Sharing Scope contains a public-link incident through every affected layer", async ({ page }) => {

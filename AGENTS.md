@@ -8,6 +8,8 @@
 
 The first screen is always the playable case library. Do not replace it with a landing page, feature tour, or marketing introduction.
 
+Keep the three reviewed rehearsals in an explicit 01–03 learning order. Present earlier cases as a separate archive, and never describe archive-only session completion as progress across the whole library.
+
 The default product language is English. Keep `README.zh-CN.md` as the complete Chinese documentation counterpart; do not introduce a runtime localization framework unless the product scope explicitly expands to multilingual delivery.
 
 ## Non-Negotiable Product Rules
@@ -41,7 +43,7 @@ src/
   app/api/                     Server-only adaptive and trace routes
   ai/                          Prompts, adapters, runtime schemas, guardrails
   fixtures/                    Reviewed profile, scenario, and dialogue content
-  product/                     Case library, session progress, case registry
+  product/                     Case library, archive session progress, case registry
   cases/                       Case-owned content, UI, state, and tests
   engine/decision/             Generic short-chapter state and shared views
   engine/simulation/           Authoritative actions, endings, evidence, traces

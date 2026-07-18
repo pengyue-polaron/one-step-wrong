@@ -52,6 +52,12 @@ test("authoring, review, transfer, and report states pass the accessibility gate
   await expect(page.getByTestId("studio-profile")).toBeVisible();
   await expectNoSeriousViolations(page);
 
+  await page.getByRole("button", { name: /Reject source Learning Management System/ }).click();
+  await page.getByRole("button", { name: "Approve profile" }).click();
+  const reviewError = page.locator(".studio-notice.is-error");
+  await expect(reviewError).toBeFocused();
+  await expect(reviewError).toContainText("approved source");
+  await page.getByRole("button", { name: /Approve source Learning Management System/ }).click();
   await page.getByRole("button", { name: "Approve profile" }).click();
   await expect(page.getByTestId("studio-brief")).toBeVisible();
   await expectNoSeriousViolations(page);

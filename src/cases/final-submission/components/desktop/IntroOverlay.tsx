@@ -43,7 +43,7 @@ export function IntroOverlay() {
           <p id="intro-description">{copy.intro.body}</p>
           <div className="intro-task"><FileText size={17} /><span>{copy.intro.prompt}</span></div>
           <PixelButton data-intro-start variant="primary" disabled={!ready} icon={<ArrowRight size={16} />} onClick={() => dispatch({ type: "START_GAME" })}>
-            {ready ? "Check submission status" : "Preparing..."}
+            {ready ? "Check submission status" : "Preparing…"}
           </PixelButton>
         </div>
       </section>

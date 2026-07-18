@@ -17,18 +17,18 @@ export function ITReportWindow() {
         ) : inIncident ? (
           <form className="report-form" onSubmit={(event) => { event.preventDefault(); dispatch({ type: "RESPONSE_ACTION", action: "report-it" }); }}>
             <div className="form-grid">
-              <label><span>Issue type</span><select defaultValue="suspicious-network"><option value="suspicious-network">Suspicious network</option><option>Account activity</option><option>Device profile</option><option>Other</option></select></label>
-              <label><span>Time</span><input value="Today, 23:47 - 23:56" readOnly /></label>
-              <label><span>Network name</span><input value="NYU_Free_5G" readOnly /></label>
-              <label><span>Current status</span><select defaultValue="ongoing"><option value="ongoing">Incident found, response in progress</option><option>Incident stopped</option></select></label>
+              <label><span>Issue type</span><select autoComplete="off" defaultValue="suspicious-network" name="issue-type"><option value="suspicious-network">Suspicious network</option><option>Account activity</option><option>Device profile</option><option>Other</option></select></label>
+              <label><span>Time</span><input autoComplete="off" name="incident-time" value="Today, 23:47 - 23:56" readOnly /></label>
+              <label><span>Network name</span><input autoComplete="off" name="network-name" value="NYU_Free_5G" readOnly /></label>
+              <label><span>Current status</span><select autoComplete="off" defaultValue="ongoing" name="incident-status"><option value="ongoing">Incident found, response in progress</option><option>Incident stopped</option></select></label>
             </div>
             <fieldset className="report-checks"><legend>What happened</legend>
-              <label><input type="checkbox" defaultChecked /><span><Check size={12} /></span>Entered an NYU NetID on the network page</label>
-              <label><input type="checkbox" defaultChecked /><span><Check size={12} /></span>Installed a network profile</label>
-              <label><input type="checkbox" defaultChecked /><span><Check size={12} /></span>Found an unknown-device login</label>
-              <label><input type="checkbox" defaultChecked /><span><Check size={12} /></span>Account sent a message I did not write</label>
+              <label><input name="entered-netid" type="checkbox" defaultChecked /><span><Check size={12} /></span>Entered an NYU NetID on the network page</label>
+              <label><input name="installed-profile" type="checkbox" defaultChecked /><span><Check size={12} /></span>Installed a network profile</label>
+              <label><input name="unknown-login" type="checkbox" defaultChecked /><span><Check size={12} /></span>Found an unknown-device login</label>
+              <label><input name="unexpected-message" type="checkbox" defaultChecked /><span><Check size={12} /></span>Account sent a message I did not write</label>
             </fieldset>
-            <label className="report-description"><span>Short description</span><textarea value="I joined an open network named NYU_Free_5G and installed the network profile it requested. An unknown-device login and unexpected message followed." readOnly /></label>
+            <label className="report-description"><span>Short description</span><textarea autoComplete="off" name="incident-description" value="I joined an open network named NYU_Free_5G and installed the network profile it requested. An unknown-device login and unexpected message followed." readOnly /></label>
             <div className="measures"><ClipboardList size={15} /><div><strong>Actions taken</strong><p>{[state.sessionsRevoked && "Ended session", state.profileRemoved && "Removed profile", state.classmatesWarned && "Warned classmate"].filter(Boolean).join(", ") || "None selected yet"}</p></div></div>
             <PixelButton variant="primary" type="submit">Submit ticket</PixelButton>
           </form>

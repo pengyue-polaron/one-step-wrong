@@ -24,17 +24,17 @@ export function CaseLibrary({
     <main className="case-library">
       <header className="library-topbar">
         <div className="system-brand"><span className="brand-mark">1</span><span>One Step Wrong</span></div>
-        <div className="library-progress"><span>DIGITAL JUDGMENT REHEARSALS</span><strong>Archive {completedCount} / {caseCatalog.length} complete</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
+        <div className="library-progress"><span>DIGITAL JUDGMENT REHEARSALS</span><strong>{reviewedRehearsals.length} reviewed · {caseCatalog.length} archive</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
       </header>
 
       <div className="library-body">
         <header className="library-heading">
-          <div><span>CASE ARCHIVE · FALL 2026</span><h1>Choose a rehearsal</h1><p>Every story begins with an ordinary task. The result follows what you actually do, not how many answers you get right.</p></div>
+          <div><span>DIGITAL JUDGMENT · FALL 2026</span><h1>Choose a rehearsal</h1><p>Every story begins with an ordinary task. The result follows what you actually do, not how many answers you get right.</p></div>
           <ul className="library-stats" aria-label="Library summary"><li><span>Playable cases</span><strong>{caseCatalog.length + reviewedRehearsals.length}</strong></li><li><span>Total time</span><strong>About 45 min</strong></li></ul>
         </header>
 
         <section className="reviewed-rehearsal-grid" aria-label="Reviewed interactive rehearsals">
-          {reviewedRehearsals.map((item) => (
+          {reviewedRehearsals.map((item, index) => (
             <article className="featured-rehearsal" key={item.id}>
               <div className="featured-rehearsal-mark">
                 {item.icon === "message"
@@ -44,7 +44,7 @@ export function CaseLibrary({
                     : <KeyRound size={27} />}
               </div>
               <div>
-                <span>{item.kicker}</span>
+                <span>{String(index + 1).padStart(2, "0")} / {item.kicker}</span>
                 <h2>{item.title}</h2>
                 <p>{item.summary}</p>
                 <ul className="rehearsal-meta" aria-label={`${item.title} details`}>
@@ -63,7 +63,12 @@ export function CaseLibrary({
           ))}
         </section>
 
-        <section className="case-grid" aria-label="Case list">
+        <header className="archive-section-heading">
+          <div><span>ARCHIVE CASES</span><h2 id="archive-cases-heading">Earlier rehearsals</h2></div>
+          <strong>{completedCount} / {caseCatalog.length} complete this session</strong>
+        </header>
+
+        <section aria-labelledby="archive-cases-heading" className="case-grid">
           {caseCatalog.map((item) => {
             const isCompleted = Boolean(completed[item.id]);
             return (

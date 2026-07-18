@@ -17,7 +17,7 @@ function TextField({
   return (
     <label className="copy-editor-field">
       <span>{label}</span>
-      <input maxLength={160} onChange={(event) => onChange(event.target.value)} value={value} />
+      <input autoComplete="off" maxLength={160} name={`label-${label.toLowerCase().replaceAll(" ", "-")}`} onChange={(event) => onChange(event.target.value)} value={value} />
     </label>
   );
 }

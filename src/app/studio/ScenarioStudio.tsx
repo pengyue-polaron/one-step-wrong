@@ -269,6 +269,7 @@ export function ScenarioStudio({
   const [mobilePanel, setMobilePanel] = useState<"task" | "conversation">("task");
   const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
   const dialogueLogRef = useRef<HTMLDivElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<HTMLElement>(null);
   const previousStageRef = useRef<StudioStage>(stage);
 
@@ -367,6 +368,15 @@ export function ScenarioStudio({
     if (!dialogueLogRef.current) return;
     dialogueLogRef.current.scrollTop = dialogueLogRef.current.scrollHeight;
   }, [messages]);
+
+  useEffect(() => {
+    if (!error || !errorRef.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView?.({ block: "center" });
+      errorRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [error]);
 
   async function research(useFixture: boolean) {
     setBusy(true); setError(""); setNotice("");
@@ -644,16 +654,16 @@ export function ScenarioStudio({
         <StageRail stage={stage} />
         <section aria-busy={busy || coachBusy} className="studio-workspace" ref={workspaceRef}>
           {notice && <div className="studio-notice" role="status"><CheckCircle2 size={16} /><span>{notice}</span></div>}
-          {error && <div className="studio-notice is-error" role="alert"><CircleAlert size={16} /><span>{error}</span><button aria-label="Dismiss error" onClick={() => setError("")}><X size={15} /></button></div>}
+          {error && <div className="studio-notice is-error" ref={errorRef} role="alert" tabIndex={-1}><CircleAlert size={16} /><span>{error}</span><button aria-label="Dismiss error" onClick={() => setError("")}><X size={15} /></button></div>}
 
           {stage === "research" && (
             <div className="studio-section" data-testid="studio-research">
               <header className="studio-section-heading"><span>01 / INSTITUTION CONTEXT</span><h1>Start with the environment students already know.</h1><p>Use public guidance to match the school&apos;s terminology, tools, and reporting routes.</p></header>
               <div className="studio-form-grid">
-                <label className="studio-field studio-field-wide"><span>Institution</span><input value={institutionName} maxLength={120} onChange={(event) => { setInstitutionName(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
-                <label className="studio-field"><span>Official domain</span><input value={officialDomain} maxLength={253} onChange={(event) => { setOfficialDomain(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
-                <fieldset className="studio-field studio-mode"><legend>Institution naming</legend><div><button className={publicationMode === "brand-safe-fictionalized" ? "is-active" : ""} onClick={() => { setPublicationMode("brand-safe-fictionalized"); setExactAuthorizationConfirmed(false); }} type="button">Fictionalized</button><button className={publicationMode === "authorized-exact" ? "is-active" : ""} onClick={() => { setPublicationMode("authorized-exact"); setExactAuthorizationConfirmed(false); }} type="button">Use exact names</button></div></fieldset>
-                {publicationMode === "authorized-exact" && <label className="studio-authorization studio-field-wide"><input checked={exactAuthorizationConfirmed} onChange={(event) => setExactAuthorizationConfirmed(event.target.checked)} type="checkbox" /><span><strong>Permission confirmed</strong>I have permission to use this institution&apos;s exact name and terminology in the rehearsal.</span></label>}
+                <label className="studio-field studio-field-wide"><span>Institution</span><input autoComplete="organization" maxLength={120} name="institution" value={institutionName} onChange={(event) => { setInstitutionName(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
+                <label className="studio-field"><span>Official domain</span><input autoCapitalize="none" autoComplete="off" inputMode="url" maxLength={253} name="official-domain" spellCheck={false} value={officialDomain} onChange={(event) => { setOfficialDomain(event.target.value); setExactAuthorizationConfirmed(false); }} /></label>
+                <fieldset className="studio-field studio-mode"><legend>Institution naming</legend><div><button aria-pressed={publicationMode === "brand-safe-fictionalized"} className={publicationMode === "brand-safe-fictionalized" ? "is-active" : ""} onClick={() => { setPublicationMode("brand-safe-fictionalized"); setExactAuthorizationConfirmed(false); }} type="button">Fictionalized</button><button aria-pressed={publicationMode === "authorized-exact"} className={publicationMode === "authorized-exact" ? "is-active" : ""} onClick={() => { setPublicationMode("authorized-exact"); setExactAuthorizationConfirmed(false); }} type="button">Use exact names</button></div></fieldset>
+                {publicationMode === "authorized-exact" && <label className="studio-authorization studio-field-wide"><input checked={exactAuthorizationConfirmed} name="exact-name-permission" onChange={(event) => setExactAuthorizationConfirmed(event.target.checked)} type="checkbox" /><span><strong>Permission confirmed</strong>I have permission to use this institution&apos;s exact name and terminology in the rehearsal.</span></label>}
               </div>
               <div className="studio-actions">
                 <button className={`studio-button ${adaptiveAuthoringAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveAuthoringAvailable || busy || institutionName.trim().length < 2 || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(false)} title={adaptiveAuthoringAvailable ? undefined : "New source research is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FileSearch size={16} />}Find public guidance</button>
@@ -667,12 +677,16 @@ export function ScenarioStudio({
           {stage === "profile" && profile && (
             <div className="studio-section" data-testid="studio-profile">
               <header className="studio-section-heading studio-heading-row"><div><span>02 / CONTEXT REVIEW</span><h1>{profile.displayName}</h1><p>{profile.officialDomains.join(" · ")} · {profile.publicationMode === "brand-safe-fictionalized" ? "fictionalized names" : "exact institution names"} · {profile.facts.filter((fact) => fact.status === "verified").length} supported facts · {profile.unresolvedFields.length} open questions</p></div><ProvenanceBadge value={profileProvenance} /></header>
+              <div className="studio-review-dock">
+                <span><strong>{profile.facts.length} facts ready for review</strong><small>{profile.sources.filter((source) => source.reviewStatus === "approved").length} approved sources · {profile.unresolvedFields.length} open questions</small></span>
+                <button className="studio-button studio-button-primary" onClick={approveProfile}><UserRoundCheck size={16} />Approve profile</button>
+              </div>
               <div className="profile-table" aria-label="Institution facts">
                 {profile.facts.map((fact, factIndex) => (
                   <div className="profile-row" key={fact.id}>
-                    <div className="profile-fact-meta"><span>{fact.category.replaceAll("-", " ")}</span><strong>{fact.label}</strong><label className="fact-review-status"><span>Review status</span><select aria-label={`Status for ${fact.label}`} className={`fact-status is-${fact.status}`} value={fact.status} onChange={(event) => updateFactStatus(factIndex, event.target.value as InstitutionProfile["facts"][number]["status"])}><option value="verified">Verified</option><option value="conflicting">Conflicting</option><option value="unknown">Unknown</option></select></label><small>{fact.confidence} confidence</small></div>
+                    <div className="profile-fact-meta"><span>{fact.category.replaceAll("-", " ")}</span><strong>{fact.label}</strong><label className="fact-review-status"><span>Review status</span><select aria-label={`Status for ${fact.label}`} className={`fact-status is-${fact.status}`} name={`fact-status-${fact.id}`} value={fact.status} onChange={(event) => updateFactStatus(factIndex, event.target.value as InstitutionProfile["facts"][number]["status"])}><option value="verified">Verified</option><option value="conflicting">Conflicting</option><option value="unknown">Unknown</option></select></label><small>{fact.confidence} confidence</small></div>
                     <div className="profile-fact-value">
-                      {fact.status === "unknown" ? <p className="unknown-value">Unknown remains unknown</p> : <textarea aria-label={`${fact.label} value`} value={fact.value ?? ""} maxLength={700} placeholder="Enter a source-supported value." onChange={(event) => setProfile((current) => current ? { ...current, approval: { status: "review-required" }, facts: current.facts.map((item, index) => index === factIndex ? { ...item, value: event.target.value } : item) } : current)} />}
+                      {fact.status === "unknown" ? <p className="unknown-value">Unknown remains unknown</p> : <textarea aria-label={`${fact.label} value`} autoComplete="off" maxLength={700} name={`fact-value-${fact.id}`} placeholder="Enter a source-supported value…" value={fact.value ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, approval: { status: "review-required" }, facts: current.facts.map((item, index) => index === factIndex ? { ...item, value: event.target.value } : item) } : current)} />}
                       <div className="source-chips">{fact.sourceIds.map((sourceId) => { const source = sourceById.get(sourceId); return source ? <a className={`is-${source.reviewStatus}`} href={source.url} target="_blank" rel="noreferrer" key={sourceId}><ExternalLink size={11} />{source.title}<small>{source.reviewStatus}</small></a> : null; })}</div>
                     </div>
                   </div>
@@ -689,7 +703,7 @@ export function ScenarioStudio({
                   </article>
                 ))}
               </section>
-              <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={approveProfile}><UserRoundCheck size={16} />Approve profile</button><button className="studio-button" onClick={() => research(profileProvenance === "reviewed-fixture")} disabled={busy}><RefreshCw size={16} />Reload</button><button className="studio-button studio-button-danger" onClick={() => { setProfile(null); setStage("research"); }}><X size={16} />Reject</button></div>
+              <div className="studio-actions"><button className="studio-button" onClick={() => research(profileProvenance === "reviewed-fixture")} disabled={busy}><RefreshCw size={16} />Reload</button><button className="studio-button studio-button-danger" onClick={() => { setProfile(null); setStage("research"); }}><X size={16} />Reject</button></div>
             </div>
           )}
 
@@ -697,13 +711,13 @@ export function ScenarioStudio({
             <div className="studio-section" data-testid="studio-brief">
               <header className="studio-section-heading"><span>03 / SCENARIO DESIGN</span><h1>Put one ordinary task under believable pressure.</h1><p>Define who is practicing, what they need to finish, and the judgment the rehearsal should exercise.</p></header>
               <div className="studio-form-grid">
-                <label className="studio-field studio-field-wide"><span>Threat topic</span><input value={brief.threatTopic} onChange={(e) => setBrief({ ...brief, threatTopic: e.target.value })} /></label>
-                <label className="studio-field"><span>Target learner</span><input value={brief.targetLearner} onChange={(e) => setBrief({ ...brief, targetLearner: e.target.value })} /></label>
-                <label className="studio-field"><span>Duration</span><select value={brief.durationMinutes} onChange={(e) => setBrief({ ...brief, durationMinutes: Number(e.target.value) })}><option value={5}>5 minutes</option><option value={8}>8 minutes</option><option value={12}>12 minutes</option></select></label>
-                <label className="studio-field studio-field-wide"><span>Ordinary task</span><textarea value={brief.ordinaryTask} onChange={(e) => setBrief({ ...brief, ordinaryTask: e.target.value })} /></label>
-                <label className="studio-field"><span>Environment</span><textarea value={brief.environment} onChange={(e) => setBrief({ ...brief, environment: e.target.value })} /></label>
-                <label className="studio-field"><span>Pressure</span><textarea value={brief.pressure} onChange={(e) => setBrief({ ...brief, pressure: e.target.value })} /></label>
-                <label className="studio-field studio-field-wide"><span>Learning objective</span><textarea value={brief.learningObjective} onChange={(e) => setBrief({ ...brief, learningObjective: e.target.value })} /></label>
+                <label className="studio-field studio-field-wide"><span>Threat topic</span><input autoComplete="off" name="threat-topic" value={brief.threatTopic} onChange={(e) => setBrief({ ...brief, threatTopic: e.target.value })} /></label>
+                <label className="studio-field"><span>Target learner</span><input autoComplete="off" name="target-learner" value={brief.targetLearner} onChange={(e) => setBrief({ ...brief, targetLearner: e.target.value })} /></label>
+                <label className="studio-field"><span>Duration</span><select name="duration-minutes" value={brief.durationMinutes} onChange={(e) => setBrief({ ...brief, durationMinutes: Number(e.target.value) })}><option value={5}>5 minutes</option><option value={8}>8 minutes</option><option value={12}>12 minutes</option></select></label>
+                <label className="studio-field studio-field-wide"><span>Ordinary task</span><textarea autoComplete="off" name="ordinary-task" value={brief.ordinaryTask} onChange={(e) => setBrief({ ...brief, ordinaryTask: e.target.value })} /></label>
+                <label className="studio-field"><span>Environment</span><textarea autoComplete="off" name="environment" value={brief.environment} onChange={(e) => setBrief({ ...brief, environment: e.target.value })} /></label>
+                <label className="studio-field"><span>Pressure</span><textarea autoComplete="off" name="pressure" value={brief.pressure} onChange={(e) => setBrief({ ...brief, pressure: e.target.value })} /></label>
+                <label className="studio-field studio-field-wide"><span>Learning objective</span><textarea autoComplete="off" name="learning-objective" value={brief.learningObjective} onChange={(e) => setBrief({ ...brief, learningObjective: e.target.value })} /></label>
               </div>
               <div className="studio-actions">
                 <button className={`studio-button ${adaptiveAuthoringAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveAuthoringAvailable || busy} onClick={() => generateScenario(false)} title={adaptiveAuthoringAvailable ? undefined : "New scenario generation is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Create rehearsal</button>
@@ -716,6 +730,12 @@ export function ScenarioStudio({
           {stage === "preview" && scenario && (
             <div className="studio-section" data-testid="studio-preview">
               <header className="studio-section-heading studio-heading-row"><div><span>04 / SCENARIO PREVIEW</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {scenario.learnerRole}</p></div><div className={`validation-passed ${scenarioReady ? "" : "is-blocked"}`}><ShieldCheck size={18} /><span><strong>{scenarioReady ? "READY" : "BLOCKED"}</strong><small>{scenarioReady ? "Scenario checks passed" : "Resolve validation or outcome coverage"}</small></span></div></header>
+              {!editingScenario && (
+                <div className="studio-review-dock">
+                  <span><strong>{scenarioReady ? "Ready to rehearse" : "Review blocked"}</strong><small>{scenarioCoverage?.reachableStateCount ?? 0} legal states checked · {scenarioCoverage?.endingCoverage.filter((result) => result.reachable).length ?? 0} / 4 outcomes reachable</small></span>
+                  <button className="studio-button studio-button-primary" disabled={!scenarioReady} onClick={launchScenario}><Play size={16} />Start rehearsal</button>
+                </div>
+              )}
               {editingScenario && draftScenario && draftValidation ? (
                 <ScenarioCopyEditor
                   coverage={draftCoverage}
@@ -766,7 +786,7 @@ export function ScenarioStudio({
                   <span>{scenarioValidation?.issues.slice(0, 4).map((issue) => `${issue.path}: ${issue.message}`).join("\n")}</span>
                 </div>
               )}
-              <div className="studio-actions"><button className="studio-button studio-button-primary" disabled={!scenarioReady} onClick={launchScenario}><Play size={16} />Start rehearsal</button><button className="studio-button" onClick={beginCopyEdit}><FilePenLine size={16} />Edit visible labels</button><button className="studio-button" onClick={() => setStage("brief")}><ArrowLeft size={16} />Edit brief</button></div>
+              <div className="studio-actions"><button className="studio-button" onClick={beginCopyEdit}><FilePenLine size={16} />Edit visible labels</button><button className="studio-button" onClick={() => setStage("brief")}><ArrowLeft size={16} />Edit brief</button></div>
                 </>
               )}
             </div>
@@ -836,8 +856,8 @@ export function ScenarioStudio({
                       ? <p>No evidence collected yet.</p>
                       : <div>{simulation.evidenceIds.map((evidenceId) => { const evidence = scenario.evidence.find((item) => item.id === evidenceId); return evidence ? <article key={evidence.id}><strong>{evidence.label}</strong><p>{evidence.description}</p></article> : null; })}</div>}
                   </section>
-                  <div className="role-picker" aria-label="Open conversation channels">{visibleRoles.map((role) => <button className={selectedRoleId === role.id ? "is-active" : ""} disabled={busy} key={role.id} onClick={() => setSelectedRoleId(role.id)} title={role.allowedChannels[0]}><span className="role-dot" /><span><strong>{role.displayName}</strong><small>{role.allowedChannels[0]}</small></span></button>)}</div>
-                  <form className="dialogue-compose" onSubmit={sendMessage}><textarea aria-label="Message a role" disabled={busy} maxLength={500} placeholder="Ask a natural question…" value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} /><button aria-label="Send message" disabled={busy || !messageDraft.trim()}>{busy ? <LoaderCircle className="is-spinning" size={17} /> : <Send size={17} />}</button></form>
+                  <div className="role-picker" aria-label="Open conversation channels">{visibleRoles.map((role) => <button aria-pressed={selectedRoleId === role.id} className={selectedRoleId === role.id ? "is-active" : ""} disabled={busy} key={role.id} onClick={() => setSelectedRoleId(role.id)} title={role.allowedChannels[0]} type="button"><span className="role-dot" /><span><strong>{role.displayName}</strong><small>{role.allowedChannels[0]}</small></span></button>)}</div>
+                  <form className="dialogue-compose" onSubmit={sendMessage}><textarea aria-label="Message a role" autoComplete="off" disabled={busy} maxLength={500} name="role-message" placeholder="Ask a natural question…" value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} /><button aria-label={busy ? "Sending message" : "Send message"} disabled={busy || !messageDraft.trim()} type="submit">{busy ? <LoaderCircle className="is-spinning" size={17} /> : <Send size={17} />}</button></form>
                 </section>
               </div>
             </div>
@@ -922,7 +942,7 @@ export function ScenarioStudio({
                       </div>
                     )}
                     <form className="coach-compose" onSubmit={(event) => { event.preventDefault(); askEvidenceCoach(coachQuestion); }}>
-                      <input aria-label="Question about the evidence" maxLength={500} placeholder="Ask why a check was or was not enough…" value={coachQuestion} onChange={(event) => setCoachQuestion(event.target.value)} />
+                      <input aria-label="Question about the evidence" autoComplete="off" maxLength={500} name="evidence-question" placeholder="Ask why a check was or was not enough…" value={coachQuestion} onChange={(event) => setCoachQuestion(event.target.value)} />
                       <button disabled={coachBusy || coachQuestion.trim().length < 3} type="submit">{coachBusy ? <LoaderCircle className="is-spinning" size={16} /> : <ArrowRight size={16} />}Ask</button>
                     </form>
                   </section>

@@ -29,18 +29,18 @@ function OfficialAuth({ guest = false }: { guest?: boolean }) {
       <div className="simulated-form" aria-label="Identity verification form">
         {guest ? (
           <>
-            <label><span>Mobile number</span><div><Smartphone size={15} /><input value="212 •••• 2048" readOnly aria-label="Mobile number" /></div></label>
-            <label><span>Verification code</span><div><MessageSquare size={15} /><input value="284 106" readOnly aria-label="Verification code" /></div></label>
-            <label className="terms-check"><input type="checkbox" checked={terms} onChange={() => setTerms((value) => !value)} /><span />I accept the guest network terms</label>
+            <label><span>Mobile number</span><div><Smartphone size={15} /><input aria-label="Mobile number" autoComplete="off" name="guest-mobile" readOnly value="212 •••• 2048" /></div></label>
+            <label><span>Verification code</span><div><MessageSquare size={15} /><input aria-label="Verification code" autoComplete="off" name="guest-code" readOnly value="284 106" /></div></label>
+            <label className="terms-check"><input checked={terms} name="guest-terms" onChange={() => setTerms((value) => !value)} type="checkbox" /><span />I accept the guest network terms</label>
           </>
         ) : (
           <>
-            <label><span>NYU NetID</span><div><UserRound size={15} /><input value="ls2841@nyu.edu" readOnly aria-label="NYU NetID" /></div></label>
-            <label><span>Verification method</span><div><LockKeyhole size={15} /><input value="Device confirmation ·••••" readOnly aria-label="Verification method" /></div></label>
+            <label><span>NYU NetID</span><div><UserRound size={15} /><input aria-label="NYU NetID" autoComplete="off" name="official-netid" readOnly value="ls2841@nyu.edu" /></div></label>
+            <label><span>Verification method</span><div><LockKeyhole size={15} /><input aria-label="Verification method" autoComplete="off" name="verification-method" readOnly value="Device confirmation ·••••" /></div></label>
           </>
         )}
         <PixelButton variant="primary" disabled={guest && !terms || connecting} onClick={() => setConnecting(true)}>
-          {connecting ? "Verifying..." : guest ? "Connect to guest network" : "Verify and connect"}
+          {connecting ? "Verifying…" : guest ? "Connect to guest network" : "Verify and connect"}
         </PixelButton>
       </div>
     </div>
@@ -70,7 +70,7 @@ function FakePortal({ ready }: { ready: boolean }) {
       <div className="portal-connecting" role="status">
         <span><Globe2 size={27} /></span>
         <h2>Connected, no internet</h2>
-        <p>Opening the network sign-in page...</p>
+        <p>Opening the network sign-in page…</p>
         <i aria-hidden="true" />
       </div>
     );
@@ -82,8 +82,8 @@ function FakePortal({ ready }: { ready: boolean }) {
         <div className="portal-steps"><span className="is-current">1 Identity</span><i /><span>2 Network profile</span></div>
         <div className="portal-copy"><h2>{copy.portal.title}</h2><p>{copy.portal.body}</p></div>
         <div className="simulated-form">
-          <label><span>NYU NetID / Email</span><div><UserRound size={15} /><input value="ls2841@nyu.edu" readOnly aria-label="NYU NetID" /></div></label>
-          <label><span>Password</span><div><LockKeyhole size={15} /><input value="••••••••••••" readOnly aria-label="Password" /></div></label>
+          <label><span>NYU NetID / Email</span><div><UserRound size={15} /><input aria-label="NYU NetID" autoComplete="off" name="portal-netid" readOnly value="ls2841@nyu.edu" /></div></label>
+          <label><span>Password</span><div><LockKeyhole size={15} /><input aria-label="Password" autoComplete="off" name="portal-password" readOnly value="••••••••••••" /></div></label>
           <PixelButton variant="primary" onClick={() => dispatch({ type: "PORTAL_IDENTITY" })}>Continue</PixelButton>
         </div>
       </div>

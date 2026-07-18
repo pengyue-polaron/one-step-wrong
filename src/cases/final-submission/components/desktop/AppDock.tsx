@@ -20,6 +20,7 @@ export function AppDock() {
       {apps.map((app) => (
         <button
           key={app.id}
+          aria-pressed={state.activeWindow === app.id && state.openWindows.includes(app.id)}
           className={state.activeWindow === app.id && state.openWindows.includes(app.id) ? "is-active" : ""}
           aria-label={app.label}
           title={app.label}

@@ -6,7 +6,7 @@ import { SharedDraftCase } from "@/cases/shared-draft/SharedDraftCase";
 import { UnexpectedPushCase } from "@/cases/unexpected-push/UnexpectedPushCase";
 
 describe("case library and decision chapters", () => {
-  it("presents three reviewed rehearsals, two archive cases, and session progress", async () => {
+  it("presents a sequenced reviewed path and separate archive progress", async () => {
     const user = userEvent.setup();
     const onStart = vi.fn();
     render(<CaseLibrary completed={{ "final-submission": "verified" }} onStart={onStart} />);
@@ -14,8 +14,13 @@ describe("case library and decision chapters", () => {
     expect(screen.getByRole("heading", { name: "The Voice You Know" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Sharing Scope" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Recovery Window" })).toBeInTheDocument();
+    expect(screen.getByText("01 / IDENTITY · PAYMENT")).toBeInTheDocument();
+    expect(screen.getByText("02 / AUDIENCE · PERMISSION")).toBeInTheDocument();
+    expect(screen.getByText("03 / RECOVERY · AUTHORITY")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Earlier rehearsals" })).toBeInTheDocument();
     expect(screen.getByText("Five rehearsals · Five judgment patterns")).toBeInTheDocument();
-    expect(screen.getByText("Archive 1 / 2 complete")).toBeInTheDocument();
+    expect(screen.getByText("3 reviewed · 2 archive")).toBeInTheDocument();
+    expect(screen.getByText("1 / 2 complete this session")).toBeInTheDocument();
     expect(screen.getAllByText("Complete")).toHaveLength(1);
     expect(screen.queryByTestId("case-shared-draft")).not.toBeInTheDocument();
     await user.click(screen.getByTestId("case-unexpected-push"));

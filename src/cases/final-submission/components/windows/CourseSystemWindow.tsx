@@ -69,7 +69,7 @@ export function CourseSystemWindow() {
 
               {state.assignmentUploaded ? (
                 <label className="integrity-check">
-                  <input type="checkbox" checked={state.integrityAccepted} onChange={() => dispatch({ type: "TOGGLE_INTEGRITY" })} />
+                  <input checked={state.integrityAccepted} name="academic-integrity" onChange={() => dispatch({ type: "TOGGLE_INTEGRITY" })} type="checkbox" />
                   <span><Check size={13} /></span>
                   I confirm this is my own work and follows the course academic integrity requirements.
                 </label>

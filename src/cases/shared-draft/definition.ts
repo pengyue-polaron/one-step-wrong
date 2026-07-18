@@ -3,7 +3,7 @@ import type { DecisionCaseDefinition } from "@/engine/decision/types";
 
 export const sharedDraftSummary = {
   id: "shared-draft",
-  number: "02",
+  number: "A02",
   title: "Sharing Scope",
   kicker: "Collaboration and access",
   summary: "The team needs access now. How do you keep the work moving without handing interview files to everyone who gets the link?",

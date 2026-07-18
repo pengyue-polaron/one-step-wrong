@@ -21,6 +21,8 @@ It is not a quiz. Choices are not labeled safe, risky, correct, or recommended b
 
 ![The case library with three reviewed interactive rehearsals and two archive chapters](./artifacts/screenshots/case-library.png)
 
+The library presents the three reviewed rehearsals as a clear 01–03 learning path, then separates the earlier archive cases and their session-only completion state.
+
 ## Why This Project
 
 Most security training explains the answer before learners feel the pressure that makes a convenient option attractive. This project reverses that order:
@@ -67,7 +69,7 @@ Brand-safe fictionalization is the default. Authorized exact-brand research requ
 | **Final Submission** | Restore connectivity and submit an assignment to NYU Brightspace before the deadline. | Wireless identity, domains, configuration profiles, and account recovery. | Deep desktop simulation, 1100 px minimum width. |
 | **Was That You?** | Join an advising meeting while repeated Duo requests arrive. | User-initiated login, device and location matching, sessions, recovery methods, and reporting. | Responsive decision chapter. |
 
-Each case has an ordinary objective, an unmarked decision, a delayed consequence where appropriate, individual response actions, multiple endings, and a replayable causal debrief. Progress lasts only for the current browser session.
+Each case has an ordinary objective, an unmarked decision, a delayed consequence where appropriate, individual response actions, multiple endings, and a replayable causal debrief. Archive completion lasts only for the current browser session; reviewed rehearsals do not persist learner state.
 
 ## Screenshots
 

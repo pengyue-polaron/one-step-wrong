@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Clock3, FolderKey, MapPin, MessageSquareText, ShieldCheck, Sparkles, Wifi } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, FolderKey, KeyRound, MapPin, MessageSquareText, ShieldCheck, Sparkles, Wifi } from "lucide-react";
 import Link from "next/link";
 import { caseCatalog } from "@/product/caseRegistry";
 import { reviewedRehearsals } from "@/product/reviewedRehearsals";
@@ -30,14 +30,18 @@ export function CaseLibrary({
       <div className="library-body">
         <header className="library-heading">
           <div><span>CASE ARCHIVE · FALL 2026</span><h1>Choose a rehearsal</h1><p>Every story begins with an ordinary task. The result follows what you actually do, not how many answers you get right.</p></div>
-          <ul className="library-stats" aria-label="Library summary"><li><span>Playable cases</span><strong>{caseCatalog.length + reviewedRehearsals.length}</strong></li><li><span>Total time</span><strong>About 36 min</strong></li></ul>
+          <ul className="library-stats" aria-label="Library summary"><li><span>Playable cases</span><strong>{caseCatalog.length + reviewedRehearsals.length}</strong></li><li><span>Total time</span><strong>About 45 min</strong></li></ul>
         </header>
 
         <section className="reviewed-rehearsal-grid" aria-label="Reviewed interactive rehearsals">
           {reviewedRehearsals.map((item) => (
             <article className="featured-rehearsal" key={item.id}>
               <div className="featured-rehearsal-mark">
-                {item.icon === "message" ? <MessageSquareText size={27} /> : <FolderKey size={27} />}
+                {item.icon === "message"
+                  ? <MessageSquareText size={27} />
+                  : item.icon === "folder"
+                    ? <FolderKey size={27} />
+                    : <KeyRound size={27} />}
               </div>
               <div>
                 <span>{item.kicker}</span>
@@ -88,8 +92,8 @@ export function CaseLibrary({
         </section>
 
         <footer className="library-footnote">
-          <span>Four rehearsals · Four judgment patterns</span>
-          <p>Verify sources, scope sharing, bind authentication to your own action, and challenge familiar requests.</p>
+          <span>Five rehearsals · Five judgment patterns</span>
+          <p>Verify sources, scope sharing, separate recovery authority, bind authentication to your own action, and challenge familiar requests.</p>
         </footer>
       </div>
     </main>

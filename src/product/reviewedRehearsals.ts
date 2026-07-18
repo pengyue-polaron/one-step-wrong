@@ -21,4 +21,15 @@ export const reviewedRehearsals = [
     icon: "folder",
     kicker: "AUDIENCE · PERMISSION",
   },
+  {
+    id: "recovery-window",
+    title: "Recovery Window",
+    summary: "A real teammate needs publishing access before a live show. Separate one task from account recovery authority, then inspect what a handoff actually changed.",
+    location: "Northbridge University",
+    duration: "About 9 minutes",
+    href: "/rehearsal/recovery-window",
+    testId: "rehearsal-recovery-window",
+    icon: "key",
+    kicker: "RECOVERY · AUTHORITY",
+  },
 ] as const;

@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-132%20unit%20%2B%2021%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-134%20unit%20%2B%2023%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -19,7 +19,7 @@
 
 它不是知识问答。结果发生前，任何选择都不会被标注为安全、危险、正确或推荐。
 
-![包含两个审核互动演练和两个归档章节的案例库](./artifacts/screenshots/case-library.png)
+![包含三个审核互动演练和两个归档章节的案例库](./artifacts/screenshots/case-library.png)
 
 ## 为什么做这个项目
 
@@ -43,13 +43,13 @@
 6. 根据实际完成的动作复盘因果链与最终操作状态。
 7. 在内置迁移规则显示前，先在不同任务中完成一次选择。
 
-学习者可以打开 [`/rehearsal`](http://localhost:3000/rehearsal) 进入 **The Voice You Know**，或打开 [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope) 进入 **Sharing Scope**。新情境动作记录后，Evidence Coach 才会依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、最终操作状态、证据、讨论问题、审核指导和打印视图。
+学习者可以打开 [`/rehearsal`](http://localhost:3000/rehearsal) 进入 **The Voice You Know**，打开 [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope) 进入 **Sharing Scope**，或打开 [`/rehearsal/recovery-window`](http://localhost:3000/rehearsal/recovery-window) 进入 **Recovery Window**。新情境动作记录后，Evidence Coach 才会依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、最终操作状态、证据、讨论问题、审核指导和打印视图。
 
 自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。没有 API key 时，旗舰直达入口和明确的 **Use example...** 路径仍然完整；实时创作按钮会清楚显示不可用，不会悄悄把学校或教学简报替换成无关数据。
 
 > **对话可以变化，后果由学习者完成的动作决定。**
 
-两个审核演练都使用虚构的 Northbridge University，不包含真实人物、付款信息、私人文档或校园操作。产品方向见 [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md)，可复现质量证据见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)，架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
+三个审核演练都使用虚构的 Northbridge University，不包含真实人物、付款信息、私人文档或校园操作。产品方向见 [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md)，可复现质量证据见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)，架构与安全边界见 [`AGENTS.md`](./AGENTS.md)。
 
 如需直接组织一次 10–35 分钟课堂或工作坊活动，可以使用双语 [`FACILITATOR_GUIDE.zh-CN.md`](./FACILITATOR_GUIDE.zh-CN.md)。
 
@@ -63,6 +63,7 @@
 | --- | --- | --- | --- |
 | **The Voice You Know** | 在熟悉声音要求变更付款信息时完成嘉宾报销。 | 独立验证、付款状态、工作区访问和分层恢复。 | 审核过的 Agentic 演练，支持响应式布局。 |
 | **Sharing Scope** | 给三位纪录片项目成员开放核对访谈引文所需的权限。 | 具名对象、权限级别、可转发链接、内容恢复和泄露响应。 | 审核过的 Agentic 演练，支持响应式布局。 |
+| **Recovery Window** | 给晚间制作人开放修改直播排期所需的访问。 | 任务访问、账号恢复权限、设备绑定、会话检查和撤销。 | 审核过的 Agentic 演练，支持响应式布局。 |
 | **最后一次提交** | 在截止前恢复网络，把作业提交至 NYU Brightspace。 | 无线网络身份、域名、配置文件和账号止损。 | 深度桌面模拟，最低宽度 1100 px。 |
 | **这次是你吗** | 在连续收到 Duo 请求时进入导师会议。 | 本人发起的登录、设备与位置、会话、恢复方式和上报。 | 响应式决策章节。 |
 
@@ -112,13 +113,20 @@
 
 ![把链接选择、活动证据、分层恢复和迁移规则连接起来的 Sharing Scope 复盘](./artifacts/screenshots/sharing-scope-debrief.png)
 
+### 账号恢复权限
+
+![Recovery Window 中的交接设备获得恢复权限并打开新会话](./artifacts/screenshots/recovery-window-incident.png)
+
 ### 响应式章节
 
 <table>
   <tr>
-    <td width="33%"><img alt="手机上的案例库" src="./artifacts/screenshots/mobile-case-library.png" /></td>
-    <td width="33%"><img alt="手机上的 Sharing Scope 任务工作区" src="./artifacts/screenshots/mobile-sharing-scope.png" /></td>
-    <td width="33%"><img alt="手机上的教师报告" src="./artifacts/screenshots/mobile-facilitator-report.png" /></td>
+    <td width="50%"><img alt="手机上的案例库" src="./artifacts/screenshots/mobile-case-library.png" /></td>
+    <td width="50%"><img alt="手机上的 Recovery Window 任务工作区" src="./artifacts/screenshots/mobile-recovery-window.png" /></td>
+  </tr>
+  <tr>
+    <td width="50%"><img alt="手机上的 Sharing Scope 对话工作区" src="./artifacts/screenshots/mobile-sharing-conversation.png" /></td>
+    <td width="50%"><img alt="手机上的教师报告" src="./artifacts/screenshots/mobile-facilitator-report.png" /></td>
   </tr>
 </table>
 
@@ -135,7 +143,7 @@
 - Playwright 与 Axe 完整流程、键盘焦点、自动无障碍和响应式布局测试
 - 不含学习者级记录的场次汇总试用工具
 
-案例库和两个完整的审核演练都可以在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；没有 key 时，明确的审核示例按钮仍然可用，实时创作请求会返回清楚的错误。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
+案例库和三个完整的审核演练都可以在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；没有 key 时，明确的审核示例按钮仍然可用，实时创作请求会返回清楚的错误。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
 
 ## 技术证据
 
@@ -149,7 +157,7 @@
 
 模型不执行关键动作，不修改付款、访问或内容状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，所有浏览器调用都通过 [`src/app/api`](./src/app/api) 中有大小限制的服务端路由。
 
-生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。审核语音案例会检查 248 个合法动作状态，Sharing Scope 会检查 29 个。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
+生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。审核语音案例会检查 248 个合法动作状态，Sharing Scope 会检查 29 个，Recovery Window 会检查 46 个。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
 
 同一份 schema 还会证明每一条恢复可用路径都经过事故触发点、contained 事故中每个被改变的状态字段都有真正有效的恢复动作，而且受影响层的最终状态确实已被控制。旗舰案例里，付款批准会先表现为成功，后续状态复查才揭示异常；真正的 contained 还必须单独请求财务冻结。对话渠道只有在学习者明确打开后才出现；自由对话会留在当前选中的角色频道，动作触发事件会记录 ID，避免审核对话无限重复。
 
@@ -299,7 +307,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 132 个 schema、API、状态与组件测试，以及 21 个浏览器测试。覆盖范围包括两个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、访问与内容恢复、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机流程。
+当前测试集包含 134 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖范围包括三个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、付款/访问/内容恢复、账号设备撤销、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机任务/对话流程。
 
 ## 安全与隐私
 

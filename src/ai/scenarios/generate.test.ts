@@ -5,6 +5,7 @@ import {
   type ScenarioGenerationProvider,
 } from "@/ai/scenarios/generate";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
+import { recoveryWindowScenario } from "@/fixtures/recoveryWindow";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 import { sharingScopeScenario } from "@/fixtures/sharingScope";
 import type { InstitutionProfile } from "@/ai/schemas/institution";
@@ -47,9 +48,10 @@ describe("Scenario Architect adapter", () => {
     expect(() => validateScenarioPublicationMode(leaked, reviewedNyuInstitutionProfile)).toThrow("protected term");
   });
 
-  it("keeps both reviewed rehearsals within the fictionalized publication boundary", () => {
+  it("keeps every reviewed rehearsal within the fictionalized publication boundary", () => {
     expect(() => validateScenarioPublicationMode(voiceYouKnowScenario, reviewedNyuInstitutionProfile)).not.toThrow();
     expect(() => validateScenarioPublicationMode(sharingScopeScenario, reviewedNyuInstitutionProfile)).not.toThrow();
+    expect(() => validateScenarioPublicationMode(recoveryWindowScenario, reviewedNyuInstitutionProfile)).not.toThrow();
   });
 
   it("rejects a generated package with a declared but unreachable ending", async () => {

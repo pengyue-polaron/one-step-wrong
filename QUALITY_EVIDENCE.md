@@ -15,6 +15,7 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Explicit actions, trigger-bound recovery, contained final state, outcomes, and replay | `src/engine/simulation/physics.ts`, schema and prerequisite tests, and complete safe/incident browser routes | Verified |
 | A first verification channel is chosen under pressure and each alternative has distinct evidence | `src/fixtures/voiceYouKnow.ts`, exclusive-action physics, simulation tests, desktop and mobile evidence-board flows | Verified |
 | Access audience and permission scope are independently practiced | `src/fixtures/sharingScope.ts`, exclusive-action physics, direct route, layered access/content recovery, and browser flow | Verified |
+| Task access is separated from account-recovery authority | `src/fixtures/recoveryWindow.ts`, exclusive verification/access choices, device/session evidence, direct route, and safe/contained browser flows | Verified |
 | Unsafe actions produce delayed, inspectable consequences | Action-delivered dialogue, inspection prerequisites, and incident browser flow | Verified |
 | Containment restores every affected operational layer | Schema checks, payment-hold and access-revocation physics tests, facilitator final-state report | Verified |
 | Review is grounded in recorded actions | Debrief adapter, route tests, and the safe and incident browser paths | Verified |
@@ -25,7 +26,7 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Privacy-preserving formative pilot readiness | Header-only aggregate template, defined measures, strict validation, aggregate-only output, and analyzer tests in `pilot/`, `scripts/analyze-pilot.mjs`, and `src/pilot/analyze-pilot.test.ts` | Documented and validated; no participant results collected |
 | Featured rehearsal is immediately playable | Case-library entry and direct `/rehearsal` browser path | Verified |
 | Complete no-key product path | **Use example institution**, then **Use example rehearsal** in `/studio` | Verified |
-| Desktop and mobile product quality | `artifacts/screenshots/` and Playwright layout tests | Verified |
+| Desktop and mobile product quality | Three-column desktop catalog, phone task/conversation switcher, `artifacts/screenshots/`, and Playwright layout tests | Verified |
 | Core accessibility states | Axe serious/critical gate, skip navigation, stage focus, modal focus isolation, toggle semantics, and reduced-motion tests | Verified by automated checks; not a certification |
 | Automated quality gate | `.github/workflows/ci.yml` | Runs on `main` |
 
@@ -42,7 +43,7 @@ npm run test:e2e
 npm run pilot:analyze -- pilot/templates/session-aggregate.csv
 ```
 
-The current suite covers both reviewed direct entries, the case library, Studio authoring and the bounded label-editor state, source lineage, outcome coverage, delayed consequences, access/content recovery, the evidence board, immediate new-context application, Evidence Coach, facilitator reporting, keyboard focus, serious/critical Axe checks, modal isolation, desktop layout boundaries, and 390x844 phone flows. Component tests separately verify which label fields remain editable and which narrative fields stay locked.
+The current suite covers all three reviewed direct entries, the case library, Studio authoring and the bounded label-editor state, source lineage, outcome coverage, delayed consequences, payment/access/content recovery, account-device revocation, the evidence board, immediate new-context application, Evidence Coach, facilitator reporting, keyboard focus, serious/critical Axe checks, modal isolation, desktop layout boundaries, and 390x844 phone task/conversation flows. Component tests separately verify which label fields remain editable and which narrative fields stay locked.
 
 When a server is running with `OPENAI_API_KEY`, `npm run verify:live` requires live provenance for institution research, scenario generation, role dialogue, trace-grounded review, and Evidence Coach. It fails if any path falls back to reviewed content.
 

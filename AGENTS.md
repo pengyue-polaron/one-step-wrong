@@ -110,6 +110,7 @@ src/
 - When verification is part of the lesson, present plausible competing channels rather than one button whose wording reveals the answer. Same-thread, request-supplied, social, and independently known channels should reveal different evidence.
 - Show evidence during the rehearsal as the learner discovers it. Do not wait until the debrief to reveal every clue that informed the outcome.
 - On phone layouts, keep the opening request or a transcript-backed request summary before the action list so the evidence and pressure remain adjacent to the decision.
+- On phone layouts, use the shared Task/Conversation segmented control instead of stacking both full workspaces. Keep unread dialogue visible as a count, and preserve both panels in the DOM for state continuity.
 - When delayed consequences are part of the lesson, use non-mutating inspection actions to separate apparent task success from the later anomaly. Do not expose recovery controls before that anomaly is visible.
 - Once any recovery action begins, do not allow new containment or unsafe task actions in the same trace; finish all triggered consequence checks before entering recovery.
 - Declare action availability and incident triggers in the scenario package. The deterministic engine must reject premature or repeated actions, and the learner UI must expose recovery only after its triggering state change.
@@ -134,7 +135,8 @@ src/
 ## Current Story Worlds
 
 - The three legacy cases take place at NYU, primarily around Bobst Library, Washington Square, and nearby student spaces.
-- The flagship rehearsal uses fictional Northbridge University and generic product names as specified in `PRODUCT_PLAN.md`.
+- The reviewed agentic rehearsals use fictional Northbridge University and generic product names as specified in `PRODUCT_PLAN.md`.
+- `Recovery Window` must keep named publishing access separate from account-recovery authority; a legitimate teammate may misunderstand the handoff, while the known account surface and recorded device/session activity remain authoritative.
 - Treat the current NYU implementation as a behavioral reference during migration; preserve task pressure, decision structure, delayed consequences, recovery mechanics, and tests rather than retaining the brand.
 - New AI-generated cases must not contain real people, credentials, payment details, restricted content, logos, or proprietary trade dress.
 - Exact institution terminology may be published only in an explicitly authorized exact mode with approved sources. Publicly shared scenarios default to brand-safe fictionalized output.

@@ -1,12 +1,14 @@
 import type { InstitutionProfile } from "@/ai/schemas/institution";
 import type { ScenarioPackage } from "@/ai/schemas/scenario";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
+import { recoveryWindowScenario } from "@/fixtures/recoveryWindow";
 import { sharingScopeScenario } from "@/fixtures/sharingScope";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 
 export const reviewedScenarioIds = [
   "the-voice-you-know",
   "sharing-scope",
+  "recovery-window",
 ] as const;
 
 export type ReviewedScenarioId = (typeof reviewedScenarioIds)[number];
@@ -24,6 +26,10 @@ export const reviewedScenarioRegistry: Record<ReviewedScenarioId, ReviewedScenar
   "sharing-scope": {
     profile: reviewedNyuInstitutionProfile,
     scenario: sharingScopeScenario,
+  },
+  "recovery-window": {
+    profile: reviewedNyuInstitutionProfile,
+    scenario: recoveryWindowScenario,
   },
 };
 

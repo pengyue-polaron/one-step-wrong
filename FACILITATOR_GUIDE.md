@@ -15,8 +15,9 @@ Learners should be able to:
 2. Explain what a verification channel establishes and what it does not.
 3. Keep high-impact actions behind an independently known channel.
 4. Match access audience and permission to the work being done.
-5. Identify separate containment, recovery, communication, and reporting steps.
-6. Apply the same judgment rule in a different task.
+5. Separate temporary task access from future account-recovery authority.
+6. Identify separate containment, recovery, communication, and reporting steps.
+7. Apply the same judgment rule in a different task.
 
 ## Session Formats
 
@@ -28,7 +29,7 @@ Learners should be able to:
 
 ## Before The Session
 
-1. Open `/rehearsal` for identity verification, `/rehearsal/sharing-scope` for access scope, or `/` to choose another case.
+1. Open `/rehearsal` for identity verification, `/rehearsal/sharing-scope` for access scope, `/rehearsal/recovery-window` for recovery authority, or `/` to choose another case.
 2. Complete one practice run yourself and open the facilitator report.
 3. Decide whether learners will act individually, in pairs, or through a shared projected screen.
 4. Do not announce which action is safest. Introduce the ordinary task and let the pressure work.

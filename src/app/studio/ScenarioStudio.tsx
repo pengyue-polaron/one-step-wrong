@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -85,6 +85,8 @@ const authoringWorkflow: Array<{ id: StudioStage; label: string; meta: string }>
   { id: "preview", label: "Preview", meta: "Scenario checks" },
 ];
 
+const subscribeToHydration = () => () => {};
+
 const learnerWorkflow: Array<{ id: StudioStage; label: string; meta: string }> = [
   { id: "live", label: "Practice", meta: "Make the judgment" },
   { id: "debrief", label: "Review", meta: "See what changed" },
@@ -148,7 +150,7 @@ function StageRail({ stage }: { stage: StudioStage }) {
   return (
     <aside className="studio-rail" aria-label="Scenario workflow">
       <div className="studio-rail-title"><Sparkles size={15} /><span>{title}</span></div>
-      <ol>
+      <ol aria-label={`${title} stages`} tabIndex={0}>
         {workflow.map((item, index) => (
           <li
             aria-current={index === current ? "step" : undefined}
@@ -263,6 +265,9 @@ export function ScenarioStudio({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [coachBusy, setCoachBusy] = useState(false);
+  const clientReady = useSyncExternalStore(subscribeToHydration, () => true, () => false);
+  const [mobilePanel, setMobilePanel] = useState<"task" | "conversation">("task");
+  const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
   const dialogueLogRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<HTMLElement>(null);
   const previousStageRef = useRef<StudioStage>(stage);
@@ -470,6 +475,7 @@ export function ScenarioStudio({
     const dialogue = openingDialogue(scenario);
     setSimulation(createSimulationState(scenario));
     setMessages([dialogue.message]);
+    setMobilePanel("task"); setLastSeenMessageCount(0);
     setSelectedRoleId(dialogue.role.id); setDebrief(null); setTransferResult(null); setCoachAnswers([]); setCoachQuestion(""); setNotice(""); setStage("live");
   }
 
@@ -624,7 +630,7 @@ export function ScenarioStudio({
   }
 
   function restart() {
-    setStage("research"); setProfile(null); setScenario(null); setDraftScenario(null); setEditingScenario(false); setSimulation(null); setMessages([]); setDebrief(null); setTransferResult(null); setCoachAnswers([]); setCoachQuestion(""); setNotice(""); setError(""); setExactAuthorizationConfirmed(false);
+    setStage("research"); setProfile(null); setScenario(null); setDraftScenario(null); setEditingScenario(false); setSimulation(null); setMessages([]); setDebrief(null); setTransferResult(null); setCoachAnswers([]); setCoachQuestion(""); setNotice(""); setError(""); setExactAuthorizationConfirmed(false); setMobilePanel("task"); setLastSeenMessageCount(0);
   }
 
   return (
@@ -776,9 +782,35 @@ export function ScenarioStudio({
                 </div>
                 <div className="rehearsal-pressure"><span>CURRENT PRESSURE</span><strong>{scenario.intro.pressure}</strong></div>
               </header>
-              <div className="rehearsal-grid">
+              <div className="rehearsal-mobile-switcher" role="group" aria-label="Rehearsal workspace">
+                <button
+                  aria-pressed={mobilePanel === "task"}
+                  className={mobilePanel === "task" ? "is-active" : ""}
+                  onClick={() => setMobilePanel("task")}
+                  type="button"
+                >
+                  <ClipboardList size={15} />Task
+                </button>
+                <button
+                  aria-pressed={mobilePanel === "conversation"}
+                  className={mobilePanel === "conversation" ? "is-active" : ""}
+                  onClick={() => {
+                    setMobilePanel("conversation");
+                    setLastSeenMessageCount(messages.length);
+                  }}
+                  type="button"
+                >
+                  <MessageSquareText size={15} />Conversation
+                  {mobilePanel === "task" && messages.length > lastSeenMessageCount && (
+                    <span aria-label={`${messages.length - lastSeenMessageCount} unread messages`}>
+                      {Math.min(messages.length - lastSeenMessageCount, 9)}
+                    </span>
+                  )}
+                </button>
+              </div>
+              <div className={`rehearsal-grid is-mobile-${mobilePanel}`}>
                 <TaskWorkspace
-                  busy={busy}
+                  busy={busy || !clientReady}
                   inspectActions={visibleInspectActions}
                   onAction={performAction}
                   onFinish={finishScenario}

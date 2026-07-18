@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-132%20unit%20%2B%2021%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-134%20unit%20%2B%2023%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -19,7 +19,7 @@
 
 It is not a quiz. Choices are not labeled safe, risky, correct, or recommended before the outcome.
 
-![The case library with two reviewed interactive rehearsals and two archive chapters](./artifacts/screenshots/case-library.png)
+![The case library with three reviewed interactive rehearsals and two archive chapters](./artifacts/screenshots/case-library.png)
 
 ## Why This Project
 
@@ -43,13 +43,13 @@ Most security training explains the answer before learners feel the pressure tha
 6. Review the causal chain and final operational state from the actions actually completed.
 7. Choose an action in a different task before the built-in transfer rule is revealed.
 
-Learners can start **The Voice You Know** at [`/rehearsal`](http://localhost:3000/rehearsal) or **Sharing Scope** at [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope). After the new-context action is recorded, Evidence Coach answers follow-up questions using only evidence discovered in that run and approved source facts. Completing the new situation unlocks a transient facilitator report with the action sequence, final operational state, evidence, discussion prompts, approved guidance, and a print view.
+Learners can start **The Voice You Know** at [`/rehearsal`](http://localhost:3000/rehearsal), **Sharing Scope** at [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope), or **Recovery Window** at [`/rehearsal/recovery-window`](http://localhost:3000/rehearsal/recovery-window). After the new-context action is recorded, Evidence Coach answers follow-up questions using only evidence discovered in that run and approved source facts. Completing the new situation unlocks a transient facilitator report with the action sequence, final operational state, evidence, discussion prompts, approved guidance, and a print view.
 
 Adaptive generation and dialogue are optional server-side capabilities. Source checks, reviewed institution context, typed actions, recorded evidence, ending selection, and transfer evaluation remain authoritative. Without an API key, the direct flagship and the explicit **Use example...** path remain complete; live authoring controls are clearly unavailable instead of silently replacing a school or brief with unrelated data.
 
 > **Conversation can adapt. Completed actions determine the consequences.**
 
-The reviewed rehearsals use fictional Northbridge University and contain no real person, payment detail, private document, or campus action. See [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md) for the product direction, [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for reproducible evidence, and [`AGENTS.md`](./AGENTS.md) for architecture and safety boundaries.
+The three reviewed rehearsals use fictional Northbridge University and contain no real person, payment detail, private document, or campus action. See [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md) for the product direction, [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for reproducible evidence, and [`AGENTS.md`](./AGENTS.md) for architecture and safety boundaries.
 
 For a ready-to-run 10–35 minute classroom or workshop format, use the bilingual [`FACILITATOR_GUIDE.md`](./FACILITATOR_GUIDE.md).
 
@@ -63,6 +63,7 @@ Brand-safe fictionalization is the default. Authorized exact-brand research requ
 | --- | --- | --- | --- |
 | **The Voice You Know** | Finalize a guest-speaker reimbursement while a familiar voice requests a payment change. | Independent verification, payment state, workspace access, and layered recovery. | Reviewed agentic rehearsal; responsive. |
 | **Sharing Scope** | Give three documentary teammates enough access to check interview quotations. | Named audience, permission level, transferable links, content restoration, and disclosure. | Reviewed agentic rehearsal; responsive. |
+| **Recovery Window** | Give an evening producer access to correct a live broadcast schedule. | Task access, account-recovery authority, device binding, session review, and revocation. | Reviewed agentic rehearsal; responsive. |
 | **Final Submission** | Restore connectivity and submit an assignment to NYU Brightspace before the deadline. | Wireless identity, domains, configuration profiles, and account recovery. | Deep desktop simulation, 1100 px minimum width. |
 | **Was That You?** | Join an advising meeting while repeated Duo requests arrive. | User-initiated login, device and location matching, sessions, recovery methods, and reporting. | Responsive decision chapter. |
 
@@ -112,13 +113,20 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 
 ![Sharing Scope debrief connecting the link choice, discovered activity, layered recovery, and transfer](./artifacts/screenshots/sharing-scope-debrief.png)
 
+### Account recovery authority
+
+![Recovery Window after a handoff device creates recovery authority and a new session](./artifacts/screenshots/recovery-window-incident.png)
+
 ### Responsive chapters
 
 <table>
   <tr>
-    <td width="33%"><img alt="Case library on a phone" src="./artifacts/screenshots/mobile-case-library.png" /></td>
-    <td width="33%"><img alt="Sharing Scope task workspace on a phone" src="./artifacts/screenshots/mobile-sharing-scope.png" /></td>
-    <td width="33%"><img alt="Facilitator report on a phone" src="./artifacts/screenshots/mobile-facilitator-report.png" /></td>
+    <td width="50%"><img alt="Case library on a phone" src="./artifacts/screenshots/mobile-case-library.png" /></td>
+    <td width="50%"><img alt="Recovery Window task workspace on a phone" src="./artifacts/screenshots/mobile-recovery-window.png" /></td>
+  </tr>
+  <tr>
+    <td width="50%"><img alt="Sharing Scope conversation workspace on a phone" src="./artifacts/screenshots/mobile-sharing-conversation.png" /></td>
+    <td width="50%"><img alt="Facilitator report on a phone" src="./artifacts/screenshots/mobile-facilitator-report.png" /></td>
   </tr>
 </table>
 
@@ -135,7 +143,7 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 - Playwright and Axe for complete user flows, keyboard focus, automated accessibility, and responsive layout checks
 - Aggregate-only formative pilot tooling with no learner-level records
 
-The case library and both complete reviewed rehearsals work locally. Scenario Studio uses narrowly scoped Next.js server routes when `OPENAI_API_KEY` is configured; without it, the explicit reviewed-example buttons remain available and live authoring requests return a clear error. There is no database, analytics, account system, persistence, or production campus-service integration.
+The case library and all three complete reviewed rehearsals work locally. Scenario Studio uses narrowly scoped Next.js server routes when `OPENAI_API_KEY` is configured; without it, the explicit reviewed-example buttons remain available and live authoring requests return a clear error. There is no database, analytics, account system, persistence, or production campus-service integration.
 
 ## Technical Evidence
 
@@ -149,7 +157,7 @@ The optional adaptive model layer has five bounded responsibilities:
 
 It does not perform critical actions, mutate payment, access, or content state, choose an ending, or evaluate the learner's transfer action. Those decisions remain in [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts). Runtime validation lives in [`src/ai/schemas`](./src/ai/schemas), model adapters live in [`src/ai`](./src/ai), and all browser-facing calls pass through bounded server routes in [`src/app/api`](./src/app/api).
 
-Before a generated rehearsal can launch, [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) explores every reachable action set through the production physics API. The reviewed voice scenario checks 248 legal action states and Sharing Scope checks 29. Generation fails if safe, caution, contained, or expanded has no legal path; the educator preview shows a shortest representative trace for each outcome.
+Before a generated rehearsal can launch, [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) explores every reachable action set through the production physics API. The reviewed voice scenario checks 248 legal action states, Sharing Scope checks 29, and Recovery Window checks 46. Generation fails if safe, caution, contained, or expanded has no legal path; the educator preview shows a shortest representative trace for each outcome.
 
 The same schema proves that every recovery availability branch follows an incident trigger, every state field changed by a contained incident has an effective recovery action for that field, and the final affected-layer state is actually contained. In the flagship, approving payment first appears to work, a later status check reveals the changed route, and containment requires a separate finance hold. Conversation channels appear only after the learner explicitly reaches them; free-form turns remain with the selected role, and action-triggered events are recorded so reviewed dialogue does not loop indefinitely.
 
@@ -299,7 +307,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 132 schema, API, state, and component tests plus 21 browser tests. Coverage includes both reviewed direct entries, profile review, bounded label editing, exact-brand authorization, source lineage, action-unlocked channels, mutually exclusive decisions, delayed consequences, automatic four-outcome reachability, access/content recovery, immediate new-context application, Evidence Coach citations, facilitator reporting, strict aggregate pilot validation, responsive modal isolation, serious/critical Axe checks, complete safe and incident paths, production builds, desktop layouts, and 390x844 phone flows.
+The current suite contains 134 schema, API, state, and component tests plus 23 browser tests. Coverage includes all three reviewed direct entries, profile review, bounded label editing, exact-brand authorization, source lineage, action-unlocked channels, mutually exclusive decisions, delayed consequences, automatic four-outcome reachability, payment/access/content recovery, account-device revocation, immediate new-context application, Evidence Coach citations, facilitator reporting, strict aggregate pilot validation, responsive modal isolation, serious/critical Axe checks, complete safe and incident paths, production builds, desktop layouts, and 390x844 phone task/conversation flows.
 
 ## Safety and Privacy
 

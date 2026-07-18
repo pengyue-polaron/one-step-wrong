@@ -136,6 +136,43 @@ test("studio contains an expanded incident through explicit recovery actions", a
   await expect(page.getByText("All required recovery actions were completed.")).toBeVisible();
 });
 
+test("Recovery Window separates publishing access from account recovery", async ({ page }) => {
+  await page.goto("/rehearsal/recovery-window");
+  await expect(page.getByRole("heading", { name: "Recovery Window" })).toBeVisible();
+  await expect(page.getByText("Student radio digital producer")).toBeVisible();
+  await page.getByRole("button", { name: /Open the account center from your saved bookmark/ }).click();
+  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("No recovery handoff was initiated");
+  await page.getByRole("button", { name: /Invite Sam's own account as an editor/ }).click();
+  await page.getByRole("button", { name: "Finish and review" }).click();
+  await expect(page.getByText("SAFE", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Task access stayed separate" })).toBeVisible();
+});
+
+test("Recovery Window exposes and contains recovery authority", async ({ page }) => {
+  await page.goto("/rehearsal/recovery-window");
+  await page.getByRole("button", { name: /Ask Sam in the project chat/ }).click();
+  await page.getByRole("button", { name: /Approve the handoff device/ }).click();
+  await expect(page.getByRole("button", { name: "Finish and review" })).toBeDisabled();
+  await page.getByRole("button", { name: /Review recovery devices and active sessions/ }).click();
+  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("A new recovery device is active");
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  });
+  await page.screenshot({ path: "artifacts/screenshots/recovery-window-incident.png", fullPage: true });
+  for (const action of [
+    /Revoke the handoff device and its session/,
+    /Preserve the recovery and sign-in record/,
+    /Notify the media team/,
+    /Report the account incident/,
+  ]) {
+    await page.getByRole("button", { name: action }).click();
+  }
+  await page.getByRole("button", { name: "Finish and review" }).click();
+  await expect(page.getByText("CONTAINED", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Recovery authority removed" })).toBeVisible();
+});
+
 test("studio remains usable without horizontal overflow on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/studio");
@@ -164,10 +201,12 @@ test("transfer evidence remains usable on mobile", async ({ page }) => {
   await openValidatedScenario(page);
   await page.getByRole("button", { name: "Start rehearsal" }).click();
   await page.getByRole("button", { name: /Call the saved directory number/ }).click();
-  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Independent adviser confirmation");
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.getByRole("button", { name: /Conversation/ }).click();
+  await expect(page.getByRole("region", { name: "Evidence board" })).toContainText("Independent adviser confirmation");
   await page.getByRole("region", { name: "Evidence board" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio-evidence.png" });
+  await page.getByRole("button", { name: "Task", exact: true }).click();
   await page.getByRole("button", { name: /Pause reimbursement/ }).click();
   await page.getByRole("button", { name: "Finish and review" }).click();
   await page.getByRole("button", { name: "Test in a new situation" }).click();

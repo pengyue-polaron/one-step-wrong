@@ -30,6 +30,17 @@ test("core entry points have no serious automated accessibility violations", asy
   await expect(page.getByRole("heading", { name: "Sharing Scope" })).toBeVisible();
   await expectNoSeriousViolations(page);
 
+  await page.goto("/rehearsal/recovery-window");
+  await expect(page.getByRole("heading", { name: "Recovery Window" })).toBeVisible();
+  await expectNoSeriousViolations(page);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("button", { name: "Task", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expectNoSeriousViolations(page);
+  await page.getByRole("button", { name: /Conversation/ }).click();
+  await expectNoSeriousViolations(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+
   await page.goto("/studio");
   await expect(page.getByTestId("studio-research")).toBeVisible();
   await expectNoSeriousViolations(page);

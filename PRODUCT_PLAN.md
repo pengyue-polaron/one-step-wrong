@@ -99,7 +99,18 @@ The public scenario contains no real person, voice, payment information, or camp
 - **Recovery:** restrict future access, restore content, preserve activity evidence, notify affected people, and report through the approved fictional route.
 - **Transfer rule:** match both the audience and permission level to the specific work.
 
-The two reviewed rehearsals use one validated package contract, task workspace, deterministic physics engine, review, transfer probe, Evidence Coach, and facilitator report. Scenario-specific content is data rather than page-level branching.
+### Recovery Window
+
+- **Institution:** fictional Northbridge University, informed by the same reviewed NYU public-source profile.
+- **Learner role:** student radio digital producer.
+- **Ordinary task:** give the evening producer access to correct the live-show schedule.
+- **Pressure:** the normal editor invitation is delayed and the broadcast starts in eleven minutes.
+- **Decision:** distinguish a named editor invitation from a handoff that adds future account-recovery authority.
+- **Delayed consequence:** the handoff appears to open the schedule before account activity reveals a new recovery device and session.
+- **Recovery:** revoke the device and session, preserve the activity record, notify the media team, and report through the approved fictional route.
+- **Transfer rule:** account recovery is future control, not a shortcut for one task.
+
+The three reviewed rehearsals use one validated package contract, task workspace, deterministic physics engine, review, transfer probe, Evidence Coach, and facilitator report. Scenario-specific content is data rather than page-level branching.
 
 ## Product Architecture
 
@@ -206,7 +217,7 @@ These guarantees belong in code and tests, not in immersion-breaking learner dis
 
 ## Next Product Priorities
 
-1. Add a third reviewed rehearsal around authentication binding or account recovery, using the same package and workspace contract.
-2. Extend educator editing to role and channel copy while keeping facts, state mutations, sources, and ending predicates protected.
-3. Run a small real formative pilot with the aggregate-only kit, then report the sample and limitations without learner-level data.
-4. Compare explanation quality across the two current judgment patterns and refine transfer prompts where learners remain ambiguous.
+1. Run a small real formative pilot with the aggregate-only kit, then report the sample and limitations without learner-level data.
+2. Compare explanation quality across identity verification, sharing scope, and recovery authority, then refine transfer prompts where learners remain ambiguous.
+3. Extend educator editing to role and channel copy while keeping facts, state mutations, sources, and ending predicates protected.
+4. Add a fourth reviewed rehearsal only when it introduces a genuinely different judgment pattern, such as data provenance or delegated approval.

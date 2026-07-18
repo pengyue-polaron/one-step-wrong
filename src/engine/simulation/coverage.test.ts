@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { validateScenarioPackage } from "@/ai/schemas/scenario";
 import { assertScenarioCoverage, evaluateScenarioCoverage } from "@/engine/simulation/coverage";
+import { recoveryWindowScenario } from "@/fixtures/recoveryWindow";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 import { sharingScopeScenario } from "@/fixtures/sharingScope";
 
@@ -38,6 +40,22 @@ describe("scenario outcome coverage", () => {
     ]);
     expect(coverage.endingCoverage.find((result) => result.endingId === "expanded")?.actionIds).toEqual([
       "share-public-edit-link",
+    ]);
+  });
+
+  it("finds all four outcomes for Recovery Window", () => {
+    expect(validateScenarioPackage(recoveryWindowScenario)).toMatchObject({ success: true });
+    const coverage = evaluateScenarioCoverage(recoveryWindowScenario);
+    expect(coverage.reachableStateCount).toBe(46);
+    expect(coverage.allOutcomesReachable).toBe(true);
+    expect(coverage.uncoveredEndingIds).toEqual([]);
+    expect(coverage.endingCoverage.find((result) => result.endingId === "safe")?.actionIds).toEqual([
+      "open-known-account-center",
+      "grant-own-account-access",
+    ]);
+    expect(coverage.endingCoverage.find((result) => result.endingId === "expanded")?.actionIds).toEqual([
+      "open-known-account-center",
+      "approve-recovery-device",
     ]);
   });
 });

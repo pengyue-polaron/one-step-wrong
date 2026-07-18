@@ -65,8 +65,29 @@ test("case library and decision chapters stay usable on a phone", async ({ page 
   await expect(page.getByTestId("task-request-summary")).toContainText("Maya Ortiz");
   await expect(page.getByTestId("task-request-summary")).toContainText("my invitation still has not appeared");
   await expect(page.getByRole("button", { name: /Add three named teammates as commenters/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Task", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("1 unread messages")).toBeVisible();
+  await page.getByRole("button", { name: "Task", exact: true }).click();
+  await expect(page.getByLabel("1 unread messages")).toBeVisible();
+  await expect(page.locator(".dialogue-workspace")).toBeHidden();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.screenshot({ path: "artifacts/screenshots/mobile-sharing-scope.png", fullPage: true });
+
+  await page.getByRole("button", { name: /Conversation/ }).click();
+  await expect(page.getByRole("button", { name: /Conversation/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".dialogue-workspace")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Campus Drive task workspace" })).toBeHidden();
+  await expect(page.locator(".dialogue-log")).toContainText("The quote check closes at 20:30");
+  await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.screenshot({ path: "artifacts/screenshots/mobile-sharing-conversation.png", fullPage: true });
+
+  await page.getByRole("link", { name: "Case Library" }).click();
+  await page.getByTestId("rehearsal-recovery-window").click();
+  await expect(page.getByRole("heading", { name: "Recovery Window" })).toBeVisible();
+  await expect(page.getByTestId("task-request-summary")).toContainText("Sam Lee");
+  await expect(page.getByRole("button", { name: /Open the account center from your saved bookmark/ })).toBeVisible();
+  await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
+  await page.screenshot({ path: "artifacts/screenshots/mobile-recovery-window.png", fullPage: true });
 
   await page.getByRole("link", { name: "Case Library" }).click();
   await page.getByTestId("case-unexpected-push").click();

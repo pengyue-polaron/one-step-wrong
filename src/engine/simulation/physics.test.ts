@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 import { sharingScopeScenario } from "@/fixtures/sharingScope";
+import { recoveryWindowScenario } from "@/fixtures/recoveryWindow";
 import {
   applyCriticalAction,
   createCanonicalTrace,
@@ -230,5 +231,43 @@ describe("deterministic simulation physics", () => {
     expect(trace.finalState.access).toBe("restricted");
     expect(trace.finalState.content).toBe("restored");
     expect(trace.missedRecoveryActionIds).toEqual([]);
+  });
+
+  it("keeps task access separate from recovery authority in Recovery Window", () => {
+    const safeState = [
+      "open-known-account-center",
+      "grant-own-account-access",
+    ].reduce(
+      (state, action) => applyCriticalAction(recoveryWindowScenario, state, action),
+      createSimulationState(recoveryWindowScenario),
+    );
+    expect(createCanonicalTrace(recoveryWindowScenario, safeState).endingId).toBe("safe");
+    expect(safeState.canonical.access).toBe("restricted");
+
+    const exposed = [
+      "ask-team-chat",
+      "approve-recovery-device",
+      "review-account-activity",
+    ].reduce(
+      (state, action) => applyCriticalAction(recoveryWindowScenario, state, action),
+      createSimulationState(recoveryWindowScenario),
+    );
+    expect(createCanonicalTrace(recoveryWindowScenario, exposed).endingId).toBe("expanded");
+    expect(exposed.canonical.access).toBe("shared");
+    expect(() => applyCriticalAction(recoveryWindowScenario, exposed, "report-account-incident")).toThrow("not available");
+
+    const contained = [
+      "revoke-unfamiliar-device",
+      "preserve-sign-in-record",
+      "notify-media-team",
+      "report-account-incident",
+    ].reduce(
+      (state, action) => applyCriticalAction(recoveryWindowScenario, state, action),
+      exposed,
+    );
+    const containedTrace = createCanonicalTrace(recoveryWindowScenario, contained);
+    expect(containedTrace.endingId).toBe("contained");
+    expect(containedTrace.finalState.access).toBe("revoked");
+    expect(containedTrace.missedRecoveryActionIds).toEqual([]);
   });
 });

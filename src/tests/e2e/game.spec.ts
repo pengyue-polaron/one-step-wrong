@@ -12,11 +12,12 @@ async function begin(page: Page, captureIntro = false) {
   await expect(page.getByText(/only a simulation|will not affect your computer|no data is collected/i)).toHaveCount(0);
 }
 
-test("case library exposes two reviewed rehearsals and two archive chapters", async ({ page }) => {
+test("case library exposes three reviewed rehearsals and two archive chapters", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Choose a rehearsal" })).toBeVisible();
   await expect(page.getByTestId("featured-rehearsal")).toBeVisible();
   await expect(page.getByTestId("rehearsal-sharing-scope")).toBeVisible();
+  await expect(page.getByTestId("rehearsal-recovery-window")).toBeVisible();
   await expect(page.getByTestId("case-final-submission")).toBeVisible();
   await expect(page.getByTestId("case-shared-draft")).toHaveCount(0);
   await expect(page.getByTestId("case-unexpected-push")).toBeVisible();

@@ -96,13 +96,19 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
   await expect(page.getByText(/Source profile: New York University · Published setting: Northbridge University/)).toBeVisible();
   await expect(page.getByText(/selected before the explicit rule/)).toBeVisible();
+  await expect(page.getByRole("region", { name: "5-minute discussion path" })).toContainText("Reconstruct the pressure");
+  await expect(page.getByRole("region", { name: "5-minute discussion path" })).toContainText("Independent adviser confirmation");
+  await expect(page.getByRole("region", { name: "5-minute discussion path" })).toContainText("Record only an aggregate category");
+  await expect(page.getByRole("list", { name: "Explanation categories" })).toContainText("Clear");
+  await expect(page.getByRole("list", { name: "Explanation categories" })).toContainText("Partial");
+  await expect(page.getByRole("list", { name: "Explanation categories" })).toContainText("Unclear");
   await expect(page.getByText("Approved institution guidance")).toBeVisible();
   await expect(page.getByRole("button", { name: "Print report" })).toBeEnabled();
   await page.screenshot({ path: "artifacts/screenshots/facilitator-report.png", fullPage: true });
 
   await page.getByRole("button", { name: "Replay rehearsal" }).click();
   await expect(page.getByTestId("studio-live")).toBeVisible();
-  await expect(page.getByText("0 task actions recorded")).toBeVisible();
+  await expect(page.getByText("Choose at least one task action before review.")).toBeVisible();
   await expect(page.locator(".dialogue-log article")).toHaveCount(1);
   await expect(page.getByRole("button", { name: /Call the saved directory number/ })).toBeEnabled();
 });

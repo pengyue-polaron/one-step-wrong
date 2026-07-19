@@ -62,7 +62,8 @@ After the outcome:
 2. Ask learners to state a tentative judgment rule in their own words.
 3. Complete the new situation before the product reveals its built-in rule or guided evidence questions.
 4. Compare the learner's action with the revealed rule, then use Evidence Coach to examine only evidence discovered in that run.
-5. Open the facilitator report and discuss the rehearsal result, final operational state, and transfer result together.
+5. Open the facilitator report and follow its 5-minute **Ask → Compare → Apply** path: reconstruct the pressure, compare the discovered evidence with the original request, and name where the rule should be used next.
+6. Use the report's observation cue to categorize the explanation after the session. Record only aggregate counts; do not retain learner wording.
 
 The transfer decision is more useful than the first ending alone. A safe first run may reflect prior knowledge or a lucky choice; applying the rule in a different task is stronger evidence that the judgment carried forward.
 

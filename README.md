@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-134%20unit%20%2B%2023%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-146%20unit%20%2B%2023%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -326,7 +326,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 144 schema, API, state, and component tests plus 23 browser tests. Coverage includes all three reviewed direct entries, profile review, bounded label editing, exact-brand authorization, source lineage, provider isolation, action-unlocked channels, mutually exclusive decisions, delayed consequences, automatic four-outcome reachability, payment/access/content recovery, account-device revocation, immediate new-context application, Evidence Coach citations, facilitator reporting, strict aggregate pilot validation, responsive modal isolation, serious/critical Axe checks, complete safe and incident paths, production builds, desktop layouts, and 390x844 phone task/conversation flows.
+The current suite contains 146 schema, API, state, and component tests plus 23 browser tests. Coverage includes all three reviewed direct entries, profile review, bounded label editing, exact-brand authorization, source lineage, provider isolation, action-unlocked channels, mutually exclusive decisions, delayed consequences, automatic four-outcome reachability, payment/access/content recovery, account-device revocation, immediate new-context application, Evidence Coach citations, facilitator reporting, strict aggregate pilot validation, responsive modal isolation, serious/critical Axe checks, complete safe and incident paths, production builds, desktop layouts, and 390x844 phone task/conversation flows.
 
 ## Safety and Privacy
 

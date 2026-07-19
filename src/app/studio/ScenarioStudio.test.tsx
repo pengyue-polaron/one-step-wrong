@@ -76,6 +76,17 @@ describe("Scenario Studio profile review", () => {
     expect(screen.getByRole("button", { name: "Create rehearsal" })).toBeEnabled();
   });
 
+  it("explains long-running authoring work instead of showing only a spinner", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+
+    render(<ScenarioStudio />);
+    await user.click(screen.getByRole("button", { name: "Find public guidance" }));
+
+    expect(screen.getByRole("status", { name: /Preparing context for review/ })).toHaveTextContent("Checking the official source boundary");
+    expect(screen.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
+  });
+
   it("reveals conversation channels only after the matching explicit action", async () => {
     const user = userEvent.setup();
     const first = render(<ScenarioStudio mode="featured" />);
@@ -135,6 +146,8 @@ describe("Scenario Studio profile review", () => {
 
     await user.type(screen.getByLabelText("Message a role"), "Can you confirm the change?");
     await user.click(screen.getByRole("button", { name: "Send message" }));
+    expect(screen.getByText("Waiting for a reply in this channel")).toBeInTheDocument();
+    expect(screen.getByText("Waiting for the current response to finish…")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Call the saved directory number/ })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Approve new payment details/ })).toBeDisabled();
 
@@ -152,6 +165,7 @@ describe("Scenario Studio profile review", () => {
     await waitFor(() =>
       expect(screen.getByRole("button", { name: /Call the saved directory number/ })).toBeEnabled(),
     );
+    expect(screen.queryByText("Waiting for a reply in this channel")).not.toBeInTheDocument();
   });
 
   it("requires the educator to resolve conflicts and approve supporting sources", async () => {
@@ -167,17 +181,40 @@ describe("Scenario Studio profile review", () => {
 
     expect(await screen.findByText("Two official pages use different product descriptions.")).toBeInTheDocument();
     expect(screen.getByText("0 / 1 approved")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Approve profile" })).toBeEnabled();
+    expect(screen.getByText("1 review check needs attention")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Approve profile" }));
-    expect(screen.getByText(/Resolve conflicting facts before approval/)).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Resolve conflicting facts before approval");
 
     await user.selectOptions(screen.getByLabelText("Status for Learning platform"), "verified");
     await user.click(screen.getByRole("button", { name: "Approve profile" }));
-    expect(screen.getByText(/Verified facts need an approved source/)).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Verified facts need an approved source");
 
     await user.click(screen.getByRole("button", { name: "Approve source Learning Management System" }));
     expect(screen.getByText("1 / 1 approved")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Approve profile" }));
     expect(screen.getByTestId("studio-brief")).toBeInTheDocument();
+  });
+
+  it("flags an incomplete learning brief without hiding the submit path", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        profile: reviewedNyuInstitutionProfile,
+        provenance: "reviewed-fixture",
+        notice: "Profile ready.",
+      }),
+    }));
+
+    render(<ScenarioStudio />);
+    await user.click(screen.getByRole("button", { name: "Use example institution" }));
+    await user.click(await screen.findByRole("button", { name: "Approve profile" }));
+    await user.clear(screen.getByLabelText("Ordinary task"));
+
+    expect(screen.getByText("Complete each field before creating the rehearsal.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Create rehearsal" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Use example rehearsal" })).toBeEnabled();
   });
 
   it("shows actionable API issue paths instead of only a generic error", async () => {

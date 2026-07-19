@@ -55,6 +55,7 @@ import { ReviewedAudioPlayer } from "@/app/studio/rehearsal/ReviewedAudioPlayer"
 import { ScenarioCopyEditor } from "@/app/studio/preview/ScenarioCopyEditor";
 
 type StudioStage = "research" | "profile" | "brief" | "preview" | "live" | "debrief" | "transfer" | "report";
+type PendingOperation = "research" | "generate" | "role" | "debrief" | "coach";
 type Provenance = "live-research" | "live-generation" | "local-adaptation" | "reviewed-fixture" | "live-role" | "reviewed-fallback" | "live-debrief" | "deterministic-fallback";
 type DialogueLine = {
   id: string;
@@ -143,6 +144,101 @@ const transferOutcomeLabels = {
   developing: "partly applied",
   "not-yet": "not applied yet",
 } as const;
+
+const operationCopy: Record<PendingOperation, {
+  eyebrow: string;
+  title: string;
+  detail: string;
+  steps: [string, string, string];
+}> = {
+  research: {
+    eyebrow: "Source review in progress",
+    title: "Preparing context for review",
+    detail: "This can take a few seconds. No fact is approved automatically.",
+    steps: [
+      "Checking the official source boundary",
+      "Comparing supported terminology",
+      "Preparing facts and open questions",
+    ],
+  },
+  generate: {
+    eyebrow: "Scenario preparation",
+    title: "Building a rehearsal from the brief",
+    detail: "This can take a few seconds. The result must pass every outcome check.",
+    steps: [
+      "Matching the objective to a reviewed structure",
+      "Checking actions, evidence, and recovery",
+      "Verifying all 4 outcome paths",
+    ],
+  },
+  role: {
+    eyebrow: "Conversation",
+    title: "Waiting for a reply in this channel",
+    detail: "The task stays paused until the reply arrives.",
+    steps: [
+      "Reading your question in context",
+      "Checking what has already happened",
+      "Preparing the reply",
+    ],
+  },
+  debrief: {
+    eyebrow: "Run review",
+    title: "Reconstructing what led to this outcome",
+    detail: "The recorded actions stay fixed while the review is prepared.",
+    steps: [
+      "Reading the recorded actions",
+      "Connecting evidence to consequences",
+      "Preparing the next situation",
+    ],
+  },
+  coach: {
+    eyebrow: "Evidence review",
+    title: "Checking this run before answering",
+    detail: "The answer will use only evidence discovered in this run.",
+    steps: [
+      "Finding the evidence you uncovered",
+      "Checking approved guidance",
+      "Preparing a traceable answer",
+    ],
+  },
+};
+
+function OperationProgress({
+  operation,
+  compact = false,
+}: {
+  operation: PendingOperation;
+  compact?: boolean;
+}) {
+  const copy = operationCopy[operation];
+
+  return (
+    <section
+      aria-atomic="true"
+      aria-label={copy.title}
+      aria-live="polite"
+      className={`studio-operation ${compact ? "is-compact" : ""}`}
+      role="status"
+    >
+      <header>
+        <LoaderCircle aria-hidden="true" className="is-spinning" size={18} />
+        <div>
+          <span>{copy.eyebrow}</span>
+          <strong>{copy.title}</strong>
+          <small>{copy.detail}</small>
+        </div>
+      </header>
+      <ol>
+        {copy.steps.map((step, index) => (
+          <li key={step}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <small>{step}</small>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
 
 function StageRail({ stage }: { stage: StudioStage }) {
   const workflow = stage === "report" ? facilitatorWorkflow : isLearnerStage(stage) ? learnerWorkflow : authoringWorkflow;
@@ -268,6 +364,7 @@ export function ScenarioStudio({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [coachBusy, setCoachBusy] = useState(false);
+  const [pendingOperation, setPendingOperation] = useState<PendingOperation | null>(null);
   const clientReady = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const [mobilePanel, setMobilePanel] = useState<"task" | "conversation">("task");
   const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
@@ -302,6 +399,20 @@ export function ScenarioStudio({
     [scenario],
   );
   const scenarioReady = Boolean(scenarioValidation?.success && scenarioCoverage?.allOutcomesReachable);
+  const profileApprovalValidation = useMemo(
+    () => profile ? validateProfileForApproval(profile) : null,
+    [profile],
+  );
+  const profileReadyForApproval = Boolean(profileApprovalValidation?.success);
+  const profileReviewIssues = profileApprovalValidation?.success
+    ? []
+    : profileApprovalValidation?.issues ?? [];
+  const briefReady = brief.threatTopic.trim().length >= 3
+    && brief.targetLearner.trim().length >= 3
+    && brief.ordinaryTask.trim().length >= 8
+    && brief.environment.trim().length >= 3
+    && brief.pressure.trim().length >= 3
+    && brief.learningObjective.trim().length >= 8;
   const draftValidation = useMemo(
     () => draftScenario ? validateScenarioPackage(draftScenario) : null,
     [draftScenario],
@@ -382,7 +493,7 @@ export function ScenarioStudio({
   }, [error]);
 
   async function research(useFixture: boolean) {
-    setBusy(true); setError(""); setNotice("");
+    setBusy(true); setPendingOperation("research"); setError(""); setNotice("");
     try {
       const response = await fetch("/api/institutions/research", {
         method: "POST",
@@ -400,7 +511,7 @@ export function ScenarioStudio({
       setProfile(result.profile); setProfileProvenance(result.provenance); setNotice(result.notice); setStage("profile");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Institution research failed.");
-    } finally { setBusy(false); }
+    } finally { setBusy(false); setPendingOperation(null); }
   }
 
   function approveProfile() {
@@ -455,7 +566,7 @@ export function ScenarioStudio({
 
   async function generateScenario(useFixture: boolean) {
     if (!profile) return;
-    setBusy(true); setError(""); setNotice("");
+    setBusy(true); setPendingOperation("generate"); setError(""); setNotice("");
     try {
       const response = await fetch("/api/scenarios/generate", {
         method: "POST",
@@ -476,7 +587,7 @@ export function ScenarioStudio({
       setScenario(result.scenario); setDraftScenario(null); setEditingScenario(false); setScenarioProvenance(result.provenance); setNotice(result.notice); setStage("preview");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Scenario generation failed.");
-    } finally { setBusy(false); }
+    } finally { setBusy(false); setPendingOperation(null); }
   }
 
   function launchScenario() {
@@ -547,7 +658,7 @@ export function ScenarioStudio({
       content: learnerContent,
       provenance: null,
     }]);
-    setMessageDraft(""); setBusy(true); setError("");
+    setMessageDraft(""); setBusy(true); setPendingOperation("role"); setError("");
     try {
       const response = await fetch("/api/simulation/turn", {
         method: "POST",
@@ -582,12 +693,12 @@ export function ScenarioStudio({
       setSelectedRoleId(turn.roleId);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Role response failed.");
-    } finally { setBusy(false); }
+    } finally { setBusy(false); setPendingOperation(null); }
   }
 
   async function finishScenario() {
     if (!scenario || !simulation) return;
-    setBusy(true); setError("");
+    setBusy(true); setPendingOperation("debrief"); setError("");
     try {
       const response = await fetch("/api/debrief", {
         method: "POST",
@@ -599,13 +710,13 @@ export function ScenarioStudio({
       setDebrief(result); setStage("debrief");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Debrief failed.");
-    } finally { setBusy(false); }
+    } finally { setBusy(false); setPendingOperation(null); }
   }
 
   async function askEvidenceCoach(question: string) {
     const trimmed = question.trim();
     if (!scenario || !profile || !simulation || !debrief || trimmed.length < 3) return;
-    setCoachBusy(true); setError("");
+    setCoachBusy(true); setPendingOperation("coach"); setError("");
     try {
       const response = await fetch("/api/coach", {
         method: "POST",
@@ -630,6 +741,7 @@ export function ScenarioStudio({
       setError(caught instanceof Error ? caught.message : "The evidence question could not be answered.");
     } finally {
       setCoachBusy(false);
+      setPendingOperation(null);
     }
   }
 
@@ -643,7 +755,7 @@ export function ScenarioStudio({
   }
 
   function restart() {
-    setStage("research"); setProfile(null); setScenario(null); setDraftScenario(null); setEditingScenario(false); setSimulation(null); setMessages([]); setDebrief(null); setTransferResult(null); setCoachAnswers([]); setCoachQuestion(""); setNotice(""); setError(""); setExactAuthorizationConfirmed(false); setMobilePanel("task"); setLastSeenMessageCount(0);
+    setStage("research"); setProfile(null); setScenario(null); setDraftScenario(null); setEditingScenario(false); setSimulation(null); setMessages([]); setDebrief(null); setTransferResult(null); setCoachAnswers([]); setCoachQuestion(""); setNotice(""); setError(""); setPendingOperation(null); setExactAuthorizationConfirmed(false); setMobilePanel("task"); setLastSeenMessageCount(0);
   }
 
   return (
@@ -658,6 +770,9 @@ export function ScenarioStudio({
         <section aria-busy={busy || coachBusy} className="studio-workspace" ref={workspaceRef}>
           {notice && <div className="studio-notice" role="status"><CheckCircle2 size={16} /><span>{notice}</span></div>}
           {error && <div className="studio-notice is-error" ref={errorRef} role="alert" tabIndex={-1}><CircleAlert size={16} /><span>{error}</span><button aria-label="Dismiss error" onClick={() => setError("")}><X size={15} /></button></div>}
+          {pendingOperation && pendingOperation !== "role" && pendingOperation !== "coach" && (
+            <OperationProgress operation={pendingOperation} />
+          )}
 
           {stage === "research" && (
             <div className="studio-section" data-testid="studio-research">
@@ -681,7 +796,7 @@ export function ScenarioStudio({
             <div className="studio-section" data-testid="studio-profile">
               <header className="studio-section-heading studio-heading-row"><div><span>02 / CONTEXT REVIEW</span><h1>{profile.displayName}</h1><p>{profile.officialDomains.join(" · ")} · {profile.publicationMode === "brand-safe-fictionalized" ? "fictionalized names" : "exact institution names"} · {profile.facts.filter((fact) => fact.status === "verified").length} supported facts · {profile.unresolvedFields.length} open questions</p></div><ProvenanceBadge value={profileProvenance} /></header>
               <div className="studio-review-dock">
-                <span><strong>{profile.facts.length} facts ready for review</strong><small>{profile.sources.filter((source) => source.reviewStatus === "approved").length} approved sources · {profile.unresolvedFields.length} open questions</small></span>
+                <span><strong>{profileReadyForApproval ? `${profile.facts.length} facts ready for approval` : `${profileReviewIssues.length} review ${profileReviewIssues.length === 1 ? "check needs" : "checks need"} attention`}</strong><small>{profileReadyForApproval ? `${profile.sources.filter((source) => source.reviewStatus === "approved").length} approved sources · unknowns remain visibly unresolved` : profileReviewIssues.slice(0, 2).map((issue) => issue.message).join(" · ")}</small></span>
                 <button className="studio-button studio-button-primary" onClick={approveProfile}><UserRoundCheck size={16} />Approve profile</button>
               </div>
               <div className="profile-table" aria-label="Institution facts">
@@ -726,6 +841,7 @@ export function ScenarioStudio({
                 <button className={`studio-button ${adaptiveGenerationAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveGenerationAvailable || busy} onClick={() => generateScenario(false)} title={adaptiveGenerationAvailable ? undefined : "New scenario generation is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Create rehearsal</button>
                 <button className={`studio-button ${adaptiveGenerationAvailable ? "" : "studio-button-primary"}`} disabled={busy} onClick={() => generateScenario(true)}><BookOpenCheck size={16} />Use example rehearsal</button>
               </div>
+              <p className={`studio-action-note ${briefReady ? "is-ready" : "is-blocked"}`}>{briefReady ? <CheckCircle2 size={14} /> : <CircleAlert size={14} />}{briefReady ? "Brief includes a task, audience, pressure, and observable learning objective." : "Complete each field before creating the rehearsal."}</p>
               {!adaptiveGenerationAvailable && <p className="studio-action-note"><BookOpenCheck size={14} />The reviewed rehearsal remains fully playable and editable as a teaching brief.</p>}
             </div>
           )}
@@ -853,6 +969,7 @@ export function ScenarioStudio({
                 <section className="dialogue-workspace">
                   <header><MessageSquareText size={16} /><strong>Conversation</strong></header>
                   <div className="dialogue-log" aria-live="polite" ref={dialogueLogRef}>{messages.map((line) => { const role = scenario.roleCards.find((candidate) => candidate.id === line.roleId); const hasOpeningAudio = openingAudio?.eventId === line.eventId; return <article className={line.roleId === "learner" ? "is-learner" : ""} key={line.id}><div><strong>{line.roleName}</strong><small>{line.roleId === "learner" ? "learner" : role?.allowedChannels[0]}</small></div><div>{hasOpeningAudio && <div className="dialogue-audio"><ReviewedAudioPlayer label={`Play voice note from ${line.roleName}`} src={openingAudio.src} /></div>}<p>{line.content}</p></div></article>; })}</div>
+                  {pendingOperation === "role" && <OperationProgress compact operation="role" />}
                   <section className="evidence-board" aria-label="Evidence board">
                     <header><FileSearch size={14} /><strong>Evidence</strong><span>{simulation.evidenceIds.length}</span></header>
                     {simulation.evidenceIds.length === 0
@@ -948,6 +1065,7 @@ export function ScenarioStudio({
                       <input aria-label="Question about the evidence" autoComplete="off" maxLength={500} name="evidence-question" placeholder="Ask why a check was or was not enough…" value={coachQuestion} onChange={(event) => setCoachQuestion(event.target.value)} />
                       <button disabled={coachBusy || coachQuestion.trim().length < 3} type="submit">{coachBusy ? <LoaderCircle className="is-spinning" size={16} /> : <ArrowRight size={16} />}Ask</button>
                     </form>
+                    {pendingOperation === "coach" && <OperationProgress compact operation="coach" />}
                   </section>
                 </>
               )}
@@ -1002,6 +1120,25 @@ export function ScenarioStudio({
                   </ol>
                 </section>
               </div>
+              <section className="facilitation-sequence" aria-label="5-minute discussion path">
+                <header><Users size={16} /><div><strong>5-minute discussion path</strong><small>Move from this run to a reusable judgment pattern.</small></div></header>
+                <div>
+                  <article><span>01 · ASK</span><strong>Reconstruct the pressure</strong><p>What made the convenient action feel reasonable when {scenario.intro.pressure.trim().replace(/[.!?]+$/, "").toLowerCase()}?</p></article>
+                  <article><span>02 · COMPARE</span><strong>Use the evidence</strong><p>{discoveredEvidence.length ? `What did “${discoveredEvidence[0].label}” establish that the original request did not?` : "What evidence would have changed the authority of the request?"}</p></article>
+                  <article><span>03 · APPLY</span><strong>Name the next use</strong><p>{debrief.coaching.nextTime}</p></article>
+                </div>
+                <footer>
+                  <span>OBSERVATION CUE</span>
+                  <div>
+                    <p>Listen for whether the learner names the judgment pattern, connects it to the action, and states what remains uncertain. Record only an aggregate category; do not retain their wording.</p>
+                    <ul aria-label="Explanation categories">
+                      <li><strong>Clear</strong><small>Names the pattern, action, and remaining uncertainty.</small></li>
+                      <li><strong>Partial</strong><small>Recognizes the risk but misses a link or tradeoff.</small></li>
+                      <li><strong>Unclear</strong><small>Names an action without explaining the judgment.</small></li>
+                    </ul>
+                  </div>
+                </footer>
+              </section>
               <section className="report-guidance">
                 <header><BookOpenCheck size={16} /><div><strong>Approved institution guidance</strong><small>Source-supported context used by this rehearsal.</small></div></header>
                 {reportFacts.map((fact) => (

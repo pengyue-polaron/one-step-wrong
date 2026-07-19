@@ -22,12 +22,12 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Review is grounded in recorded actions | Debrief adapter, route tests, and the safe and incident browser paths | Verified |
 | Immediate new-context application before explicit rule reveal | Three-outcome transfer validation, direct evaluation tests, ordering assertions, desktop and mobile browser paths | Verified as a formative signal |
 | Evidence-grounded learner questions | `src/ai/debrief/evidenceCoach.ts`, citation-boundary tests, `/api/coach`, and the browser debrief flow | Verified with reviewed fallback and mocked provider output |
-| Discussion-ready facilitator report | Rehearsal result, transfer evidence, approved guidance, print layout, and browser assertions | Verified |
+| Discussion-ready facilitator report | Rehearsal result, transfer evidence, 5-minute Ask → Compare → Apply path, aggregate-only observation cue, approved guidance, print layout, and browser assertions | Verified |
 | Ready-to-run classroom use | Bilingual `FACILITATOR_GUIDE.md` with 10–35 minute formats and discussion prompts | Documented |
 | Privacy-preserving formative pilot readiness | Header-only aggregate template, defined measures, strict validation, aggregate-only output, and analyzer tests in `pilot/`, `scripts/analyze-pilot.mjs`, and `src/pilot/analyze-pilot.test.ts` | Documented and validated; no participant results collected |
 | Featured rehearsal is immediately playable | Case-library entry and direct `/rehearsal` browser path | Verified |
 | Complete no-key product path | **Use example institution**, then **Use example rehearsal** in `/studio` | Verified |
-| Desktop and mobile product quality | Sequenced reviewed path, separately labeled archive progress, compact desktop review docks, phone task/conversation switcher, `artifacts/screenshots/`, and Playwright layout tests | Verified |
+| Desktop and mobile product quality | Sequenced reviewed path, honest long-operation status, explicit review readiness, phone task/conversation switcher, responsive facilitator path, `artifacts/screenshots/`, and Playwright layout tests | Verified |
 | Authoring form and error ergonomics | Named form controls, segmented-control state, source-review validation, focused actionable errors, and browser assertions | Verified |
 | Core accessibility states | Axe serious/critical gate, skip navigation, stage focus, modal focus isolation, toggle semantics, and reduced-motion tests | Verified by automated checks; not a certification |
 | Automated quality gate | `.github/workflows/ci.yml` | Runs on `main` |

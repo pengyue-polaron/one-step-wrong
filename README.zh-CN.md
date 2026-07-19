@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-134%20unit%20%2B%2023%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-146%20unit%20%2B%2023%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -326,7 +326,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 144 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖范围包括三个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、provider 隔离、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、付款/访问/内容恢复、账号设备撤销、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机任务/对话流程。
+当前测试集包含 146 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖范围包括三个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、provider 隔离、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、付款/访问/内容恢复、账号设备撤销、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机任务/对话流程。
 
 ## 安全与隐私
 

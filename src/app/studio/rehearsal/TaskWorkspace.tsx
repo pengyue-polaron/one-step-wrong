@@ -86,6 +86,13 @@ export function TaskWorkspace({
   onFinish: () => void;
 }) {
   const presentation = scenario.learnerPresentation;
+  const finishStatus = busy
+    ? "Waiting for the current response to finish…"
+    : simulation.actionIds.length === 0
+      ? "Choose at least one task action before review."
+      : pendingInspection
+        ? "Continue the task to reveal what changed."
+        : `${simulation.actionIds.length} task ${simulation.actionIds.length === 1 ? "action" : "actions"} recorded · ready to review`;
 
   return (
     <section
@@ -195,7 +202,7 @@ export function TaskWorkspace({
       </div>
 
       <footer className="task-workspace-footer">
-        <span>{simulation.actionIds.length} task actions recorded</span>
+        <span aria-live="polite">{finishStatus}</span>
         <button
           className="studio-button studio-button-primary"
           disabled={simulation.actionIds.length === 0 || pendingInspection || busy}

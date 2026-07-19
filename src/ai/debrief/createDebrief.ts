@@ -3,7 +3,8 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { idSchema } from "@/ai/schemas/common";
 import { scenarioPackageSchema } from "@/ai/schemas/scenario";
-import { getOpenAIClient, OPENAI_MODEL } from "@/ai/openai/server";
+import { OPENAI_MODEL } from "@/ai/openai/server";
+import { getAdaptiveProvider } from "@/ai/providers/server";
 import { applyCriticalAction, createCanonicalTrace, createSimulationState } from "@/engine/simulation/physics";
 
 export const debriefRequestSchema = z.object({
@@ -22,7 +23,7 @@ export type DebriefProvider = Pick<OpenAI, "responses">;
 
 export async function createDebrief(
   request: z.infer<typeof debriefRequestSchema>,
-  provider: DebriefProvider | null = getOpenAIClient(),
+  provider: DebriefProvider | null = getAdaptiveProvider(),
 ) {
   const validActionIds = new Set(request.scenario.criticalActions.map((action) => action.id));
   if (request.actionIds.some((id) => !validActionIds.has(id))) throw new Error("Trace includes an unknown action.");

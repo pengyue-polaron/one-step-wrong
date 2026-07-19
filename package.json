@@ -18,9 +18,11 @@
     "test:e2e": "playwright test",
     "pilot:analyze": "node scripts/analyze-pilot.mjs",
     "verify:ai": "vitest run src/ai src/app/api",
+    "verify:codex": "node scripts/verify-codex.mjs",
     "verify:live": "node scripts/verify-live.mjs"
   },
   "dependencies": {
+    "@openai/codex-sdk": "^0.144.6",
     "lucide-react": "^0.468.0",
     "next": "16.2.10",
     "openai": "^6.47.0",

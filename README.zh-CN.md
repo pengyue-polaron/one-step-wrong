@@ -47,7 +47,7 @@
 
 学习者可以打开 [`/rehearsal`](http://localhost:3000/rehearsal) 进入 **The Voice You Know**，打开 [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope) 进入 **Sharing Scope**，或打开 [`/rehearsal/recovery-window`](http://localhost:3000/rehearsal/recovery-window) 进入 **Recovery Window**。新情境动作记录后，Evidence Coach 才会依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、最终操作状态、证据、讨论问题、审核指导和打印视图。
 
-自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。没有 API key 时，旗舰直达入口和明确的 **Use example...** 路径仍然完整；实时创作按钮会清楚显示不可用，不会悄悄把学校或教学简报替换成无关数据。
+自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。没有 Platform API key 时，旗舰直达入口和明确的 **Use example...** 路径仍然完整；本地开发也可以使用已登录的 Codex 为教学简报匹配已验证的演练模式、调整可见标题与短标语，并完成对话与复盘，但不开放来源研究。
 
 > **对话可以变化，后果由学习者完成的动作决定。**
 
@@ -136,6 +136,7 @@
 
 - Next.js 16、React 19 和严格模式 TypeScript
 - OpenAI Responses API、Structured Outputs 与 Web Search
+- OpenAI Codex SDK，用于本地开发的模板匹配、受限文案调整、对话与复盘
 - 对所有模型输出执行 Zod 运行时 schema 和跨引用验证
 - 使用有界状态空间遍历证明场景声明的每一种结局都真实可达
 - 原生 CSS 设计系统，根据案例使用不同学校环境配色
@@ -145,7 +146,7 @@
 - Playwright 与 Axe 完整流程、键盘焦点、自动无障碍和响应式布局测试
 - 不含学习者级记录的场次汇总试用工具
 
-案例库和三个完整的审核演练都可以在本地运行。配置 `OPENAI_API_KEY` 后，Scenario Studio 会调用范围受限的 Next.js 服务端路由；没有 key 时，明确的审核示例按钮仍然可用，实时创作请求会返回清楚的错误。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
+案例库和三个完整的审核演练都可以在本地运行。Scenario Studio 只通过范围受限的 Next.js 服务端路由调用自适应能力。`OPENAI_API_KEY` 可启用包含来源研究与完整场景编译在内的路径；显式启用的本地 Codex 会话会选择最贴近简报的审核拓扑、调整标题与短标语，并在开发环境承担对话和复盘，但绝不伪造学校研究引用或重写验证过的动作逻辑。项目不包含数据库、分析服务、账号系统、持久化或真实校园服务集成。
 
 ## 技术证据
 
@@ -165,7 +166,7 @@
 
 第二个任务是在首次演练反馈后的即时应用。动作仍会在明确迁移规则和 Evidence Coach 引导问题出现前记录，因此它只能作为有边界的形成性信号，不能被描述成因果学习证明。
 
-运行 `npm run verify:ai` 可以检查模型边界和 API。启动本地服务并配置 `OPENAI_API_KEY` 后，运行 `npm run verify:live` 可以要求研究、生成、角色对话、复盘和 Evidence Coach 全部返回实时来源；任何路径回退到审核内容都会让命令失败。
+运行 `npm run verify:ai` 可以检查模型边界和 API。启动本地服务并配置 `OPENAI_API_KEY` 后，运行 `npm run verify:live` 可以要求研究、生成、角色对话、复盘和 Evidence Coach 全部返回实时来源。启用本地 Codex 适配器后，运行 `npm run verify:codex` 可以检查审核拓扑匹配、受限文案调整、对话、复盘和 Evidence Coach，同时不会宣称完成了实时来源研究。
 
 ## 快速开始
 
@@ -185,13 +186,27 @@ npm run dev
 
 打开 [http://localhost:3000](http://localhost:3000)。追加 `?dev=1` 可以显示只在开发阶段使用的剧情检查点面板。
 
-自适应研究、生成、对话和复盘是可选能力。根据 [`.env.example`](./.env.example) 创建 `.env.local`，并设置仅供服务端读取的密钥：
+自适应研究、生成、对话和复盘是可选能力。如需完整 Platform 路径，根据 [`.env.example`](./.env.example) 创建 `.env.local`，并设置仅供服务端读取的密钥：
 
 ```bash
 OPENAI_API_KEY=your_key_here
 ```
 
-不要给这个密钥添加 `NEXT_PUBLIC_` 前缀。没有密钥时，使用 **Use example institution** 和 **Use example rehearsal**，或直接打开 `/rehearsal`。
+不要给这个密钥添加 `NEXT_PUBLIC_` 前缀。
+
+暂时没有 Platform API 权限时，可以先登录 Codex，并显式启用仅供本地开发使用的适配器：
+
+```bash
+codex login
+```
+
+```dotenv
+CODEX_LOCAL_PROVIDER=1
+# 可选；留空时使用当前 Codex 账号的默认模型。
+CODEX_LOCAL_MODEL=gpt-5.6-sol
+```
+
+模型可用性取决于账号。这个适配器通过 Codex SDK 启动本地结构化输出进程；`NODE_ENV=production` 时会被忽略，并在临时只读工作区中关闭 Web Search。不要把它暴露为公开或多用户服务。使用这一模式时，先选择 **Use example institution**，再点击 **Create rehearsal**，系统会在三个验证过的判断模式中匹配并调整可见标题与短标语；带来源证据的学校研究和不受模板约束的拓扑生成仍需要 `OPENAI_API_KEY`。
 
 首次运行 Playwright 前执行：
 
@@ -229,6 +244,7 @@ docker run --rm -p 3000:3000 \
 | `npm run test:watch` | 以监听模式运行 Vitest。 |
 | `npm run test:e2e` | 运行 Playwright 浏览器测试。 |
 | `npm run verify:ai` | 运行聚焦于 AI schema、边界、适配器和 API 的测试。 |
+| `npm run verify:codex` | 对运行中的开发服务要求真实本地 Codex 匹配/调整、对话、复盘与教练结果。 |
 | `npm run verify:live` | 在运行中的服务上要求全部自适应路径返回实时来源。 |
 | `npm run pilot:analyze -- <文件>` | 校验并汇总只含场次计数的试用数据。 |
 
@@ -242,6 +258,7 @@ src/
     studio/                         教师工作流、受限标签编辑器与通用演练界面
   ai/
     schemas/                        运行时契约、跨引用与安全验证
+    providers/                      Platform 选择与隔离的本地 Codex 适配层
     research/                       Institution Research Agent 适配层
     scenarios/                      Scenario Architect 适配层
     simulation/                     Director 与角色回合边界验证
@@ -309,7 +326,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 134 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖范围包括三个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、付款/访问/内容恢复、账号设备撤销、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机任务/对话流程。
+当前测试集包含 144 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖范围包括三个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、provider 隔离、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、付款/访问/内容恢复、账号设备撤销、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机任务/对话流程。
 
 ## 安全与隐私
 
@@ -318,7 +335,7 @@ npm run test:e2e
 - 不使用真实 Wi-Fi、账号、证书、下载或设备 API。
 - 真实服务名称和域名只作为静态界面文本出现。
 - 在线学校研究仅通过 OpenAI Web Search 访问公开资料；应用不会登录或调用校园服务。
-- OpenAI 密钥只存在于服务端，请求有长度限制。对话或复盘输出无效时只使用同场景审核内容；研究和生成失败会返回清楚错误，不替换教师输入。
+- OpenAI 密钥只存在于服务端，请求有长度限制。本地 Codex 适配器使用隔离的临时运行状态，也不会代替来源研究。对话或复盘输出无效时只使用同场景审核内容；研究和生成失败会返回清楚错误，不替换教师输入。
 
 这些保证应落实在代码和测试中，而不是用破坏沉浸感的免责声明显示在游戏里。
 
@@ -332,7 +349,7 @@ npm run test:e2e
 - 桌面窗口使用固定位置，不支持自由拖拽和缩放。
 - Final Submission 会即时合成短界面音效，The Voice You Know 包含一段本地合成语音；项目不克隆真人声音，也不调用运行时文字转语音服务。
 - 当前没有登录、数据库、跨会话进度、协作系统、运行时国际化框架或真实校园集成。
-- 在线自适应创作需要有效 API key 和网络；没有二者时仍可通过明确的审核示例路径完成完整产品流程。
+- 带来源证据的在线研究和完整拓扑生成需要有效 Platform API key 和网络。本地 Codex 可以在开发环境匹配并调整审核拓扑，并承担运行时自适应路径；明确的审核示例始终是可移植的完整基线。
 
 ## 许可证
 

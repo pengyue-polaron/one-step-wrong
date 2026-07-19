@@ -40,11 +40,40 @@ describe("Scenario Studio profile review", () => {
   });
 
   it("makes the reviewed path primary when adaptive authoring is unavailable", () => {
-    render(<ScenarioStudio adaptiveAuthoringAvailable={false} />);
+    render(
+      <ScenarioStudio
+        adaptiveGenerationAvailable={false}
+        adaptiveResearchAvailable={false}
+      />,
+    );
 
     expect(screen.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Use example institution" })).toBeEnabled();
     expect(screen.getByText("The reviewed institution is ready to use in this workspace.")).toBeInTheDocument();
+  });
+
+  it("keeps reviewed research and new generation as separate capabilities", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        profile: reviewedNyuInstitutionProfile,
+        provenance: "reviewed-fixture",
+        notice: "Profile ready.",
+      }),
+    }));
+
+    render(
+      <ScenarioStudio
+        adaptiveGenerationAvailable
+        adaptiveResearchAvailable={false}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Use example institution" }));
+    await user.click(await screen.findByRole("button", { name: "Approve profile" }));
+    expect(screen.getByRole("button", { name: "Create rehearsal" })).toBeEnabled();
   });
 
   it("reveals conversation channels only after the matching explicit action", async () => {

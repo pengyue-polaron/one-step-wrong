@@ -141,6 +141,8 @@ An official domain supplied by the educator cannot be replaced by generated outp
 
 The complete flagship rehearsal must remain usable without a network or API key through reviewed institution, scenario, dialogue, and review content. The interface may describe this as an example or recorded review in educator surfaces, but learner screens should present only the story, available actions, evidence, and consequences.
 
+During local development, an explicitly enabled Codex SDK adapter may match a teaching brief to one of the reviewed scenario topologies, adapt only its title and tagline, and provide bounded dialogue, debrief selection, and Evidence Coach answers through the same validated server routes. It is not a replacement for source-backed institution research or full topology generation, must not be exposed as a public service, and remains disabled in production. A Platform API key takes priority when both are present.
+
 Failures must:
 
 - preserve the last valid state;

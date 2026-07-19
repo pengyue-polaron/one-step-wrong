@@ -8,6 +8,7 @@ This document maps product claims to reproducible repository evidence. It tracks
 | --- | --- | --- |
 | Cited institution profile with human approval | `/studio`, source-review tests, exact-brand authorization, authoritative-domain, HTTPS, and same-request source evidence tests | Verified |
 | Runtime-validated scenario compilation | `src/ai/schemas/scenario.ts`, `src/ai/scenarios/generate.ts`, malformed-output tests | Verified |
+| Development-only Codex fallback | Explicit opt-in and production lockout, reviewed-topology matching, protected-copy validation, isolated temporary runtime, tool-backed request rejection, Zod revalidation, API runtime provenance, and a real `npm run verify:codex` check | Verified in unit/API tests; live check requires local Codex login |
 | Approved-source lineage survives fictionalization | Scenario Studio source-to-scenario trace from approved profile to published setting | Verified |
 | Every declared outcome is legally reachable | `src/engine/simulation/coverage.ts`, generation rejection tests, and Studio outcome-coverage preview | Verified |
 | Bounded adaptive dialogue | `src/ai/simulation/turn.ts`, minimum-context, leakage, invalid-event, and timeout tests | Verified with mocked provider output |
@@ -47,6 +48,8 @@ npm run pilot:analyze -- pilot/templates/session-aggregate.csv
 The current suite covers all three reviewed direct entries, the case library, Studio authoring and the bounded label-editor state, source lineage, outcome coverage, delayed consequences, payment/access/content recovery, account-device revocation, the evidence board, immediate new-context application, Evidence Coach, facilitator reporting, keyboard focus, serious/critical Axe checks, modal isolation, desktop layout boundaries, and 390x844 phone task/conversation flows. Component tests separately verify which label fields remain editable and which narrative fields stay locked.
 
 When a server is running with `OPENAI_API_KEY`, `npm run verify:live` requires live provenance for institution research, scenario generation, role dialogue, trace-grounded review, and Evidence Coach. It fails if any path falls back to reviewed content.
+
+When a development server is running with `CODEX_LOCAL_PROVIDER=1` and an authenticated `codex login`, `npm run verify:codex` checks reviewed-topology matching and copy adaptation, role dialogue, debrief, and Evidence Coach through the local adapter. Institution research deliberately stays on the reviewed profile because Codex does not supply the same-request Web Search source evidence required by this product.
 
 ## Manual Product Review
 

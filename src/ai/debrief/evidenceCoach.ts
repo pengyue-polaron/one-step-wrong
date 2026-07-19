@@ -1,7 +1,8 @@
 import type OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { getOpenAIClient, OPENAI_MODEL } from "@/ai/openai/server";
+import { OPENAI_MODEL } from "@/ai/openai/server";
+import { getAdaptiveProvider } from "@/ai/providers/server";
 import { idSchema } from "@/ai/schemas/common";
 import { institutionProfileSchema } from "@/ai/schemas/institution";
 import { scenarioPackageSchema } from "@/ai/schemas/scenario";
@@ -112,7 +113,7 @@ export function createReviewedEvidenceAnswer(
 
 export async function answerEvidenceQuestion(
   request: z.infer<typeof evidenceCoachRequestSchema>,
-  provider: EvidenceCoachProvider | null = getOpenAIClient(),
+  provider: EvidenceCoachProvider | null = getAdaptiveProvider(),
 ): Promise<EvidenceCoachAnswer> {
   if (request.scenario.sourceProfileId !== request.profile.id) {
     throw new Error("Scenario and institution context do not match.");

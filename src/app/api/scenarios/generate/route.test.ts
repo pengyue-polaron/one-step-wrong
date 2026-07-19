@@ -1,7 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/scenarios/generate/route";
+import { adaptReviewedScenarioWithCodex } from "@/ai/scenarios/adaptLocal";
 import type { InstitutionProfile } from "@/ai/schemas/institution";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
+import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
+
+vi.mock("@/ai/scenarios/adaptLocal", () => ({
+  adaptReviewedScenarioWithCodex: vi.fn(),
+}));
 
 const brief = {
   threatTopic: "Voice impersonation",
@@ -63,7 +69,9 @@ describe("POST /api/scenarios/generate", () => {
 
   it("does not replace a live generation request with the fixture when no key is present", async () => {
     const previous = process.env.OPENAI_API_KEY;
+    const previousCodex = process.env.CODEX_LOCAL_PROVIDER;
     try {
+      process.env.CODEX_LOCAL_PROVIDER = "0";
       for (const apiKey of [undefined, "   "]) {
         if (apiKey === undefined) delete process.env.OPENAI_API_KEY;
         else process.env.OPENAI_API_KEY = apiKey;
@@ -85,6 +93,43 @@ describe("POST /api/scenarios/generate", () => {
     } finally {
       if (previous === undefined) delete process.env.OPENAI_API_KEY;
       else process.env.OPENAI_API_KEY = previous;
+      if (previousCodex === undefined) delete process.env.CODEX_LOCAL_PROVIDER;
+      else process.env.CODEX_LOCAL_PROVIDER = previousCodex;
+    }
+  });
+
+  it("uses the explicitly enabled local Codex runtime for new generation", async () => {
+    const previousKey = process.env.OPENAI_API_KEY;
+    const previousCodex = process.env.CODEX_LOCAL_PROVIDER;
+    try {
+      delete process.env.OPENAI_API_KEY;
+      process.env.CODEX_LOCAL_PROVIDER = "1";
+      vi.mocked(adaptReviewedScenarioWithCodex).mockResolvedValueOnce({
+        scenario: voiceYouKnowScenario,
+        templateId: "the-voice-you-know",
+      });
+
+      const response = await POST(
+        new Request("http://localhost/api/scenarios/generate", {
+          method: "POST",
+          body: JSON.stringify({
+            profile: reviewedNyuInstitutionProfile,
+            brief,
+            useFixture: false,
+          }),
+        }),
+      );
+      const result = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(result.provenance).toBe("local-adaptation");
+      expect(result.adaptiveRuntime).toBe("local-codex");
+      expect(result.scenario.id).toBe("the-voice-you-know");
+    } finally {
+      if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
+      else process.env.OPENAI_API_KEY = previousKey;
+      if (previousCodex === undefined) delete process.env.CODEX_LOCAL_PROVIDER;
+      else process.env.CODEX_LOCAL_PROVIDER = previousCodex;
     }
   });
 

@@ -5,6 +5,7 @@ import {
   violatesRoleBoundary,
   type SimulationTurnProvider,
 } from "@/ai/simulation/turn";
+import { createLocalCodexProvider } from "@/ai/providers/localCodex";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 
 const baseRequest = {
@@ -17,6 +18,20 @@ const baseRequest = {
 };
 
 describe("bounded simulation turns", () => {
+  it("uses one bounded role-performance call for the local Codex provider", async () => {
+    const run = vi.fn().mockResolvedValue(JSON.stringify({
+      content: "Before changing anything, compare the request with a route you already trust.",
+    }));
+    const turn = await createSimulationTurn(
+      baseRequest,
+      createLocalCodexProvider(run),
+    );
+
+    expect(run).toHaveBeenCalledOnce();
+    expect(turn.provenance).toBe("live-role");
+    expect(turn.eventId).toBe("urgent-request");
+  });
+
   it("does not treat a free-form verification claim as a critical action", () => {
     const turn = fallbackTurn(voiceYouKnowScenario, [], "I already called and verified the adviser", "impersonator");
     expect(turn.eventId).not.toBe("adviser-confirmation");

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { scenarioGenerationRequestSchema, generateScenario } from "@/ai/scenarios/generate";
-import { hasOpenAIApiKey } from "@/ai/openai/server";
+import { adaptReviewedScenarioWithCodex } from "@/ai/scenarios/adaptLocal";
+import { getAdaptiveProviderKind, hasAdaptiveProvider } from "@/ai/providers/server";
 import { getReviewedScenario } from "@/fixtures/reviewedScenarioRegistry";
 import { readBoundedJson } from "@/app/api/request";
 
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
       notice: `${bundle.scenario.title} is ready for review.`,
     });
   }
-  if (!hasOpenAIApiKey()) {
+  if (!hasAdaptiveProvider()) {
     return NextResponse.json(
       { error: "New scenario generation is not available in this workspace. Use the reviewed example rehearsal." },
       { status: 503 },
@@ -41,9 +42,24 @@ export async function POST(request: Request) {
   }
 
   try {
-    const scenario = await generateScenario(parsed.data);
-    return NextResponse.json({ scenario, provenance: "live-generation", notice: "The new rehearsal passed all scenario checks." });
-  } catch {
+    const adaptiveRuntime = getAdaptiveProviderKind();
+    const localAdaptation = adaptiveRuntime === "local-codex"
+      ? await adaptReviewedScenarioWithCodex(parsed.data)
+      : null;
+    const scenario = localAdaptation?.scenario ?? await generateScenario(parsed.data);
+    return NextResponse.json({
+      scenario,
+      provenance: localAdaptation ? "local-adaptation" : "live-generation",
+      adaptiveRuntime,
+      notice: localAdaptation
+        ? "A reviewed judgment pattern was matched to the brief, adapted, and revalidated."
+        : "The new rehearsal passed all scenario checks.",
+    });
+  } catch (error) {
+    console.error(
+      "Scenario generation failed:",
+      error instanceof Error ? error.message : "Unknown adaptive provider error.",
+    );
     return NextResponse.json(
       { error: "The new rehearsal could not be completed. Keep the current brief or use the reviewed example." },
       { status: 502 },

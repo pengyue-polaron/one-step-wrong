@@ -55,7 +55,7 @@ import { ReviewedAudioPlayer } from "@/app/studio/rehearsal/ReviewedAudioPlayer"
 import { ScenarioCopyEditor } from "@/app/studio/preview/ScenarioCopyEditor";
 
 type StudioStage = "research" | "profile" | "brief" | "preview" | "live" | "debrief" | "transfer" | "report";
-type Provenance = "live-research" | "live-generation" | "reviewed-fixture" | "live-role" | "reviewed-fallback" | "live-debrief" | "deterministic-fallback";
+type Provenance = "live-research" | "live-generation" | "local-adaptation" | "reviewed-fixture" | "live-role" | "reviewed-fallback" | "live-debrief" | "deterministic-fallback";
 type DialogueLine = {
   id: string;
   eventId: string | null;
@@ -118,6 +118,7 @@ function ProvenanceBadge({ value }: { value: Provenance | null }) {
   const labels: Record<Provenance, string> = {
     "live-research": "Current source review",
     "live-generation": "New scenario",
+    "local-adaptation": "Matched scenario",
     "reviewed-fixture": "Reviewed example",
     "live-role": "Adaptive response",
     "reviewed-fallback": "Reviewed response",
@@ -230,12 +231,14 @@ function presentedStateSummary(
 
 export function ScenarioStudio({
   mode = "studio",
-  adaptiveAuthoringAvailable = true,
+  adaptiveResearchAvailable = true,
+  adaptiveGenerationAvailable = true,
   initialScenario = voiceYouKnowScenario,
   initialProfile = reviewedNyuInstitutionProfile,
 }: {
   mode?: "studio" | "featured";
-  adaptiveAuthoringAvailable?: boolean;
+  adaptiveResearchAvailable?: boolean;
+  adaptiveGenerationAvailable?: boolean;
   initialScenario?: ScenarioPackage;
   initialProfile?: InstitutionProfile;
 }) {
@@ -666,10 +669,10 @@ export function ScenarioStudio({
                 {publicationMode === "authorized-exact" && <label className="studio-authorization studio-field-wide"><input checked={exactAuthorizationConfirmed} name="exact-name-permission" onChange={(event) => setExactAuthorizationConfirmed(event.target.checked)} type="checkbox" /><span><strong>Permission confirmed</strong>I have permission to use this institution&apos;s exact name and terminology in the rehearsal.</span></label>}
               </div>
               <div className="studio-actions">
-                <button className={`studio-button ${adaptiveAuthoringAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveAuthoringAvailable || busy || institutionName.trim().length < 2 || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(false)} title={adaptiveAuthoringAvailable ? undefined : "New source research is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FileSearch size={16} />}Find public guidance</button>
-                <button className={`studio-button ${adaptiveAuthoringAvailable ? "" : "studio-button-primary"}`} disabled={busy || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(true)}><BookOpenCheck size={16} />Use example institution</button>
+                <button className={`studio-button ${adaptiveResearchAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveResearchAvailable || busy || institutionName.trim().length < 2 || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(false)} title={adaptiveResearchAvailable ? undefined : "New source research is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FileSearch size={16} />}Find public guidance</button>
+                <button className={`studio-button ${adaptiveResearchAvailable ? "" : "studio-button-primary"}`} disabled={busy || (publicationMode === "authorized-exact" && !exactAuthorizationConfirmed)} onClick={() => research(true)}><BookOpenCheck size={16} />Use example institution</button>
               </div>
-              {!adaptiveAuthoringAvailable && <p className="studio-action-note"><BookOpenCheck size={14} />The reviewed institution is ready to use in this workspace.</p>}
+              {!adaptiveResearchAvailable && <p className="studio-action-note"><BookOpenCheck size={14} />The reviewed institution is ready to use in this workspace.</p>}
               <div className="studio-process-strip"><div><span>1</span><strong>Find</strong><small>Public official pages</small></div><ArrowRight size={16} /><div><span>2</span><strong>Check</strong><small>Sources and terminology</small></div><ArrowRight size={16} /><div><span>3</span><strong>Approve</strong><small>What the scenario may use</small></div></div>
             </div>
           )}
@@ -720,10 +723,10 @@ export function ScenarioStudio({
                 <label className="studio-field studio-field-wide"><span>Learning objective</span><textarea autoComplete="off" name="learning-objective" value={brief.learningObjective} onChange={(e) => setBrief({ ...brief, learningObjective: e.target.value })} /></label>
               </div>
               <div className="studio-actions">
-                <button className={`studio-button ${adaptiveAuthoringAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveAuthoringAvailable || busy} onClick={() => generateScenario(false)} title={adaptiveAuthoringAvailable ? undefined : "New scenario generation is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Create rehearsal</button>
-                <button className={`studio-button ${adaptiveAuthoringAvailable ? "" : "studio-button-primary"}`} disabled={busy} onClick={() => generateScenario(true)}><BookOpenCheck size={16} />Use example rehearsal</button>
+                <button className={`studio-button ${adaptiveGenerationAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveGenerationAvailable || busy} onClick={() => generateScenario(false)} title={adaptiveGenerationAvailable ? undefined : "New scenario generation is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Create rehearsal</button>
+                <button className={`studio-button ${adaptiveGenerationAvailable ? "" : "studio-button-primary"}`} disabled={busy} onClick={() => generateScenario(true)}><BookOpenCheck size={16} />Use example rehearsal</button>
               </div>
-              {!adaptiveAuthoringAvailable && <p className="studio-action-note"><BookOpenCheck size={14} />The reviewed rehearsal remains fully playable and editable as a teaching brief.</p>}
+              {!adaptiveGenerationAvailable && <p className="studio-action-note"><BookOpenCheck size={14} />The reviewed rehearsal remains fully playable and editable as a teaching brief.</p>}
             </div>
           )}
 

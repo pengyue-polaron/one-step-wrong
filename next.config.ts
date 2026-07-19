@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   output: process.env.NEXT_OUTPUT_MODE === "standalone" ? "standalone" : undefined,
   poweredByHeader: false,
+  serverExternalPackages: ["@openai/codex-sdk"],
   async headers() {
     return [
       {

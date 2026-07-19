@@ -47,7 +47,7 @@ Most security training explains the answer before learners feel the pressure tha
 
 Learners can start **The Voice You Know** at [`/rehearsal`](http://localhost:3000/rehearsal), **Sharing Scope** at [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope), or **Recovery Window** at [`/rehearsal/recovery-window`](http://localhost:3000/rehearsal/recovery-window). After the new-context action is recorded, Evidence Coach answers follow-up questions using only evidence discovered in that run and approved source facts. Completing the new situation unlocks a transient facilitator report with the action sequence, final operational state, evidence, discussion prompts, approved guidance, and a print view.
 
-Adaptive generation and dialogue are optional server-side capabilities. Source checks, reviewed institution context, typed actions, recorded evidence, ending selection, and transfer evaluation remain authoritative. Without an API key, the direct flagship and the explicit **Use example...** path remain complete; live authoring controls are clearly unavailable instead of silently replacing a school or brief with unrelated data.
+Adaptive generation and dialogue are optional server-side capabilities. Source checks, reviewed institution context, typed actions, recorded evidence, ending selection, and transfer evaluation remain authoritative. Without a Platform API key, the direct flagship and the explicit **Use example...** path remain complete; local development can also use an authenticated Codex session to match a brief to a validated rehearsal pattern, adapt its visible framing, and provide dialogue and review while source research stays unavailable.
 
 > **Conversation can adapt. Completed actions determine the consequences.**
 
@@ -136,6 +136,7 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 
 - Next.js 16, React 19, and strict TypeScript
 - OpenAI Responses API with Structured Outputs and Web Search
+- OpenAI Codex SDK for development-only template matching, bounded copy adaptation, dialogue, and review
 - Zod runtime schemas and cross-reference validation for all model output
 - Bounded state-space exploration proving that every declared scenario outcome is reachable
 - Native CSS design system with case-specific institutional palettes
@@ -145,7 +146,7 @@ Each case has an ordinary objective, an unmarked decision, a delayed consequence
 - Playwright and Axe for complete user flows, keyboard focus, automated accessibility, and responsive layout checks
 - Aggregate-only formative pilot tooling with no learner-level records
 
-The case library and all three complete reviewed rehearsals work locally. Scenario Studio uses narrowly scoped Next.js server routes when `OPENAI_API_KEY` is configured; without it, the explicit reviewed-example buttons remain available and live authoring requests return a clear error. There is no database, analytics, account system, persistence, or production campus-service integration.
+The case library and all three complete reviewed rehearsals work locally. Scenario Studio uses narrowly scoped Next.js server routes. `OPENAI_API_KEY` enables the complete adaptive path, including source-backed research and full scenario compilation. An explicitly enabled local Codex session can instead select the closest reviewed topology, adapt its title and tagline, and provide dialogue and review during development; it never fabricates institution-research citations or rewrites the validated action logic. There is no database, analytics, account system, persistence, or production campus-service integration.
 
 ## Technical Evidence
 
@@ -165,7 +166,7 @@ The same schema proves that every recovery availability branch follows an incide
 
 The second task is an immediate application after rehearsal feedback. Its action is still recorded before the explicit transfer rule and guided Evidence Coach prompts appear, producing a bounded formative signal rather than a causal learning claim.
 
-Run `npm run verify:ai` for the model-boundary and API suite. With a local server and `OPENAI_API_KEY`, run `npm run verify:live` to require live provenance from research, generation, role dialogue, review, and Evidence Coach; the command fails if any path uses reviewed fallback content.
+Run `npm run verify:ai` for the model-boundary and API suite. With a local server and `OPENAI_API_KEY`, run `npm run verify:live` to require live provenance from research, generation, role dialogue, review, and Evidence Coach. With the development-only Codex adapter enabled, run `npm run verify:codex` to check reviewed-topology matching, bounded copy adaptation, dialogue, review, and Evidence Coach without claiming live source research.
 
 ## Quick Start
 
@@ -185,13 +186,27 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Add `?dev=1` to expose the development-only story checkpoint panel.
 
-Adaptive research, generation, dialogue, and review are optional. Create `.env.local` from [`.env.example`](./.env.example) and set the server-only key:
+Adaptive research, generation, dialogue, and review are optional. For the complete Platform path, create `.env.local` from [`.env.example`](./.env.example) and set the server-only key:
 
 ```bash
 OPENAI_API_KEY=your_key_here
 ```
 
-Never prefix this key with `NEXT_PUBLIC_`. Without it, use **Use example institution** and **Use example rehearsal**, or open `/rehearsal` directly.
+Never prefix this key with `NEXT_PUBLIC_`.
+
+For a local alternative without Platform API access, sign in to Codex and explicitly enable the development adapter:
+
+```bash
+codex login
+```
+
+```dotenv
+CODEX_LOCAL_PROVIDER=1
+# Optional; omit this to use the signed-in account's default Codex model.
+CODEX_LOCAL_MODEL=gpt-5.6-sol
+```
+
+Model availability is account-specific. The adapter uses the Codex SDK as a local structured-output process; it is ignored when `NODE_ENV=production`, runs without web search in a temporary read-only workspace, and must not be exposed through a public or multi-user server. In this mode, start with **Use example institution**, then **Create rehearsal** to match the brief to one of the three validated judgment patterns and adapt its visible framing. Source-backed institution research and unconstrained topology generation still require `OPENAI_API_KEY`.
 
 For the first Playwright run:
 
@@ -229,6 +244,7 @@ docker run --rm -p 3000:3000 \
 | `npm run test:watch` | Run Vitest in watch mode. |
 | `npm run test:e2e` | Run the Playwright browser suite. |
 | `npm run verify:ai` | Run the focused AI schema, guardrail, adapter, and API suite. |
+| `npm run verify:codex` | Require live local Codex matching/adaptation, dialogue, debrief, and coaching from a running development server. |
 | `npm run verify:live` | Require live provenance across every adaptive path on a running server. |
 | `npm run pilot:analyze -- <file>` | Validate and summarize aggregate-only pilot counts. |
 
@@ -242,6 +258,7 @@ src/
     studio/                         Educator workflow, bounded label editor, and shared rehearsal UI
   ai/
     schemas/                        Runtime contracts, cross-references, safety validation
+    providers/                      Platform selection and isolated local Codex adapter
     research/                       Institution Research Agent adapter
     scenarios/                      Scenario Architect adapter
     simulation/                     Bounded Director and role-turn validation
@@ -309,7 +326,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 134 schema, API, state, and component tests plus 23 browser tests. Coverage includes all three reviewed direct entries, profile review, bounded label editing, exact-brand authorization, source lineage, action-unlocked channels, mutually exclusive decisions, delayed consequences, automatic four-outcome reachability, payment/access/content recovery, account-device revocation, immediate new-context application, Evidence Coach citations, facilitator reporting, strict aggregate pilot validation, responsive modal isolation, serious/critical Axe checks, complete safe and incident paths, production builds, desktop layouts, and 390x844 phone task/conversation flows.
+The current suite contains 144 schema, API, state, and component tests plus 23 browser tests. Coverage includes all three reviewed direct entries, profile review, bounded label editing, exact-brand authorization, source lineage, provider isolation, action-unlocked channels, mutually exclusive decisions, delayed consequences, automatic four-outcome reachability, payment/access/content recovery, account-device revocation, immediate new-context application, Evidence Coach citations, facilitator reporting, strict aggregate pilot validation, responsive modal isolation, serious/critical Axe checks, complete safe and incident paths, production builds, desktop layouts, and 390x844 phone task/conversation flows.
 
 ## Safety and Privacy
 
@@ -318,7 +335,7 @@ The current suite contains 134 schema, API, state, and component tests plus 23 b
 - No real Wi-Fi, account, certificate, download, or device API is used.
 - Real service names and domains appear only as inert interface text.
 - Live institution research is limited to public documentation through OpenAI Web Search; the app never logs in to or invokes campus services.
-- OpenAI credentials remain server-only and requests are bounded. Invalid dialogue or review output stays on same-scenario reviewed content; research and generation failures return clear errors without replacing educator input.
+- OpenAI credentials remain server-only and requests are bounded. The local Codex adapter uses isolated temporary runtime state and is never a source-research substitute. Invalid dialogue or review output stays on same-scenario reviewed content; research and generation failures return clear errors without replacing educator input.
 
 These guarantees belong in code and tests, not as immersion-breaking disclaimers inside the game.
 
@@ -332,7 +349,7 @@ Focused issues and pull requests are welcome. Preserve the product rules in `AGE
 - Desktop windows have fixed positions and cannot be freely dragged or resized.
 - Final Submission synthesizes short interface sounds, and The Voice You Know includes one local synthetic voice note. No real voice is cloned and no runtime text-to-speech service is called.
 - There is no login, database, saved progress, collaboration system, runtime localization framework, or real campus integration.
-- Live adaptive authoring requires a valid API key and network access; the explicit reviewed-example path keeps the complete product flow available without either.
+- Source-backed live research and full topology generation require a valid Platform API key and network access. Local Codex can match and adapt a reviewed topology and supply the runtime adaptive paths during development; the explicit reviewed-example path remains the portable baseline.
 
 ## License
 

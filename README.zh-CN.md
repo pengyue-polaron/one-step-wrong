@@ -15,7 +15,7 @@
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
 
-**《一步之差》**是一台“数字判断力飞行模拟器”。学习者进入普通学生任务，在可信的工具界面中作出选择，经历延迟出现的后果，再通过根据实际操作生成的因果复盘理解安全知识。教师还可以使用 **Scenario Studio**，把经过审核的学校画像与教学简报编译成一场有边界、可游玩的演练。
+**《一步之差》**是一台“数字判断力飞行模拟器”。学习者进入普通学生任务，在可信的工具界面中作出选择，经历延迟出现的后果，再回看自己的操作如何影响结果。教师可以使用 **Scenario Studio**，把审核通过的学校指导与教学简报做成可游玩的演练。
 
 它不是知识问答。结果发生前，任何选择都不会被标注为安全、危险、正确或推荐。
 
@@ -35,19 +35,19 @@
 
 ## Scenario Studio
 
-**这不是一棵固定分支的剧情树，而是一场会呼吸的安全演练。** 打开 [`/studio`](http://localhost:3000/studio) 可以创作并体验贴合学校环境的演练：
+打开 [`/studio`](http://localhost:3000/studio)，可以根据公开学校指导和教学简报制作一场演练：
 
 1. 从官方公开来源研究一所学校，或载入审核过的 NYU 来源画像。
-2. 审核引用、冲突、研究警告和明确未知项，再批准学校环境。
+2. 审核引用、冲突、研究警告和未解决问题，再批准学校环境。
 3. 定义受众、普通任务、压力、威胁和学习目标。
-4. 跟踪审核来源如何进入虚构化发布环境，预览角色、动作、恢复和结局覆盖，并在不重写审核故事的前提下润色少量可见标签。
-5. 进入演练，通过明确的任务和检查动作推进，并看到每个动作返回证据和剧情回应。
-6. 根据实际完成的动作复盘因果链与最终操作状态。
-7. 在内置迁移规则显示前，先在不同任务中完成一次选择。
+4. 查看审核通过的事实如何进入虚构化学生场景，再检查角色、动作、恢复步骤和可能结局。
+5. 进入演练，在工作区中完成任务和检查动作。
+6. 回看本次选择、证据、后果和恢复过程。
+7. 把同一条判断规则用到另一个任务中。
 
-学习者可以打开 [`/rehearsal`](http://localhost:3000/rehearsal) 进入 **The Voice You Know**，打开 [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope) 进入 **Sharing Scope**，或打开 [`/rehearsal/recovery-window`](http://localhost:3000/rehearsal/recovery-window) 进入 **Recovery Window**。新情境动作记录后，Evidence Coach 才会依据本次已经发现的证据和审核通过的来源事实回答追问。完成新情境后，可以打开当前会话的教师报告，查看动作顺序、最终操作状态、证据、讨论问题、审核指导和打印视图。
+学习者可以打开 [`/rehearsal`](http://localhost:3000/rehearsal) 进入 **The Voice You Know**，打开 [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope) 进入 **Sharing Scope**，或打开 [`/rehearsal/recovery-window`](http://localhost:3000/rehearsal/recovery-window) 进入 **Recovery Window**。Evidence Coach 只根据本次已经发现的证据和审核通过的学校指导回答追问。教师报告把动作顺序、结束状态、证据、讨论问题和来源链接整理到一个可打印页面中。
 
-自适应生成和对话是可选的服务端能力。来源检查、审核过的学校环境、类型化动作、已收集证据、结局选择与迁移评估始终拥有最终解释权。没有 Platform API key 时，旗舰直达入口和明确的 **Use example...** 路径仍然完整；本地开发也可以使用已登录的 Codex 为教学简报匹配已验证的演练模式、调整可见标题与短标语，并完成对话与复盘，但不开放来源研究。
+自适应生成和对话是可选能力。关键任务动作和结局始终来自学习者已经完成的选择。没有 Platform API key 时，演练直达入口和 **Use example...** 路径仍可正常使用；本地开发也可以使用已登录的 Codex 为教学简报匹配审核场景、调整标题与短标语，并完成对话与复盘。实时来源研究仍然需要 Platform API。
 
 > **对话可以变化，后果由学习者完成的动作决定。**
 
@@ -55,7 +55,7 @@
 
 如需直接组织一次 10–35 分钟课堂或工作坊活动，可以使用双语 [`FACILITATOR_GUIDE.zh-CN.md`](./FACILITATOR_GUIDE.zh-CN.md)。
 
-审核过的离线画像使用 NYU 官方公开页面作为来源，覆盖 [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system)、[Duo 与文件共享](https://tisch.nyu.edu/cit/information-technology/faq)、[Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu)、[校园无线网络](https://library.nyu.edu/services/computing/on-campus/wifi/)、[伪造发件人识别与钓鱼上报](https://cims.nyu.edu/dynamic/systems/userservices/mail/)和[学生报销材料](https://www.stern.nyu.edu/portal-partners/budget/students)。画像明确把“全校统一的付款信息变更回拨规则”保留为未知；品牌安全编译随后转换受保护的校名、域名与平台名，同时保留来源事实 ID。
+内置 NYU 画像引用了学校关于 [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system)、[Duo 与文件共享](https://tisch.nyu.edu/cit/information-technology/faq)、[Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu)、[校园无线网络](https://library.nyu.edu/services/computing/on-campus/wifi/)、[伪造发件人识别与钓鱼上报](https://cims.nyu.edu/dynamic/systems/userservices/mail/)和[学生报销材料](https://www.stern.nyu.edu/portal-partners/budget/students)的公开页面。因为没有找到全校统一的付款信息变更回拨规则，画像把这个问题保留为未解决。虚构化发布会替换受保护的校名、域名与平台名，同时保留来源链接。
 
 默认发布方式是品牌安全虚构化。使用精确学校品牌前必须明确确认已获授权，而且确认会写入通过验证的 Institution Profile。用户提供官方域名后，模型不能把它替换为其他域名；学校来源必须位于该域名、使用 HTTPS、由服务器写入访问时间，而且 URL 必须出现在同一次 Responses Web Search 返回的工具证据中。
 
@@ -75,12 +75,12 @@
 
 ### Scenario Studio
 
-![包含引用、置信度和明确未知项的 NYU Institution Profile 审核页面](./artifacts/screenshots/studio-profile.png)
+![包含引用、置信度和未解决问题的 NYU Institution Profile 审核页面](./artifacts/screenshots/studio-profile.png)
 
 <table>
   <tr>
     <td width="50%"><img alt="通过验证的 Scenario Studio 场景包" src="./artifacts/screenshots/studio-preview.png" /></td>
-    <td width="50%"><img alt="有边界角色参与的实时演练" src="./artifacts/screenshots/studio-live.png" /></td>
+    <td width="50%"><img alt="实时角色演练" src="./artifacts/screenshots/studio-live.png" /></td>
   </tr>
   <tr>
     <td align="center">通过验证的世界、角色与关键动作</td>
@@ -90,7 +90,7 @@
 
 ![不同验证渠道会在演练中揭示不同证据](./artifacts/screenshots/studio-evidence.png)
 
-![以学习者实际操作记录为基础的 Studio 复盘](./artifacts/screenshots/studio-debrief.png)
+![根据学习者实际操作生成的 Studio 复盘](./artifacts/screenshots/studio-debrief.png)
 
 ![Evidence Coach 解释一个验证渠道实际证明了什么、没有证明什么](./artifacts/screenshots/studio-coach.png)
 
@@ -136,9 +136,9 @@
 
 - Next.js 16、React 19 和严格模式 TypeScript
 - OpenAI Responses API、Structured Outputs 与 Web Search
-- OpenAI Codex SDK，用于本地开发的模板匹配、受限文案调整、对话与复盘
+- OpenAI Codex SDK，用于本地开发的场景匹配、文案调整、对话与复盘
 - 对所有模型输出执行 Zod 运行时 schema 和跨引用验证
-- 使用有界状态空间遍历证明场景声明的每一种结局都真实可达
+- 使用状态空间遍历检查场景声明的每一种结局是否可达
 - 原生 CSS 设计系统，根据案例使用不同学校环境配色
 - Lucide React 图标
 - 使用纯 reducer 与模拟物理层构建可复现的剧情状态
@@ -150,7 +150,7 @@
 
 ## 技术证据
 
-可选的自适应模型层承担五项有边界的职责：
+AI 用于五项工作：
 
 1. 使用来源证据研究官方公开的学校指导。
 2. 把已批准的画像与教学简报编译成通过验证的场景包。
@@ -158,15 +158,15 @@
 4. 只从已记录动作中选择通过验证的复盘元素。
 5. 只使用已发现证据和审核通过的来源事实回答追问。
 
-模型不执行关键动作，不修改付款、访问或内容状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，所有浏览器调用都通过 [`src/app/api`](./src/app/api) 中有大小限制的服务端路由。
+模型不执行关键动作，不修改付款、访问或内容状态，不选择结局，也不评估学习者的迁移动作。这些决定保留在 [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts)。运行时验证位于 [`src/ai/schemas`](./src/ai/schemas)，模型适配器位于 [`src/ai`](./src/ai)，浏览器请求通过 [`src/app/api`](./src/app/api) 中的服务端路由。
 
-生成演练在启动前，还会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 通过正式物理层遍历所有可达动作集合。审核语音案例会检查 248 个合法动作状态，Sharing Scope 会检查 29 个，Recovery Window 会检查 46 个。只要 safe、caution、contained 或 expanded 中有一种不存在合法路径，生成就会失败；教师预览会显示每种结局的一条最短代表轨迹。
+生成演练在启动前，会由 [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) 使用正式游玩规则检查可能的动作组合。审核语音案例会检查 248 种组合，Sharing Scope 会检查 29 种，Recovery Window 会检查 46 种。只要有一种结局无法到达，生成就会停止；教师预览会显示每种结局的一条可玩路径。
 
-同一份 schema 还会证明每一条恢复可用路径都经过事故触发点、contained 事故中每个被改变的状态字段都有真正有效的恢复动作，而且受影响层的最终状态确实已被控制。旗舰案例里，付款批准会先表现为成功，后续状态复查才揭示异常；真正的 contained 还必须单独请求财务冻结。对话渠道只有在学习者明确打开后才出现；自由对话会留在当前选中的角色频道，动作触发事件会记录 ID，避免审核对话无限重复。
+恢复动作只会在事故已经显现后出现，每一个受影响层都需要单独处理。旗舰案例里，付款批准会先表现为成功，后续状态复查才揭示异常；完成控制还必须单独请求财务冻结。对话渠道只有在学习者打开后才出现，后续回复也会留在当前选中的角色频道。
 
-第二个任务是在首次演练反馈后的即时应用。动作仍会在明确迁移规则和 Evidence Coach 引导问题出现前记录，因此它只能作为有边界的形成性信号，不能被描述成因果学习证明。
+每个审核演练最后都会提供第二个情境，让学习者把同一条规则用到不同任务中。它只是形成性检查，不是学习效果证明。
 
-运行 `npm run verify:ai` 可以检查模型边界和 API。启动本地服务并配置 `OPENAI_API_KEY` 后，运行 `npm run verify:live` 可以要求研究、生成、角色对话、复盘和 Evidence Coach 全部返回实时来源。启用本地 Codex 适配器后，运行 `npm run verify:codex` 可以检查审核拓扑匹配、受限文案调整、对话、复盘和 Evidence Coach，同时不会宣称完成了实时来源研究。
+运行 `npm run verify:ai` 可以检查模型边界和 API。启动本地服务并配置 `OPENAI_API_KEY` 后，运行 `npm run verify:live` 可以检查研究、生成、角色对话、复盘和 Evidence Coach 的实时结果。启用本地 Codex 适配器后，运行 `npm run verify:codex` 可以检查场景匹配、文案调整、对话、复盘和 Evidence Coach；该模式不提供来源研究。
 
 ## 快速开始
 
@@ -255,14 +255,14 @@ src/
   app/
     api/                            仅服务端研究、生成、对话、复盘与教练路由
     rehearsal/                      审核演练的学习者直达路由
-    studio/                         教师工作流、受限标签编辑器与通用演练界面
+    studio/                         教师工作流、受保护标签编辑器与通用演练界面
   ai/
     schemas/                        运行时契约、跨引用与安全验证
     providers/                      Platform 选择与隔离的本地 Codex 适配层
     research/                       Institution Research Agent 适配层
     scenarios/                      Scenario Architect 适配层
     simulation/                     Director 与角色回合边界验证
-    debrief/                        依据轨迹生成复盘与 Evidence Coach 的适配层
+    debrief/                        根据操作记录生成复盘与 Evidence Coach 的适配层
   fixtures/                         审核过的画像/场景原子包与对话内容
   product/
     Game.tsx                        会话级案例选择与完成状态
@@ -279,7 +279,7 @@ src/
     reducer.ts                      纯状态转换与结局派生
     components/                     通用章节外壳与选择控件
     views/                          结果、响应与复盘页面
-  engine/simulation/               权威物理层、记录、迁移与结局覆盖验证
+  engine/simulation/               状态转换、动作记录、迁移与结局检查
   components/ui/                    只包含可复用按钮原语
   styles/                           设计变量、通用样式与案例库样式
   tests/e2e/                        浏览器流程、无障碍和响应式检查
@@ -326,7 +326,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 146 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖范围包括三个审核演练直达入口、画像审核、受限标签编辑、精确品牌授权、来源转换链、provider 隔离、动作解锁渠道、互斥决策、延迟后果、四结局自动可达性、付款/访问/内容恢复、账号设备撤销、即时新情境应用、Evidence Coach 引用边界、教师报告、严格场次汇总校验、响应式弹窗隔离、Axe serious/critical 门禁、安全与事故完整路线、生产构建、桌面布局和 390x844 手机任务/对话流程。
+当前测试集包含 146 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖三个审核演练、Studio 审核与编辑、动作和恢复规则、四种结局、Evidence Coach 引用、教师报告、无障碍检查、生产构建、桌面布局和 390x844 手机流程。产品主张与测试的对应关系见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)。
 
 ## 安全与隐私
 

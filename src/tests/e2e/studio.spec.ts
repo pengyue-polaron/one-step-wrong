@@ -4,7 +4,7 @@ async function openValidatedScenario(page: Page, captureProfile = false) {
   await page.goto("/studio");
   await page.getByRole("button", { name: "Use example institution" }).click();
   await expect(page.getByTestId("studio-profile")).toBeVisible();
-  await expect(page.getByText("Unknown remains unknown")).toBeVisible();
+  await expect(page.getByText("No approved guidance recorded")).toBeVisible();
   await expect(page.getByRole("region", { name: "Source review" })).toBeVisible();
   await expect(page.getByText("6 / 6 approved")).toBeVisible();
   if (captureProfile) {
@@ -15,10 +15,10 @@ async function openValidatedScenario(page: Page, captureProfile = false) {
   await expect(page.getByTestId("studio-brief")).toBeVisible();
   await page.getByRole("button", { name: "Use example rehearsal" }).click();
   await expect(page.getByTestId("studio-preview")).toBeVisible();
-  await expect(page.getByText("Scenario checks passed")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Source-to-scenario trace" })).toContainText("New York University");
-  await expect(page.getByRole("region", { name: "Source-to-scenario trace" })).toContainText("Northbridge University");
-  await expect(page.getByRole("region", { name: "Outcome coverage" })).toContainText("4 / 4 reachable");
+  await expect(page.getByText("All path checks passed")).toBeVisible();
+  await expect(page.getByRole("region", { name: "How sources were used" })).toContainText("New York University");
+  await expect(page.getByRole("region", { name: "How sources were used" })).toContainText("Northbridge University");
+  await expect(page.getByRole("region", { name: "Path check" })).toContainText("4 / 4 endings");
 }
 
 test("featured rehearsal opens directly from the case library", async ({ page }) => {
@@ -71,7 +71,7 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByText("SAFE", { exact: true })).toBeVisible();
   await expect(page.getByText("Call the saved directory number")).toBeVisible();
   await expect(page.getByRole("region", { name: "Causal walkthrough" })).toContainText("Independent adviser confirmation");
-  await expect(page.getByRole("region", { name: "How the result was determined" })).toContainText("The conversation could change");
+  await expect(page.getByRole("region", { name: "Why this outcome happened" })).toContainText("Your completed actions shaped the result");
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-debrief.png", fullPage: true });
 
@@ -81,8 +81,9 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByTestId("studio-transfer")).not.toContainText(/GPT|Build Week|fixture|fallback|schema|deterministic|canonical/i);
   await expect(page.getByText("The Name You Recognize")).toBeVisible();
   await page.getByRole("button", { name: /Open Campus Drive from your saved bookmark/ }).click();
-  await expect(page.getByText("Known-channel pattern applied")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Learning evidence" })).toContainText("after feedback");
+  await expect(page.getByText("You checked beyond the request")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Compare your choices" })).toContainText("Use this next time");
+  await expect(page.getByTestId("studio-transfer")).not.toContainText(/explicit transfer rule|coach prompts|after feedback/i);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "artifacts/screenshots/studio-transfer.png", fullPage: true });
   await page.getByRole("button", { name: "What made the saved directory call independent evidence?" }).click();
@@ -94,15 +95,15 @@ test("studio completes the reviewed research-to-debrief path", async ({ page }) 
   await expect(page.getByTestId("studio-report")).toBeVisible();
   await expect(page.getByText("No learner identity stored")).toBeVisible();
   await expect(page.getByRole("heading", { name: "The Voice You Know" })).toBeVisible();
-  await expect(page.getByText(/Source profile: New York University · Published setting: Northbridge University/)).toBeVisible();
-  await expect(page.getByText(/selected before the explicit rule/)).toBeVisible();
+  await expect(page.getByText(/Institution context: New York University · Student-facing setting: Northbridge University/)).toBeVisible();
+  await expect(page.getByTestId("studio-report")).not.toContainText(/explicit transfer rule|coach prompts|selected before/i);
   await expect(page.getByRole("region", { name: "5-minute discussion path" })).toContainText("Reconstruct the pressure");
   await expect(page.getByRole("region", { name: "5-minute discussion path" })).toContainText("Independent adviser confirmation");
   await expect(page.getByRole("region", { name: "5-minute discussion path" })).toContainText("Record only an aggregate category");
   await expect(page.getByRole("list", { name: "Explanation categories" })).toContainText("Clear");
   await expect(page.getByRole("list", { name: "Explanation categories" })).toContainText("Partial");
   await expect(page.getByRole("list", { name: "Explanation categories" })).toContainText("Unclear");
-  await expect(page.getByText("Approved institution guidance")).toBeVisible();
+  await expect(page.getByText("Institution guidance")).toBeVisible();
   await expect(page.getByRole("button", { name: "Print report" })).toBeEnabled();
   await page.screenshot({ path: "artifacts/screenshots/facilitator-report.png", fullPage: true });
 
@@ -196,9 +197,9 @@ test("studio remains usable without horizontal overflow on mobile", async ({ pag
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio.png", fullPage: true });
   await page.getByRole("button", { name: "Approve profile" }).click();
   await page.getByRole("button", { name: "Use example rehearsal" }).click();
-  await expect(page.getByRole("region", { name: "Outcome coverage" })).toContainText("4 / 4 reachable");
+  await expect(page.getByRole("region", { name: "Path check" })).toContainText("4 / 4 endings");
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
-  await page.getByRole("region", { name: "Outcome coverage" }).scrollIntoViewIfNeeded();
+  await page.getByRole("region", { name: "Path check" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio-coverage.png" });
 });
 
@@ -219,7 +220,7 @@ test("transfer evidence remains usable on mobile", async ({ page }) => {
   await expect(page.getByTestId("studio-transfer")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.getByRole("button", { name: /Ask for confirmation in the same group chat/ }).click();
-  await expect(page.getByText("Verification stayed inside the request")).toBeVisible();
+  await expect(page.getByText("The request still controlled the check")).toBeVisible();
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.locator(".transfer-result").scrollIntoViewIfNeeded();
   await page.screenshot({ path: "artifacts/screenshots/mobile-studio-transfer.png" });

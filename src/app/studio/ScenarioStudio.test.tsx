@@ -83,7 +83,7 @@ describe("Scenario Studio profile review", () => {
     render(<ScenarioStudio />);
     await user.click(screen.getByRole("button", { name: "Find public guidance" }));
 
-    expect(screen.getByRole("status", { name: /Preparing context for review/ })).toHaveTextContent("Checking the official source boundary");
+    expect(screen.getByRole("status", { name: /Gathering school guidance/ })).toHaveTextContent("Checking the school's official pages");
     expect(screen.getByRole("button", { name: "Find public guidance" })).toBeDisabled();
   });
 

@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "One Step Wrong",
-  description: "Interactive digital-judgment stories and source-grounded security rehearsals.",
+  description: "Interactive stories for practicing digital judgment.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -2,7 +2,7 @@ export const reviewedRehearsals = [
   {
     id: "the-voice-you-know",
     title: "The Voice You Know",
-    summary: "A familiar adviser voice asks for an urgent payment change. Compare channels, follow the operational result, and practice the rule again elsewhere.",
+    summary: "A familiar adviser voice asks for an urgent payment change. Decide how to verify it, then deal with what your choice changes.",
     location: "Northbridge University",
     duration: "About 8 minutes",
     href: "/rehearsal",
@@ -13,7 +13,7 @@ export const reviewedRehearsals = [
   {
     id: "sharing-scope",
     title: "Sharing Scope",
-    summary: "A real teammate needs access before a deadline. Match the audience and permission to the task, then respond if a link travels farther.",
+    summary: "A teammate needs access before a deadline. Choose who can enter and what they can change, then respond if the link travels farther.",
     location: "Northbridge University",
     duration: "About 9 minutes",
     href: "/rehearsal/sharing-scope",
@@ -24,7 +24,7 @@ export const reviewedRehearsals = [
   {
     id: "recovery-window",
     title: "Recovery Window",
-    summary: "A real teammate needs publishing access before a live show. Separate one task from account recovery authority, then inspect what a handoff actually changed.",
+    summary: "A teammate needs publishing access before a live show. Decide whether a handoff fits the task, then inspect what it changed on the account.",
     location: "Northbridge University",
     duration: "About 9 minutes",
     href: "/rehearsal/recovery-window",

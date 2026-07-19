@@ -52,8 +52,8 @@ export async function POST(request: Request) {
       provenance: localAdaptation ? "local-adaptation" : "live-generation",
       adaptiveRuntime,
       notice: localAdaptation
-        ? "A reviewed judgment pattern was matched to the brief, adapted, and revalidated."
-        : "The new rehearsal passed all scenario checks.",
+        ? "A reviewed scenario was adapted to this brief and passed all path checks."
+        : "The new rehearsal is ready for review.",
     });
   } catch (error) {
     console.error(

@@ -95,11 +95,6 @@ export function CaseLibrary({
             );
           })}
         </section>
-
-        <footer className="library-footnote">
-          <span>Five rehearsals · Five judgment patterns</span>
-          <p>Verify sources, scope sharing, separate recovery authority, bind authentication to your own action, and challenge familiar requests.</p>
-        </footer>
       </div>
     </main>
   );

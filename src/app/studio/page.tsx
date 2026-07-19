@@ -5,7 +5,7 @@ import { hasAdaptiveProvider } from "@/ai/providers/server";
 
 export const metadata: Metadata = {
   title: "Scenario Studio | One Step Wrong",
-  description: "Create and try a source-grounded digital-judgment rehearsal.",
+  description: "Create and try a school-aware digital-judgment rehearsal.",
 };
 
 export const dynamic = "force-dynamic";

@@ -18,11 +18,13 @@ The default product language is English. Keep `README.zh-CN.md` as the complete 
 - Do not label choices safe, risky, correct, recommended, or suspicious before the outcome.
 - Do not show a score before the debrief.
 - Do not expose hackathon names, model/provider names, fixture/fallback terminology, schema language, or implementation architecture in the learner-facing experience.
+- Keep evaluation order, study-method notes, and implementation proof in `pilot/` or technical documentation, not in learner or facilitator screens.
 - Let the convenient path feel genuinely faster or easier.
 - Delay consequences when that delay is part of the lesson.
 - Model recovery as separate actions instead of one generic “fix everything” button.
 - Make the debrief explain the chain from pressure and evidence to permissions, consequences, response, and transferable behavior.
 - Keep instructional copy concise, factual, nonjudgmental, and tied to what the player actually did.
+- Prefer concrete actions and consequences over abstract slogans, mirrored clauses, or labels such as "pattern applied" and "scope remained."
 
 Every published case must include:
 

@@ -124,7 +124,7 @@ function ProvenanceBadge({ value }: { value: Provenance | null }) {
     "live-role": "Adaptive response",
     "reviewed-fallback": "Reviewed response",
     "live-debrief": "Personalized review",
-    "deterministic-fallback": "Recorded review",
+    "deterministic-fallback": "Reviewed summary",
   };
   const label = labels[value];
   return <span className={`studio-provenance ${isLive ? "is-live" : ""}`}><span />{label}</span>;
@@ -153,22 +153,22 @@ const operationCopy: Record<PendingOperation, {
 }> = {
   research: {
     eyebrow: "Source review in progress",
-    title: "Preparing context for review",
+    title: "Gathering school guidance",
     detail: "This can take a few seconds. No fact is approved automatically.",
     steps: [
-      "Checking the official source boundary",
-      "Comparing supported terminology",
-      "Preparing facts and open questions",
+      "Checking the school's official pages",
+      "Comparing names and guidance",
+      "Listing facts and open questions",
     ],
   },
   generate: {
     eyebrow: "Scenario preparation",
     title: "Building a rehearsal from the brief",
-    detail: "This can take a few seconds. The result must pass every outcome check.",
+    detail: "This can take a few seconds. Every ending is tested before you continue.",
     steps: [
-      "Matching the objective to a reviewed structure",
+      "Choosing a scenario structure",
       "Checking actions, evidence, and recovery",
-      "Verifying all 4 outcome paths",
+      "Testing all 4 endings",
     ],
   },
   role: {
@@ -183,8 +183,8 @@ const operationCopy: Record<PendingOperation, {
   },
   debrief: {
     eyebrow: "Run review",
-    title: "Reconstructing what led to this outcome",
-    detail: "The recorded actions stay fixed while the review is prepared.",
+    title: "Reviewing what led to this outcome",
+    detail: "Your completed actions stay fixed while the review is prepared.",
     steps: [
       "Reading the recorded actions",
       "Connecting evidence to consequences",
@@ -198,7 +198,7 @@ const operationCopy: Record<PendingOperation, {
     steps: [
       "Finding the evidence you uncovered",
       "Checking approved guidance",
-      "Preparing a traceable answer",
+      "Writing the answer",
     ],
   },
 };
@@ -593,7 +593,7 @@ export function ScenarioStudio({
   function launchScenario() {
     if (!scenario) return;
     if (!scenarioValidation?.success || !scenarioCoverage?.allOutcomesReachable) {
-      setError("Resolve scenario validation and outcome coverage before rehearsal.");
+      setError("Review the action paths and endings before starting the rehearsal.");
       return;
     }
     const dialogue = openingDialogue(scenario);
@@ -796,7 +796,7 @@ export function ScenarioStudio({
             <div className="studio-section" data-testid="studio-profile">
               <header className="studio-section-heading studio-heading-row"><div><span>02 / CONTEXT REVIEW</span><h1>{profile.displayName}</h1><p>{profile.officialDomains.join(" · ")} · {profile.publicationMode === "brand-safe-fictionalized" ? "fictionalized names" : "exact institution names"} · {profile.facts.filter((fact) => fact.status === "verified").length} supported facts · {profile.unresolvedFields.length} open questions</p></div><ProvenanceBadge value={profileProvenance} /></header>
               <div className="studio-review-dock">
-                <span><strong>{profileReadyForApproval ? `${profile.facts.length} facts ready for approval` : `${profileReviewIssues.length} review ${profileReviewIssues.length === 1 ? "check needs" : "checks need"} attention`}</strong><small>{profileReadyForApproval ? `${profile.sources.filter((source) => source.reviewStatus === "approved").length} approved sources · unknowns remain visibly unresolved` : profileReviewIssues.slice(0, 2).map((issue) => issue.message).join(" · ")}</small></span>
+                <span><strong>{profileReadyForApproval ? `${profile.facts.length} facts ready for approval` : `${profileReviewIssues.length} review ${profileReviewIssues.length === 1 ? "check needs" : "checks need"} attention`}</strong><small>{profileReadyForApproval ? `${profile.sources.filter((source) => source.reviewStatus === "approved").length} approved sources · open questions remain listed` : profileReviewIssues.slice(0, 2).map((issue) => issue.message).join(" · ")}</small></span>
                 <button className="studio-button studio-button-primary" onClick={approveProfile}><UserRoundCheck size={16} />Approve profile</button>
               </div>
               <div className="profile-table" aria-label="Institution facts">
@@ -804,7 +804,7 @@ export function ScenarioStudio({
                   <div className="profile-row" key={fact.id}>
                     <div className="profile-fact-meta"><span>{fact.category.replaceAll("-", " ")}</span><strong>{fact.label}</strong><label className="fact-review-status"><span>Review status</span><select aria-label={`Status for ${fact.label}`} className={`fact-status is-${fact.status}`} name={`fact-status-${fact.id}`} value={fact.status} onChange={(event) => updateFactStatus(factIndex, event.target.value as InstitutionProfile["facts"][number]["status"])}><option value="verified">Verified</option><option value="conflicting">Conflicting</option><option value="unknown">Unknown</option></select></label><small>{fact.confidence} confidence</small></div>
                     <div className="profile-fact-value">
-                      {fact.status === "unknown" ? <p className="unknown-value">Unknown remains unknown</p> : <textarea aria-label={`${fact.label} value`} autoComplete="off" maxLength={700} name={`fact-value-${fact.id}`} placeholder="Enter a source-supported value…" value={fact.value ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, approval: { status: "review-required" }, facts: current.facts.map((item, index) => index === factIndex ? { ...item, value: event.target.value } : item) } : current)} />}
+                      {fact.status === "unknown" ? <p className="unknown-value">No approved guidance recorded</p> : <textarea aria-label={`${fact.label} value`} autoComplete="off" maxLength={700} name={`fact-value-${fact.id}`} placeholder="Enter a source-supported value…" value={fact.value ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, approval: { status: "review-required" }, facts: current.facts.map((item, index) => index === factIndex ? { ...item, value: event.target.value } : item) } : current)} />}
                       <div className="source-chips">{fact.sourceIds.map((sourceId) => { const source = sourceById.get(sourceId); return source ? <a className={`is-${source.reviewStatus}`} href={source.url} target="_blank" rel="noreferrer" key={sourceId}><ExternalLink size={11} />{source.title}<small>{source.reviewStatus}</small></a> : null; })}</div>
                     </div>
                   </div>
@@ -841,17 +841,17 @@ export function ScenarioStudio({
                 <button className={`studio-button ${adaptiveGenerationAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveGenerationAvailable || busy} onClick={() => generateScenario(false)} title={adaptiveGenerationAvailable ? undefined : "New scenario generation is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Create rehearsal</button>
                 <button className={`studio-button ${adaptiveGenerationAvailable ? "" : "studio-button-primary"}`} disabled={busy} onClick={() => generateScenario(true)}><BookOpenCheck size={16} />Use example rehearsal</button>
               </div>
-              <p className={`studio-action-note ${briefReady ? "is-ready" : "is-blocked"}`}>{briefReady ? <CheckCircle2 size={14} /> : <CircleAlert size={14} />}{briefReady ? "Brief includes a task, audience, pressure, and observable learning objective." : "Complete each field before creating the rehearsal."}</p>
-              {!adaptiveGenerationAvailable && <p className="studio-action-note"><BookOpenCheck size={14} />The reviewed rehearsal remains fully playable and editable as a teaching brief.</p>}
+              <p className={`studio-action-note ${briefReady ? "is-ready" : "is-blocked"}`}>{briefReady ? <CheckCircle2 size={14} /> : <CircleAlert size={14} />}{briefReady ? "Brief covers the task, audience, pressure, and learning goal." : "Complete each field before creating the rehearsal."}</p>
+              {!adaptiveGenerationAvailable && <p className="studio-action-note"><BookOpenCheck size={14} />The reviewed rehearsal is ready to use with this brief.</p>}
             </div>
           )}
 
           {stage === "preview" && scenario && (
             <div className="studio-section" data-testid="studio-preview">
-              <header className="studio-section-heading studio-heading-row"><div><span>04 / SCENARIO PREVIEW</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {scenario.learnerRole}</p></div><div className={`validation-passed ${scenarioReady ? "" : "is-blocked"}`}><ShieldCheck size={18} /><span><strong>{scenarioReady ? "READY" : "BLOCKED"}</strong><small>{scenarioReady ? "Scenario checks passed" : "Resolve validation or outcome coverage"}</small></span></div></header>
+              <header className="studio-section-heading studio-heading-row"><div><span>04 / SCENARIO PREVIEW</span><h1>{scenario.title}</h1><p>{scenario.tagline} · {scenario.durationMinutes} minutes · {scenario.learnerRole}</p></div><div className={`validation-passed ${scenarioReady ? "" : "is-blocked"}`}><ShieldCheck size={18} /><span><strong>{scenarioReady ? "READY" : "BLOCKED"}</strong><small>{scenarioReady ? "All path checks passed" : "Review the action paths and endings"}</small></span></div></header>
               {!editingScenario && (
                 <div className="studio-review-dock">
-                  <span><strong>{scenarioReady ? "Ready to rehearse" : "Review blocked"}</strong><small>{scenarioCoverage?.reachableStateCount ?? 0} legal states checked · {scenarioCoverage?.endingCoverage.filter((result) => result.reachable).length ?? 0} / 4 outcomes reachable</small></span>
+                  <span><strong>{scenarioReady ? "Ready to rehearse" : "Review blocked"}</strong><small>{scenarioCoverage?.reachableStateCount ?? 0} action paths checked · {scenarioCoverage?.endingCoverage.filter((result) => result.reachable).length ?? 0} / 4 endings available</small></span>
                   <button className="studio-button studio-button-primary" disabled={!scenarioReady} onClick={launchScenario}><Play size={16} />Start rehearsal</button>
                 </div>
               )}
@@ -867,14 +867,14 @@ export function ScenarioStudio({
               ) : (
                 <>
               <div className="scenario-summary-band"><div><span>Ordinary task</span><p>{scenario.intro.ordinaryTask}</p></div><div><span>Pressure</span><p>{scenario.intro.pressure}</p></div></div>
-              <section className="source-lineage" aria-label="Source-to-scenario trace">
-                <header><FileSearch size={16} /><div><strong>Source-to-scenario trace</strong><small>Approved guidance remains traceable after publication terms change.</small></div></header>
+              <section className="source-lineage" aria-label="How sources were used">
+                <header><FileSearch size={16} /><div><strong>How sources were used</strong><small>Approved guidance stays linked to the student-facing setting.</small></div></header>
                 <div>
                   <article><span>SOURCE PROFILE</span><strong>{profile?.displayName}</strong><small>{profile?.sources.filter((source) => source.reviewStatus === "approved").length ?? 0} approved sources</small></article>
                   <ArrowRight size={16} />
                   <article><span>APPROVED FACTS</span><strong>{reportFacts.length} used here</strong><small>{reportFacts.map((fact) => fact.label).join(" · ")}</small></article>
                   <ArrowRight size={16} />
-                  <article><span>PUBLISHED SETTING</span><strong>{scenario.publishedSetting}</strong><small>{scenario.publicationMode === "brand-safe-fictionalized" ? "Fictionalized names" : "Authorized exact names"}</small></article>
+                  <article><span>STUDENT-FACING SETTING</span><strong>{scenario.publishedSetting}</strong><small>{scenario.publicationMode === "brand-safe-fictionalized" ? "Fictionalized names" : "Authorized exact names"}</small></article>
                 </div>
               </section>
               <div className="scenario-columns">
@@ -882,20 +882,20 @@ export function ScenarioStudio({
                 <section><header><Flag size={15} /><strong>Learner actions</strong><span>{scenario.criticalActions.length}</span></header>{scenario.criticalActions.map((action) => <div className="action-line" key={action.id}><span>{action.phase === "recovery" ? "response" : "during task"}</span><strong>{action.label}</strong></div>)}</section>
               </div>
               {scenarioCoverage && (
-                <section className="scenario-coverage" aria-label="Outcome coverage">
-                  <header><GitBranch size={16} /><div><strong>Outcome coverage</strong><small>{scenarioCoverage.reachableStateCount} legal action states checked</small></div><span>{scenarioCoverage.endingCoverage.filter((result) => result.reachable).length} / 4 reachable</span></header>
+                <section className="scenario-coverage" aria-label="Path check">
+                  <header><GitBranch size={16} /><div><strong>Path check</strong><small>{scenarioCoverage.reachableStateCount} possible action combinations tested</small></div><span>{scenarioCoverage.endingCoverage.filter((result) => result.reachable).length} / 4 endings</span></header>
                   <div>
                     {scenarioCoverage.endingCoverage.map((result) => {
                       const ending = scenario.endings.find((item) => item.id === result.endingId);
                       return (
                         <article className={result.reachable ? "is-reachable" : "is-blocked"} key={result.endingId}>
-                          <div><span>{result.endingId}</span><strong>{ending?.title}</strong><small>{result.reachable ? `${result.actionIds.length} actions · ${result.evidenceIds.length} evidence items` : "No legal action path"}</small></div>
-                          <p>{result.reachable ? result.actionLabels.join(" → ") : "Revise the ending rules or action prerequisites."}</p>
+                          <div><span>{result.endingId}</span><strong>{ending?.title}</strong><small>{result.reachable ? `${result.actionIds.length} actions · ${result.evidenceIds.length} evidence items` : "No playable path"}</small></div>
+                          <p>{result.reachable ? result.actionLabels.join(" → ") : "Review the ending conditions or action order."}</p>
                         </article>
                       );
                     })}
                   </div>
-                  <footer>Each route uses the same prerequisites, recovery rules, and ending selection used during the rehearsal.</footer>
+                  <footer>These checks use the same action and recovery rules as the rehearsal.</footer>
                 </section>
               )}
               <div className="package-ledger"><span>{scenario.worldBible.immutableFacts.length} ground rules</span><span>{scenario.allowedEvents.length} conversation moments</span><span>{scenario.recoveryActionIds.length} response steps</span><span>4 possible outcomes</span></div>
@@ -988,7 +988,7 @@ export function ScenarioStudio({
               <header className="studio-section-heading"><span>02 / REVIEW</span><h1>{debrief.coaching.headline}</h1><p>{debrief.coaching.summary}</p></header>
               <div className={`ending-banner is-${debrief.trace.endingId}`}><span>OUTCOME</span><strong>{debrief.trace.endingId.toUpperCase()}</strong><p>{currentEnding?.summary}</p></div>
               <section className="causal-chain" aria-label="Causal walkthrough">
-                <header><GitBranch size={16} /><div><strong>What led here</strong><small>The explanation uses this run&apos;s pressure, evidence, actions, and final state.</small></div></header>
+                <header><GitBranch size={16} /><div><strong>What led here</strong><small>This review follows the pressure, evidence, choices, and result from your run.</small></div></header>
                 <div>
                   <article><span>01 · PRESSURE</span><p>{scenario.intro.pressure}</p></article>
                   <article><span>02 · EVIDENCE</span><p>{discoveredEvidence.length ? discoveredEvidence.map((evidence) => evidence.label).join(" · ") : "No verification evidence was collected before the result."}</p></article>
@@ -1000,11 +1000,11 @@ export function ScenarioStudio({
                 <section><header><CheckCircle2 size={16} /><strong>Recorded actions</strong></header>{debrief.trace.actionLabels.length ? <ol>{debrief.trace.actionLabels.map((label, index) => <li key={`${label}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span>{label}</li>)}</ol> : <p>No critical actions were recorded.</p>}</section>
                 <section><header><CircleAlert size={16} /><strong>Recovery status</strong></header>{!debrief.trace.recoveryRequired ? <p>No recovery was required.</p> : debrief.trace.missedRecoveryActionIds.length ? <ul>{debrief.trace.missedRecoveryActionIds.map((id) => <li key={id}>{scenario.criticalActions.find((action) => action.id === id)?.label}</li>)}</ul> : <p>All required recovery actions were completed.</p>}</section>
               </div>
-              <section className="trust-ledger" aria-label="How the result was determined">
-                <header><LockKeyhole size={16} /><div><strong>How the result was determined</strong><small>The conversation could change. The recorded actions could not.</small></div></header>
+              <section className="trust-ledger" aria-label="Why this outcome happened">
+                <header><LockKeyhole size={16} /><div><strong>Why this outcome happened</strong><small>Conversation shaped the pressure. Your completed actions shaped the result.</small></div></header>
                 <div>
-                  <article><span>CONVERSATION</span><strong>People and pressure</strong><p>Replies could respond to what you asked, challenged, or delayed.</p></article>
-                  <article><span>CONSEQUENCES</span><strong>Your completed actions</strong><p>{debrief.trace.actionIds.length} actions and {debrief.trace.evidenceIds.length} evidence items led to this outcome.</p></article>
+                  <article><span>WHAT PEOPLE SAID</span><strong>The pressure changed</strong><p>Replies responded to what you asked, challenged, or delayed.</p></article>
+                  <article><span>WHAT YOU DID</span><strong>Your completed actions</strong><p>{debrief.trace.actionIds.length} actions and {debrief.trace.evidenceIds.length} evidence items led to this outcome.</p></article>
                 </div>
               </section>
               <div className="studio-actions"><button className="studio-button studio-button-primary" onClick={() => { setTransferResult(null); setStage("transfer"); }}><GitCompareArrows size={16} />Test in a new situation</button><button className="studio-button" onClick={launchScenario}><RotateCcw size={16} />Replay scenario</button>{!featured && <button className="studio-button" onClick={restart}><RefreshCw size={16} />New institution</button>}<Link className="studio-button" href="/"><ArrowLeft size={16} />Case library</Link></div>
@@ -1013,7 +1013,7 @@ export function ScenarioStudio({
 
           {stage === "transfer" && scenario && debrief && (
             <div className="studio-section studio-transfer" data-testid="studio-transfer">
-              <header className="studio-section-heading"><span>03 / APPLY</span><h1>{scenario.transferProbe.title}</h1><p>A different task puts the same judgment under pressure.</p></header>
+              <header className="studio-section-heading"><span>03 / APPLY</span><h1>{scenario.transferProbe.title}</h1><p>Now the same problem appears in a different task.</p></header>
               <div className="scenario-summary-band transfer-summary-band"><div><span>Ordinary task</span><p>{scenario.transferProbe.ordinaryTask}</p></div><div><span>Pressure</span><p>{scenario.transferProbe.pressure}</p></div></div>
               <section className="transfer-situation"><BrainCircuit size={20} /><div><span>WHAT CHANGED</span><h2>Another request arrives</h2><p>{scenario.transferProbe.situation}</p></div></section>
               <div className="transfer-actions" aria-label="Transfer actions">
@@ -1035,17 +1035,16 @@ export function ScenarioStudio({
                     <h2>{transferResult.headline}</h2>
                     <p>{transferResult.summary}</p>
                   </section>
-                  <section className="learning-evidence" aria-label="Learning evidence">
-                    <header><GitCompareArrows size={16} /><div><strong>Learning evidence</strong><small>One rehearsal result and one new-context decision.</small></div></header>
+                  <section className="learning-evidence" aria-label="Compare your choices">
+                    <header><GitCompareArrows size={16} /><div><strong>Compare your choices</strong><small>Your two decisions, side by side.</small></div></header>
                     <div>
-                      <article><span>REHEARSAL</span><strong>{debrief.trace.endingId}</strong><p>{currentEnding?.title}</p></article>
+                      <article><span>FIRST SITUATION</span><strong>{debrief.trace.endingId}</strong><p>{currentEnding?.title}</p></article>
                       <article><span>NEW SITUATION</span><strong>{transferOutcomeLabels[transferResult.outcome]}</strong><p>{transferResult.actionLabel}</p></article>
-                      <article><span>PATTERN</span><strong>Immediate application</strong><p>{debrief.coaching.nextTime}</p></article>
+                      <article><span>TAKEAWAY</span><strong>Use this next time</strong><p>{debrief.coaching.nextTime}</p></article>
                     </div>
-                    <footer>The new-context action was recorded after feedback but before the explicit transfer rule and coach prompts appeared.</footer>
                   </section>
                   <section className="evidence-coach" aria-label="Ask about the evidence">
-                    <header><FileQuestion size={17} /><div><strong>Ask about the evidence</strong><small>Now compare what the channels in this run did and did not establish.</small></div></header>
+                    <header><FileQuestion size={17} /><div><strong>Ask about the evidence</strong><small>Compare the checks you made and what each one confirmed.</small></div></header>
                     {availableCoachPrompts.length > 0 && <div className="coach-prompts">{availableCoachPrompts.map(({ question }) => <button disabled={coachBusy} key={question} onClick={() => askEvidenceCoach(question)} type="button">{question}</button>)}</div>}
                     {coachAnswers.length > 0 && (
                       <div className="coach-answers" aria-live="polite">
@@ -1062,7 +1061,7 @@ export function ScenarioStudio({
                       </div>
                     )}
                     <form className="coach-compose" onSubmit={(event) => { event.preventDefault(); askEvidenceCoach(coachQuestion); }}>
-                      <input aria-label="Question about the evidence" autoComplete="off" maxLength={500} name="evidence-question" placeholder="Ask why a check was or was not enough…" value={coachQuestion} onChange={(event) => setCoachQuestion(event.target.value)} />
+                      <input aria-label="Question about the evidence" autoComplete="off" maxLength={500} name="evidence-question" placeholder="Ask what a check confirmed or left open…" value={coachQuestion} onChange={(event) => setCoachQuestion(event.target.value)} />
                       <button disabled={coachBusy || coachQuestion.trim().length < 3} type="submit">{coachBusy ? <LoaderCircle className="is-spinning" size={16} /> : <ArrowRight size={16} />}Ask</button>
                     </form>
                     {pendingOperation === "coach" && <OperationProgress compact operation="coach" />}
@@ -1076,12 +1075,12 @@ export function ScenarioStudio({
           {stage === "report" && scenario && profile && simulation && debrief && transferResult && (
             <div className="studio-section facilitator-report" data-testid="studio-report">
               <header className="studio-section-heading studio-heading-row">
-                <div><span>FACILITATOR REPORT</span><h1>{scenario.title}</h1><p>Source profile: {profile.displayName} · Published setting: {scenario.publishedSetting}<small>The new-context action followed the rehearsal feedback and preceded the explicit transfer rule and coach prompts.</small></p></div>
+                <div><span>FACILITATOR REPORT</span><h1>{scenario.title}</h1><p>Institution context: {profile.displayName} · Student-facing setting: {scenario.publishedSetting}<small>Use this report to review the choices and discuss where the same rule applies next.</small></p></div>
                 <div className="report-privacy"><LockKeyhole size={16} /><span><strong>No learner identity stored</strong><small>This report exists only in the current browser session.</small></span></div>
               </header>
               <section className="report-outcomes">
                 <article><span>REHEARSAL</span><strong>{debrief.trace.endingId}</strong><p>{scenario.endings.find((ending) => ending.id === debrief.trace.endingId)?.title}</p></article>
-                <article><span>NEW SITUATION</span><strong>{transferOutcomeLabels[transferResult.outcome]}</strong><p>{transferResult.actionLabel} · selected before the explicit rule</p></article>
+                <article><span>NEW SITUATION</span><strong>{transferOutcomeLabels[transferResult.outcome]}</strong><p>{transferResult.actionLabel}</p></article>
                 <article><span>RECOVERY</span><strong>{!debrief.trace.recoveryRequired ? "not required" : debrief.trace.missedRecoveryActionIds.length ? "incomplete" : "complete"}</strong><p>{debrief.trace.missedRecoveryActionIds.length ? `${debrief.trace.missedRecoveryActionIds.length} response steps remained.` : "No required response step was left open."}</p></article>
               </section>
               <div className="report-grid">
@@ -1101,7 +1100,7 @@ export function ScenarioStudio({
                     : <p>No evidence was collected before the rehearsal ended.</p>}
                 </section>
                 <section>
-                  <header><strong>Final operational state</strong></header>
+                  <header><strong>Where things ended</strong></header>
                   <ul>
                     {scenario.learnerPresentation.statusFields.map((item) => (
                       <li key={item.field}>
@@ -1121,7 +1120,7 @@ export function ScenarioStudio({
                 </section>
               </div>
               <section className="facilitation-sequence" aria-label="5-minute discussion path">
-                <header><Users size={16} /><div><strong>5-minute discussion path</strong><small>Move from this run to a reusable judgment pattern.</small></div></header>
+                <header><Users size={16} /><div><strong>5-minute discussion path</strong><small>Turn this run into a rule learners can use again.</small></div></header>
                 <div>
                   <article><span>01 · ASK</span><strong>Reconstruct the pressure</strong><p>What made the convenient action feel reasonable when {scenario.intro.pressure.trim().replace(/[.!?]+$/, "").toLowerCase()}?</p></article>
                   <article><span>02 · COMPARE</span><strong>Use the evidence</strong><p>{discoveredEvidence.length ? `What did “${discoveredEvidence[0].label}” establish that the original request did not?` : "What evidence would have changed the authority of the request?"}</p></article>
@@ -1130,17 +1129,17 @@ export function ScenarioStudio({
                 <footer>
                   <span>OBSERVATION CUE</span>
                   <div>
-                    <p>Listen for whether the learner names the judgment pattern, connects it to the action, and states what remains uncertain. Record only an aggregate category; do not retain their wording.</p>
+                    <p>Listen for whether the learner explains the rule, connects it to the choice, and names anything still uncertain. Record only an aggregate category; do not retain their wording.</p>
                     <ul aria-label="Explanation categories">
-                      <li><strong>Clear</strong><small>Names the pattern, action, and remaining uncertainty.</small></li>
-                      <li><strong>Partial</strong><small>Recognizes the risk but misses a link or tradeoff.</small></li>
-                      <li><strong>Unclear</strong><small>Names an action without explaining the judgment.</small></li>
+                      <li><strong>Clear</strong><small>Explains the rule, choice, and remaining uncertainty.</small></li>
+                      <li><strong>Partial</strong><small>Sees the risk but misses an important connection or tradeoff.</small></li>
+                      <li><strong>Unclear</strong><small>Names a preferred action without explaining why.</small></li>
                     </ul>
                   </div>
                 </footer>
               </section>
               <section className="report-guidance">
-                <header><BookOpenCheck size={16} /><div><strong>Approved institution guidance</strong><small>Source-supported context used by this rehearsal.</small></div></header>
+                <header><BookOpenCheck size={16} /><div><strong>Institution guidance</strong><small>Public guidance connected to this rehearsal.</small></div></header>
                 {reportFacts.map((fact) => (
                   <article key={fact.id}>
                     <div><span>{fact.category.replaceAll("-", " ")}</span><strong>{fact.label}</strong><p>{fact.value}</p></div>

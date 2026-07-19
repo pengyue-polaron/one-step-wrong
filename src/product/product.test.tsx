@@ -18,7 +18,7 @@ describe("case library and decision chapters", () => {
     expect(screen.getByText("02 / AUDIENCE · PERMISSION")).toBeInTheDocument();
     expect(screen.getByText("03 / RECOVERY · AUTHORITY")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Earlier rehearsals" })).toBeInTheDocument();
-    expect(screen.getByText("Five rehearsals · Five judgment patterns")).toBeInTheDocument();
+    expect(screen.queryByText("Five rehearsals · Five judgment patterns")).not.toBeInTheDocument();
     expect(screen.getByText("3 reviewed · 2 archive")).toBeInTheDocument();
     expect(screen.getByText("1 / 2 complete this session")).toBeInTheDocument();
     expect(screen.getAllByText("Complete")).toHaveLength(1);

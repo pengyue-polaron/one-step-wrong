@@ -196,7 +196,7 @@ describe("deterministic simulation physics", () => {
     expect(evaluateTransferProbe(voiceYouKnowScenario, "open-known-drive")).toMatchObject({
       probeId: "familiar-name-new-channel",
       outcome: "demonstrated",
-      headline: "Known-channel pattern applied",
+      headline: "You checked beyond the request",
     });
     expect(evaluateTransferProbe(voiceYouKnowScenario, "ask-same-chat").outcome).toBe("developing");
     expect(evaluateTransferProbe(voiceYouKnowScenario, "use-replacement-link").outcome).toBe("not-yet");

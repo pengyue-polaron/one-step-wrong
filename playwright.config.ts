@@ -18,7 +18,7 @@ export default defineConfig({
     command: process.env.CI ? `npm run start -- -p ${port}` : `npm run dev -- -p ${port}`,
     env: {
       CODEX_LOCAL_PROVIDER: process.env.PLAYWRIGHT_CODEX_PROVIDER || "0",
-      NEXT_DIST_DIR: ".next-playwright",
+      NEXT_DIST_DIR: process.env.CI ? ".next" : ".next-playwright",
       OPENAI_API_KEY: process.env.PLAYWRIGHT_OPENAI_API_KEY || "",
     },
     url: baseURL,

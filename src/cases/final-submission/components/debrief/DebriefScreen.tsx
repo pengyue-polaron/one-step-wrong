@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, Check, CheckCircle2, LayoutGrid, Lightbulb, RefreshCcw, RotateCcw, ShieldCheck, TriangleAlert, Wifi } from "lucide-react";
+import { BrandLockup } from "@/components/brand/BrandLockup";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { useGame } from "@/cases/final-submission/state/GameContext";
 import { selectClues, selectEffectiveActions, selectEnding, selectScore } from "@/cases/final-submission/state/selectors";
@@ -39,7 +40,7 @@ export function DebriefScreen({ onExit }: { onExit?: () => void }) {
   return (
     <main className={`debrief-screen debrief-screen--${state.endingId}`}>
       <header className="debrief-topbar">
-        <div className="system-brand"><span className="brand-mark">1</span><span>One Step Wrong</span></div>
+        <BrandLockup />
         <div><span>CASE 01</span><strong>Final Submission</strong></div>
       </header>
 

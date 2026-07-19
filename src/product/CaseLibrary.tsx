@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Clock3, FolderKey, KeyRound, MapPin, MessageSquareText, ShieldCheck, Sparkles, Wifi } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, DraftingCompass, FolderKey, KeyRound, MapPin, MessageSquareText, ShieldCheck, Wifi } from "lucide-react";
 import Link from "next/link";
+import { BrandLockup } from "@/components/brand/BrandLockup";
 import { caseCatalog } from "@/product/caseRegistry";
 import { reviewedRehearsals } from "@/product/reviewedRehearsals";
 import type { CaseEnding, ProductCaseId } from "@/cases/types";
@@ -23,13 +24,13 @@ export function CaseLibrary({
   return (
     <main className="case-library">
       <header className="library-topbar">
-        <div className="system-brand"><span className="brand-mark">1</span><span>One Step Wrong</span></div>
-        <div className="library-progress"><span>DIGITAL JUDGMENT REHEARSALS</span><strong>{reviewedRehearsals.length} reviewed · {caseCatalog.length} archive</strong><Link className="library-studio-link" href="/studio">Scenario Studio <Sparkles size={13} /></Link></div>
+        <BrandLockup />
+        <div className="library-progress"><span>CASE LIBRARY</span><strong>{reviewedRehearsals.length + caseCatalog.length} rehearsals</strong><Link className="library-studio-link" href="/studio">Scenario Studio <DraftingCompass aria-hidden="true" size={13} /></Link></div>
       </header>
 
       <div className="library-body">
         <header className="library-heading">
-          <div><span>DIGITAL JUDGMENT · FALL 2026</span><h1>Choose a rehearsal</h1><p>Every story begins with an ordinary task. The result follows what you actually do, not how many answers you get right.</p></div>
+          <div><span>DIGITAL JUDGMENT PRACTICE</span><h1>Choose a rehearsal</h1><p>Every story begins with an ordinary task. The result follows what you actually do, not how many answers you get right.</p></div>
           <ul className="library-stats" aria-label="Library summary"><li><span>Playable cases</span><strong>{caseCatalog.length + reviewedRehearsals.length}</strong></li><li><span>Total time</span><strong>About 45 min</strong></li></ul>
         </header>
 

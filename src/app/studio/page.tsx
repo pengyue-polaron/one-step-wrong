@@ -4,7 +4,7 @@ import { hasOpenAIApiKey } from "@/ai/openai/server";
 import { hasAdaptiveProvider } from "@/ai/providers/server";
 
 export const metadata: Metadata = {
-  title: "Scenario Studio | One Step Wrong",
+  title: "Scenario Studio",
   description: "Create and try a school-aware digital-judgment rehearsal.",
 };
 

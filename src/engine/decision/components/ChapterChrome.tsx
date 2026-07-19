@@ -1,5 +1,6 @@
 import { ArrowRight, Clock3, LayoutGrid, MapPin } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
+import { BrandLockup } from "@/components/brand/BrandLockup";
 import { IconButton } from "@/components/ui/IconButton";
 import { PixelButton } from "@/components/ui/PixelButton";
 import type { DecisionCaseDefinition, DecisionOption } from "@/engine/decision/types";
@@ -7,7 +8,7 @@ import type { DecisionCaseDefinition, DecisionOption } from "@/engine/decision/t
 export function ChapterTopbar({ definition, onExit }: { definition: DecisionCaseDefinition; onExit: () => void }) {
   return (
     <header className="chapter-topbar">
-      <div className="system-brand"><span className="brand-mark">1</span><span>One Step Wrong</span></div>
+      <BrandLockup />
       <div className="chapter-topbar-case"><span>CASE {definition.number}</span><strong>{definition.title}</strong></div>
       <IconButton label="Return to case library" icon={<LayoutGrid size={16} />} onClick={onExit} />
     </header>

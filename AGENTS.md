@@ -12,6 +12,14 @@ Keep the three reviewed rehearsals in an explicit 01–03 learning order. Presen
 
 The default product language is English. Keep `README.zh-CN.md` as the complete Chinese documentation counterpart; do not introduce a runtime localization framework unless the product scope explicitly expands to multilingual delivery.
 
+## Brand Identity
+
+- Use the shared `BrandLockup` for the product mark. Do not create page-specific color or shape variants.
+- Keep the hierarchy explicit: `One Step Wrong` is the parent brand, `Scenario Studio` is the educator tool, and institution names belong to source or story context.
+- Use NYU Violet as a restrained brand accent, not as the whole palette. Preserve the ink, paper, amber, teal, and semantic status colors.
+- Prefer task, workflow, document, and rehearsal icons over generic AI sparkle symbols.
+- Keep browser metadata, social images, README screenshots, and repository description aligned with the current product positioning.
+
 ## Non-Negotiable Product Rules
 
 - Do not present the experience as a quiz.

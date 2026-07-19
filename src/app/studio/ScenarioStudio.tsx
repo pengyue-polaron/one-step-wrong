@@ -11,7 +11,9 @@ import {
   CheckCircle2,
   CircleAlert,
   ClipboardList,
+  DraftingCompass,
   ExternalLink,
+  FilePlus2,
   FileQuestion,
   FilePenLine,
   FileSearch,
@@ -27,7 +29,6 @@ import {
   RotateCcw,
   Send,
   ShieldCheck,
-  Sparkles,
   UserRoundCheck,
   Users,
   X,
@@ -36,6 +37,7 @@ import type { InstitutionProfile } from "@/ai/schemas/institution";
 import { validateProfileForApproval } from "@/ai/schemas/institution";
 import type { ScenarioPackage } from "@/ai/schemas/scenario";
 import { validateScenarioPackage } from "@/ai/schemas/scenario";
+import { BrandLockup } from "@/components/brand/BrandLockup";
 import {
   actionIsAvailable,
   applyCriticalAction,
@@ -244,9 +246,10 @@ function StageRail({ stage }: { stage: StudioStage }) {
   const workflow = stage === "report" ? facilitatorWorkflow : isLearnerStage(stage) ? learnerWorkflow : authoringWorkflow;
   const current = workflow.findIndex((item) => item.id === stage);
   const title = stage === "report" ? "Facilitator" : isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio";
+  const RailIcon = stage === "report" ? Users : isLearnerStage(stage) ? Play : DraftingCompass;
   return (
     <aside className="studio-rail" aria-label="Scenario workflow">
-      <div className="studio-rail-title"><Sparkles size={15} /><span>{title}</span></div>
+      <div className="studio-rail-title"><RailIcon aria-hidden="true" size={15} /><span>{title}</span></div>
       <ol aria-label={`${title} stages`} tabIndex={0}>
         {workflow.map((item, index) => (
           <li
@@ -762,7 +765,7 @@ export function ScenarioStudio({
     <main className="studio-shell">
       <header className="studio-topbar">
         <Link aria-label="Case Library" href="/" className="studio-home-link"><ArrowLeft size={15} /><span>Case Library</span></Link>
-        <div className="studio-brand"><span className="studio-brand-mark">1</span><strong>One Step Wrong</strong><span>/ {stage === "report" ? "Facilitator Report" : isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio"}</span></div>
+        <div className="studio-brand"><BrandLockup /><span>/ {stage === "report" ? "Facilitator Report" : isLearnerStage(stage) ? "Rehearsal" : "Scenario Studio"}</span></div>
       </header>
 
       <div className="studio-layout">
@@ -838,7 +841,7 @@ export function ScenarioStudio({
                 <label className="studio-field studio-field-wide"><span>Learning objective</span><textarea autoComplete="off" name="learning-objective" value={brief.learningObjective} onChange={(e) => setBrief({ ...brief, learningObjective: e.target.value })} /></label>
               </div>
               <div className="studio-actions">
-                <button className={`studio-button ${adaptiveGenerationAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveGenerationAvailable || busy} onClick={() => generateScenario(false)} title={adaptiveGenerationAvailable ? undefined : "New scenario generation is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <Sparkles size={16} />}Create rehearsal</button>
+                <button className={`studio-button ${adaptiveGenerationAvailable ? "studio-button-primary" : ""}`} disabled={!adaptiveGenerationAvailable || busy} onClick={() => generateScenario(false)} title={adaptiveGenerationAvailable ? undefined : "New scenario generation is not available in this workspace."}>{busy ? <LoaderCircle className="is-spinning" size={16} /> : <FilePlus2 aria-hidden="true" size={16} />}Create rehearsal</button>
                 <button className={`studio-button ${adaptiveGenerationAvailable ? "" : "studio-button-primary"}`} disabled={busy} onClick={() => generateScenario(true)}><BookOpenCheck size={16} />Use example rehearsal</button>
               </div>
               <p className={`studio-action-note ${briefReady ? "is-ready" : "is-blocked"}`}>{briefReady ? <CheckCircle2 size={14} /> : <CircleAlert size={14} />}{briefReady ? "Brief covers the task, audience, pressure, and learning goal." : "Complete each field before creating the rehearsal."}</p>

@@ -73,6 +73,32 @@ const researchOutputSchema = z.object({
 
 export type InstitutionResearchProvider = Pick<OpenAI, "responses">;
 
+function parseOpenRouterResearchOutput(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > 50_000) {
+    throw new Error("OpenRouter research returned an empty or oversized response.");
+  }
+
+  try {
+    return researchOutputSchema.parse(JSON.parse(trimmed));
+  } catch (error) {
+    if (!(error instanceof SyntaxError)) throw error;
+  }
+
+  const parsedFences = [...trimmed.matchAll(/```(?:json)?\s*([\s\S]*?)\s*```/gi)]
+    .flatMap((match) => {
+      try {
+        return [JSON.parse(match[1]) as unknown];
+      } catch {
+        return [];
+      }
+    });
+  if (parsedFences.length !== 1) {
+    throw new Error("OpenRouter research must return exactly one JSON object.");
+  }
+  return researchOutputSchema.parse(parsedFences[0]);
+}
+
 function canonicalEvidenceUrl(value: string) {
   const url = new URL(value);
   const path = url.pathname.replace(/\/+$/, "") || "/";
@@ -129,12 +155,16 @@ export async function researchInstitution(
 
   const domains = request.officialDomains.map(normalizeDomain);
   const openRouter = isOpenRouterConfigured();
+  const instructions = openRouter
+    ? `${institutionResearchInstructions}\n\nCall Web Search exactly once with one broad query. Return only the small number of facts that single result set directly supports, and list all other requested categories in unresolvedFields. Do not call Web Search again. Your final response must be one JSON object with exactly these top-level fields: id, displayName, officialDomains, protectedTerms, facts, sources, unresolvedFields, researchWarnings. Use lowercase kebab-case IDs. Each fact must contain exactly id, category, label, value, status, confidence, sourceIds, note. Fact category must be exactly one of "learning-platform", "identity-and-mfa", "collaboration", "wireless", "support-and-reporting", or "student-policy". Fact status must be exactly "verified", "unknown", or "conflicting". Fact confidence must be exactly "high", "medium", "low", or "unknown". Each source must contain exactly id, url, title, publisher, authority, supportsFactIds. Source authority must be exactly "institution" for the declared official domain or "primary-vendor" for a vendor source. unresolvedFields and researchWarnings must each be arrays of strings, including when empty. Use only the enum values and limits in the supplied response schema. Keep fact/source references reciprocal.`
+    : institutionResearchInstructions;
   const tools = openRouter
     ? ([{
         type: "openrouter:web_search",
         parameters: {
           engine: "auto",
           max_results: 5,
+          max_total_results: 5,
           search_context_size: "low",
           ...(domains.length ? { allowed_domains: domains } : {}),
         },
@@ -144,18 +174,27 @@ export async function researchInstitution(
         search_context_size: "low",
         ...(domains.length ? { filters: { allowed_domains: domains } } : {}),
       }] satisfies OpenAI.Responses.Tool[]);
-  const response = await provider.responses.parse({
+  const requestBody = {
     model: getOpenAIModel(),
-    instructions: institutionResearchInstructions,
+    instructions,
     input: buildInstitutionResearchInput({ ...request, officialDomains: domains }),
     tools,
     ...(!openRouter ? { include: ["web_search_call.action.sources" as const] } : {}),
     text: { format: zodTextFormat(researchOutputSchema, "institution_research") },
-  });
-
-  if (!response.output_parsed) throw new Error("Institution research returned no structured profile.");
-  const raw = response.output_parsed;
-  validateSourcesAgainstWebSearch(raw.sources, response.output);
+  };
+  let raw: z.infer<typeof researchOutputSchema>;
+  let output: unknown;
+  if (openRouter) {
+    const response = await provider.responses.create(requestBody);
+    raw = parseOpenRouterResearchOutput(response.output_text);
+    output = response.output;
+  } else {
+    const response = await provider.responses.parse(requestBody);
+    if (!response.output_parsed) throw new Error("Institution research returned no structured profile.");
+    raw = response.output_parsed;
+    output = response.output;
+  }
+  validateSourcesAgainstWebSearch(raw.sources, output);
   const officialDomains = domains.length ? domains : raw.officialDomains.map(normalizeDomain);
   const accessedAt = new Date().toISOString();
   const profile = institutionProfileSchema.parse({

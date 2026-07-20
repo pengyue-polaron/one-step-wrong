@@ -99,8 +99,8 @@ describe("Institution Research Agent adapter", () => {
         unresolvedFields: [],
         researchWarnings: [],
       };
-      const parse = vi.fn().mockResolvedValue({
-        output_parsed: raw,
+      const create = vi.fn().mockResolvedValue({
+        output_text: `\`\`\`json\n${JSON.stringify(raw)}\n\`\`\``,
         output: [{
           type: "message",
           content: [{
@@ -110,7 +110,7 @@ describe("Institution Research Agent adapter", () => {
           }],
         }],
       });
-      const provider = { responses: { parse } } as unknown as InstitutionResearchProvider;
+      const provider = { responses: { create } } as unknown as InstitutionResearchProvider;
       await researchInstitution(
         institutionResearchRequestSchema.parse({
           institutionName: "New York University",
@@ -118,13 +118,15 @@ describe("Institution Research Agent adapter", () => {
         }),
         provider,
       );
-      const call = parse.mock.calls[0][0];
+      const call = create.mock.calls[0][0];
       expect(call.model).toBe("openai/gpt-oss-120b");
+      expect(call.instructions).toContain("Call Web Search exactly once");
       expect(call.tools).toEqual([{
         type: "openrouter:web_search",
         parameters: {
           engine: "auto",
           max_results: 5,
+          max_total_results: 5,
           search_context_size: "low",
           allowed_domains: ["nyu.edu"],
         },

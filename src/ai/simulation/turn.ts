@@ -4,7 +4,7 @@ import { z } from "zod";
 import { containsUnsafeInstruction, idSchema } from "@/ai/schemas/common";
 import { scenarioPackageSchema, type ScenarioPackage } from "@/ai/schemas/scenario";
 import { actionIsAvailable, eventIsAllowed } from "@/engine/simulation/physics";
-import { getOpenAIModel } from "@/ai/openai/server";
+import { getOpenAIModel, isOpenRouterConfigured } from "@/ai/openai/server";
 import { isLocalCodexProvider } from "@/ai/providers/localCodex";
 import { getAdaptiveProvider } from "@/ai/providers/server";
 
@@ -201,7 +201,7 @@ export async function createSimulationTurn(
     .filter((action) => actionIsAvailable(request.scenario, action.id, request.completedActionIds))
     .map((action) => action.id);
   try {
-    if (isLocalCodexProvider(provider)) {
+    if (isLocalCodexProvider(provider) || isOpenRouterConfigured()) {
       const reviewed = fallbackTurn(
         request.scenario,
         request.completedActionIds,
@@ -211,7 +211,7 @@ export async function createSimulationTurn(
       );
       const event = available.find((candidate) => candidate.id === reviewed.eventId);
       const role = request.scenario.roleCards.find((candidate) => candidate.id === reviewed.roleId);
-      if (!event || !role) throw new Error("The local role selector exceeded its allowlist.");
+      if (!event || !role) throw new Error("The bounded role selector exceeded its allowlist.");
 
       const roleResponse = await provider.responses.parse({
         model: getOpenAIModel(),
@@ -228,11 +228,11 @@ export async function createSimulationTurn(
           conversationHistory: request.conversationHistory,
           learnerMessage: request.learnerMessage,
         }),
-        text: { format: zodTextFormat(rolePerformanceSchema, "local_role_performance") },
+        text: { format: zodTextFormat(rolePerformanceSchema, "bounded_role_performance") },
       }, { timeout: 30_000 });
       const performance = roleResponse.output_parsed;
       if (!performance || violatesRoleBoundary(performance.content, role.forbiddenFacts, request.scenario, request.completedActionIds)) {
-        throw new Error("Local role performance exceeded its boundary.");
+        throw new Error("Bounded role performance exceeded its boundary.");
       }
       return { ...reviewed, content: performance.content, provenance: "live-role" };
     }

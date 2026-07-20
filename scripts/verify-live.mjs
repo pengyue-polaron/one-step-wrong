@@ -60,17 +60,25 @@ try {
   const profile = generation.profile || reviewed.profile;
   const firstAction = scenario.criticalActions.find(
     (action) =>
-      action.availableAfterAllActionIds.length === 0
-      && action.availableAfterAnyActionIds.length === 0,
+      action.phase !== "recovery"
+      && action.availableAfterAllActionIds.length === 0
+      && action.availableAfterAnyActionIds.length === 0
+      && action.requiredAfterActionIds.length === 0,
   );
   if (!firstAction) throw new Error("Generated scenario has no action available at the start.");
   const actionIds = [firstAction.id];
+  const openRoleEvent = scenario.allowedEvents.find(
+    (event) =>
+      event.delivery === "on-message"
+      && event.allowedAfterActionIds.every((id) => actionIds.includes(id)),
+  );
+  if (!openRoleEvent) throw new Error("Generated scenario has no role channel available after the first action.");
 
   const turn = await post("/api/simulation/turn", {
     scenario,
     learnerMessage: "What should I verify before I continue?",
     completedActionIds: actionIds,
-    preferredRoleId: scenario.roleCards[0]?.id,
+    preferredRoleId: openRoleEvent.roleId,
     conversationHistory: [],
   });
   requireProvenance("role dialogue", turn.turn?.provenance, "live-role");

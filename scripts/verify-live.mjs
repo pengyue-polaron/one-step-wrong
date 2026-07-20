@@ -58,16 +58,27 @@ try {
 
   const scenario = generation.scenario;
   const profile = generation.profile || reviewed.profile;
-  const firstAction = scenario.criticalActions.find(
+  const startActions = scenario.criticalActions.filter(
     (action) =>
       action.phase !== "recovery"
       && action.availableAfterAllActionIds.length === 0
       && action.availableAfterAnyActionIds.length === 0
       && action.requiredAfterActionIds.length === 0,
   );
+  const verifiedRoleEvent = scenario.allowedEvents.find(
+    (event) =>
+      event.delivery === "on-message"
+      && event.allowedAfterActionIds.length === 1
+      && startActions.some(
+        (action) => action.id === event.allowedAfterActionIds[0] && action.kind === "verify",
+      ),
+  );
+  const firstAction = verifiedRoleEvent
+    ? startActions.find((action) => action.id === verifiedRoleEvent.allowedAfterActionIds[0])
+    : startActions[0];
   if (!firstAction) throw new Error("Generated scenario has no action available at the start.");
   const actionIds = [firstAction.id];
-  const openRoleEvent = scenario.allowedEvents.find(
+  const openRoleEvent = verifiedRoleEvent || scenario.allowedEvents.find(
     (event) =>
       event.delivery === "on-message"
       && event.allowedAfterActionIds.every((id) => actionIds.includes(id)),

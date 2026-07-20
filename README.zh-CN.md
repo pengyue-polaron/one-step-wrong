@@ -23,6 +23,18 @@
 
 案例库把三个审核演练组织成清楚的 01–03 学习路径，再单独呈现早期归档案例和仅限当前会话的完成状态。
 
+## 体验完整闭环
+
+审核过的产品路径不需要 API key：
+
+1. 打开 [`/rehearsal`](http://localhost:3000/rehearsal)，完成至少一个任务动作。
+2. 结束演练，查看因果复盘。
+3. 在阅读内置迁移规则前，选择 **Test in a new situation**。
+4. 针对本次已经发现的证据向 Evidence Coach 提问。
+5. 打开教师报告，查看动作顺序、最终状态、讨论流程和审核过的来源指导。
+
+教师随后可以打开 [`/studio`](http://localhost:3000/studio)，依次选择 **Use example institution**、批准审核画像，再选择 **Use example rehearsal**，在不提供外部凭据的情况下体验从创作到教学讨论的完整流程。
+
 ## 为什么做这个项目
 
 许多安全培训会在学习者感受到压力之前直接给出答案，《一步之差》反过来组织学习过程：
@@ -168,6 +180,16 @@ AI 用于五项工作：
 
 运行 `npm run verify:ai` 可以检查模型边界和 API。启动本地服务并配置 `OPENAI_API_KEY` 后，运行 `npm run verify:live` 可以检查研究、生成、角色对话、复盘和 Evidence Coach 的实时结果。启用本地 Codex 适配器后，运行 `npm run verify:codex` 可以检查场景匹配、文案调整、对话、复盘和 Evidence Coach；该模式不提供来源研究。
 
+## 开发过程
+
+产品方向始终由维护者决定：使用演练而不是问答、结果发生前不标记选择、保留延迟后果、让高影响动作由确定性代码处理、发布前审核来源、在学习者界面中使用虚构学校，以及不追踪学习者。这些决策共同定义了学习模型与信任边界。
+
+Codex 作为实现伙伴参与了整个仓库的开发，加速了架构调整、场景与 reducer 实现、schema 和边界测试、响应式修复、浏览器流程、无障碍检查、文案审阅与文档整理。维护者持续从学习者和教师视角检查实际运行结果，决定产品取舍，删除破坏沉浸感的安全提示，并确保模型输出不会直接改变规范状态。
+
+GPT-5.6 用于可选的自适应路径：通过 Responses API 完成带来源证据的学校研究、生成通过验证的场景、提供受限角色对话、从操作记录中选择复盘材料，以及进行基于证据的追问辅导。所有模型输出都必须通过 Zod 运行时边界；动作、后果、恢复、迁移和结局仍由确定性模拟引擎决定。
+
+主要 Codex 开发线程是 `019f66ce-a05a-7573-b1b3-b57c5051fa10`。带日期的 Git 提交与 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) 中的可复现检查共同构成对应的实现记录。
+
 ## 快速开始
 
 ### 环境要求
@@ -193,6 +215,12 @@ OPENAI_API_KEY=your_key_here
 ```
 
 不要给这个密钥添加 `NEXT_PUBLIC_` 前缀。
+
+应用拥有正式公开地址后，还应设置 `SITE_URL`，让 Open Graph 等绝对地址元数据指向正确来源：
+
+```dotenv
+SITE_URL=https://example.com
+```
 
 暂时没有 Platform API 权限时，可以先登录 Codex，并显式启用仅供本地开发使用的适配器：
 
@@ -341,7 +369,9 @@ npm run test:e2e
 
 ## 参与贡献
 
-欢迎提交范围明确的 Issue 和 Pull Request。请遵守 `AGENTS.md` 中的产品规则，把案例专属代码留在对应模块，并根据行为风险提供相应测试。视觉变更需要附上相关桌面和移动尺寸的前后截图。
+欢迎提交范围明确的 Issue 和 Pull Request。请遵守 `AGENTS.md` 中的产品规则，把案例专属代码留在对应模块，并根据行为风险提供相应测试。视觉变更需要附上相关桌面和移动尺寸的前后截图。协作约定见 [`CONTRIBUTING.md`](./CONTRIBUTING.md)，私下报告安全问题的方法见 [`SECURITY.md`](./SECURITY.md)。
+
+仓库媒体来源说明见 [`ASSET_NOTES.md`](./ASSET_NOTES.md)。调整仓库可见性前，请按 [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md) 完成检查。
 
 ## 已知限制
 

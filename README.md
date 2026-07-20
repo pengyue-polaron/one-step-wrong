@@ -23,6 +23,18 @@ It is not a quiz. Choices are not labeled safe, risky, correct, or recommended b
 
 The library presents the three reviewed rehearsals as a clear 01–03 learning path, then separates the earlier archive cases and their session-only completion state.
 
+## Try the Complete Loop
+
+No API key is required for the reviewed product path:
+
+1. Open [`/rehearsal`](http://localhost:3000/rehearsal) and make at least one task decision.
+2. Finish the rehearsal and inspect the causal review.
+3. Select **Test in a new situation** before reading the built-in transfer rule.
+4. Ask Evidence Coach about evidence discovered during the run.
+5. Open the facilitator report to see the action sequence, final state, discussion path, and approved source guidance.
+
+Educators can then open [`/studio`](http://localhost:3000/studio), select **Use example institution**, approve the reviewed profile, and select **Use example rehearsal** to see the complete authoring-to-facilitation workflow without external credentials.
+
 ## Why This Project
 
 Most security training explains the answer before learners feel the pressure that makes a convenient option attractive. This project reverses that order:
@@ -168,6 +180,16 @@ Each reviewed rehearsal ends with a second situation that asks the learner to us
 
 Run `npm run verify:ai` for the model-boundary and API suite. With a local server and `OPENAI_API_KEY`, run `npm run verify:live` to require live results from research, generation, role dialogue, review, and Evidence Coach. With the development-only Codex adapter enabled, run `npm run verify:codex` to check scenario matching, copy adaptation, dialogue, review, and Evidence Coach. Research remains unavailable in this mode.
 
+## Development Process
+
+The product direction stayed with the maintainer: practice instead of quiz mechanics, unmarked choices, delayed consequences, deterministic high-impact actions, source review before publication, fictionalized learner-facing institutions, and no learner tracking. These decisions define the learning model and the trust boundary.
+
+Codex was used as an implementation partner across the repository. It accelerated architecture work, scenario and reducer implementation, schema and guardrail coverage, responsive fixes, browser-flow testing, accessibility review, copy editing, and documentation. The maintainer repeatedly reviewed the running product from learner and facilitator perspectives, selected the product tradeoffs, rejected immersion-breaking safety copy, and kept model output outside canonical state changes.
+
+GPT-5.6 contributes to the optional adaptive paths: source-backed institution research through the Responses API, validated scenario generation, bounded role dialogue, trace-selected debrief material, and evidence-grounded coaching. Every model-shaped response crosses a Zod boundary, and the deterministic simulation engine remains authoritative for actions, consequences, recovery, transfer, and endings.
+
+The primary Codex development thread is `019f66ce-a05a-7573-b1b3-b57c5051fa10`. Dated commits and the reproducible checks in [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) provide the corresponding implementation record.
+
 ## Quick Start
 
 ### Requirements
@@ -193,6 +215,12 @@ OPENAI_API_KEY=your_key_here
 ```
 
 Never prefix this key with `NEXT_PUBLIC_`.
+
+When the app has a canonical public origin, also set `SITE_URL` so Open Graph and other absolute metadata resolve to that origin:
+
+```dotenv
+SITE_URL=https://example.com
+```
 
 For a local alternative without Platform API access, sign in to Codex and explicitly enable the development adapter:
 
@@ -341,7 +369,9 @@ These guarantees belong in code and tests, not as immersion-breaking disclaimers
 
 ## Contributing
 
-Focused issues and pull requests are welcome. Preserve the product rules in `AGENTS.md`, keep case-specific code within its owning module, and include tests proportional to the changed behavior. For visual changes, attach before/after screenshots at relevant desktop and mobile sizes.
+Focused issues and pull requests are welcome. Preserve the product rules in `AGENTS.md`, keep case-specific code within its owning module, and include tests proportional to the changed behavior. For visual changes, attach before/after screenshots at relevant desktop and mobile sizes. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the working agreement and [`SECURITY.md`](./SECURITY.md) for private vulnerability reporting guidance.
+
+Repository media provenance is documented in [`ASSET_NOTES.md`](./ASSET_NOTES.md). Before changing repository visibility, follow [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md).
 
 ## Known Limitations
 

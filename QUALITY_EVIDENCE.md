@@ -31,6 +31,8 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Authoring form and error ergonomics | Named form controls, segmented-control state, source-review validation, focused actionable errors, and browser assertions | Verified |
 | Core accessibility states | Axe serious/critical gate, skip navigation, stage focus, modal focus isolation, toggle semantics, and reduced-motion tests | Verified by automated checks; not a certification |
 | Automated quality gate | `.github/workflows/ci.yml` | Runs on `main` |
+| Public repository hygiene | Ignored secret/build paths, MIT license, asset provenance, security policy, contribution guide, and release checklist | Documented and locally checked |
+| Isolated browser build leaves source stable | `scripts/run-e2e.mjs` preserves `next-env.d.ts` while Playwright uses `.next-playwright` | Verified by the complete local browser gate |
 
 ## Local Verification
 

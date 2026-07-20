@@ -1,6 +1,7 @@
 .git
 .github
 .next
+.next-playwright
 .env*
 !.env.example
 artifacts

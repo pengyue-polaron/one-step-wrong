@@ -258,6 +258,14 @@ The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×84
 - `QUALITY_EVIDENCE.md` maps product claims to working code and automated evidence.
 - Keep their structure, commands, screenshots, architecture, test counts, and limitations synchronized.
 - Use relative paths for repository screenshots so they render on GitHub and in forks.
+
+## Public Repository Hygiene
+
+- Keep `.env.local`, build output, browser reports, pilot data, and demo recordings untracked. Never commit secrets, private school material, learner data, or real incident content, including in examples and screenshots.
+- Keep [`CONTRIBUTING.md`](./CONTRIBUTING.md), [`SECURITY.md`](./SECURITY.md), [`ASSET_NOTES.md`](./ASSET_NOTES.md), and [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md) accurate when repository behavior or distributed assets change.
+- `npm run test:e2e` must restore `next-env.d.ts` after Next.js uses the isolated Playwright build directory. Test commands should not create unrelated source churn.
+- Document public capabilities as they work from a clean clone. Clearly separate the complete reviewed no-key path, the development-only local Codex path, and the Platform API path.
+- Before changing repository visibility, run the release checklist from a clean checkout and inspect the Git history for credentials or private material.
 - Do not claim a deployment, integration, license, or compatibility level that the repository does not provide.
 
 ## Change Discipline

@@ -78,6 +78,10 @@ test("case library and decision chapters stay usable on a phone", async ({ page 
   await expect(page.locator(".dialogue-workspace")).toBeVisible();
   await expect(page.getByRole("region", { name: "Campus Drive task workspace" })).toBeHidden();
   await expect(page.locator(".dialogue-log")).toContainText("The quote check closes at 20:30");
+  const dialogueHeight = await page.locator(".dialogue-workspace").evaluate((element) =>
+    Math.round(element.getBoundingClientRect().height),
+  );
+  expect(dialogueHeight).toBeLessThan(560);
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
   await page.screenshot({ path: "artifacts/screenshots/mobile-sharing-conversation.png", fullPage: true });
 

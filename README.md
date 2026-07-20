@@ -19,6 +19,8 @@
 
 It is not a quiz. Choices are not labeled safe, risky, correct, or recommended before the outcome.
 
+**Live reviewed experience:** [one-step-wrong.pengyue.space](https://one-step-wrong.pengyue.space). The complete reviewed path works without an API key.
+
 ![The case library with three reviewed interactive rehearsals and two archive chapters](./artifacts/screenshots/case-library.png)
 
 The library presents the three reviewed rehearsals as a clear 01–03 learning path, then separates the earlier archive cases and their session-only completion state.
@@ -259,13 +261,30 @@ docker run --rm -p 3000:3000 \
   one-step-wrong
 ```
 
+### Deploy to Cloudflare Workers
+
+The repository includes an OpenNext adapter and Wrangler configuration for the production Worker. Build with the canonical origin available to Next.js, then deploy the generated Worker:
+
+```bash
+SITE_URL=https://one-step-wrong.pengyue.space npm run build:cloudflare
+npx wrangler deploy
+```
+
+Production deploys use the reviewed no-key path by default. Add `OPENAI_API_KEY` only as a server-side Worker secret; never add it to `wrangler.jsonc`, a build variable, or a `NEXT_PUBLIC_*` value. The Cloudflare Worker is connected to `main` through Workers Builds with `npm run build:cloudflare` followed by `npx wrangler deploy`.
+
+Forks should replace the Worker name, `SITE_URL`, and custom-domain route in [`wrangler.jsonc`](./wrangler.jsonc). If authoritative DNS is hosted outside Cloudflare, point the chosen hostname at the enabled `workers.dev` hostname rather than changing unrelated records.
+
 ## Available Scripts
 
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the Next.js development server. |
 | `npm run build` | Create an optimized production build. |
+| `npm run build:cloudflare` | Build the OpenNext Worker bundle. |
 | `npm run start` | Serve the production build. |
+| `npm run preview` | Build and preview the Cloudflare Worker locally. |
+| `npm run deploy` | Build and deploy with Wrangler. |
+| `npm run cf-typegen` | Generate local Cloudflare environment types. |
 | `npm run lint` | Run ESLint across the repository. |
 | `npm run typecheck` | Check TypeScript without emitting files. |
 | `npm test` | Run the Vitest state and component suite once. |

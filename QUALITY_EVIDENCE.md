@@ -31,6 +31,8 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Authoring form and error ergonomics | Named form controls, segmented-control state, source-review validation, focused actionable errors, and browser assertions | Verified |
 | Core accessibility states | Axe serious/critical gate, skip navigation, stage focus, modal focus isolation, toggle semantics, and reduced-motion tests | Verified by automated checks; not a certification |
 | Automated quality gate | `.github/workflows/ci.yml` | Runs on `main` |
+| Cloudflare production runtime | OpenNext Worker build, Wrangler dry run, local `workerd` route/API checks, and the hosted reviewed/no-key route checks at `one-step-wrong.pengyue.space` | Verified |
+| Git-triggered production deployment | Cloudflare Workers Builds connected to `pengyue-polaron/one-step-wrong`, production branch `main`, with explicit OpenNext build and Wrangler deploy commands | Configured |
 | Public repository hygiene | Ignored secret/build paths, MIT license, asset provenance, security policy, contribution guide, and release checklist | Documented and locally checked |
 | Isolated browser build leaves source stable | `scripts/run-e2e.mjs` preserves `next-env.d.ts` while Playwright uses `.next-playwright` | Verified by the complete local browser gate |
 
@@ -52,6 +54,12 @@ The current suite covers all three reviewed direct entries, the case library, St
 When a server is running with `OPENAI_API_KEY`, `npm run verify:live` requires live provenance for institution research, scenario generation, role dialogue, trace-grounded review, and Evidence Coach. It fails if any path falls back to reviewed content.
 
 When a development server is running with `CODEX_LOCAL_PROVIDER=1` and an authenticated `codex login`, `npm run verify:codex` checks reviewed-topology matching and copy adaptation, role dialogue, debrief, and Evidence Coach through the local adapter. Institution research deliberately stays on the reviewed profile because Codex does not supply the same-request Web Search source evidence required by this product.
+
+## Production Verification
+
+The Cloudflare Worker is published at [one-step-wrong.pengyue.space](https://one-step-wrong.pengyue.space). Production checks cover `/`, `/rehearsal`, `/rehearsal/sharing-scope`, `/studio`, `/manifest.webmanifest`, and `/opengraph-image`. The reviewed institution request returns `200` with `reviewed-fixture` provenance, while an unconfigured live-research request returns the expected `503` instead of silently substituting unrelated content.
+
+`OPENAI_API_KEY` is not configured in the public deployment. The deployed product therefore demonstrates the complete reviewed path but does not claim live Platform behavior. The development-only local Codex provider remains disabled by its production lockout.
 
 ## Manual Product Review
 

@@ -19,6 +19,8 @@
 
 它不是知识问答。结果发生前，任何选择都不会被标注为安全、危险、正确或推荐。
 
+**线上审核版本：**[one-step-wrong.pengyue.space](https://one-step-wrong.pengyue.space)。不提供 API key 也能完整体验审核路径。
+
 ![包含三个审核互动演练和两个归档章节的案例库](./artifacts/screenshots/case-library.png)
 
 案例库把三个审核演练组织成清楚的 01–03 学习路径，再单独呈现早期归档案例和仅限当前会话的完成状态。
@@ -259,13 +261,30 @@ docker run --rm -p 3000:3000 \
   one-step-wrong
 ```
 
+### 部署到 Cloudflare Workers
+
+仓库已经包含 OpenNext 适配器和生产 Worker 的 Wrangler 配置。构建时把正式来源地址传给 Next.js，再部署生成的 Worker：
+
+```bash
+SITE_URL=https://one-step-wrong.pengyue.space npm run build:cloudflare
+npx wrangler deploy
+```
+
+生产部署默认使用不需要 Key 的审核路径。只有在启用可选实时能力时，才应把 `OPENAI_API_KEY` 添加为仅服务端可见的 Worker secret；不要把它写入 `wrangler.jsonc`、构建变量或任何 `NEXT_PUBLIC_*` 值。当前 Cloudflare Worker 已通过 Workers Builds 连接 `main`，构建命令为 `npm run build:cloudflare`，部署命令为 `npx wrangler deploy`。
+
+Fork 需要替换 [`wrangler.jsonc`](./wrangler.jsonc) 中的 Worker 名称、`SITE_URL` 和自定义域名路由。如果权威 DNS 不在 Cloudflare，应只把选定子域名指向已启用的 `workers.dev` 主机，不要改动无关记录。
+
 ## 可用命令
 
 | 命令 | 用途 |
 | --- | --- |
 | `npm run dev` | 启动 Next.js 开发服务器。 |
 | `npm run build` | 创建优化后的生产构建。 |
+| `npm run build:cloudflare` | 构建 OpenNext Worker bundle。 |
 | `npm run start` | 启动生产构建。 |
+| `npm run preview` | 构建并在本地预览 Cloudflare Worker。 |
+| `npm run deploy` | 通过 Wrangler 构建并部署。 |
+| `npm run cf-typegen` | 生成本地 Cloudflare 环境类型。 |
 | `npm run lint` | 对整个仓库运行 ESLint。 |
 | `npm run typecheck` | 检查 TypeScript，不生成文件。 |
 | `npm test` | 单次运行 Vitest 状态与组件测试。 |

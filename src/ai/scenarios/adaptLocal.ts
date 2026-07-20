@@ -1,7 +1,7 @@
 import type OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { OPENAI_MODEL } from "@/ai/openai/server";
+import { getOpenAIModel } from "@/ai/openai/server";
 import { getAdaptiveProvider } from "@/ai/providers/server";
 import { shortTextSchema } from "@/ai/schemas/common";
 import { validateProfileForApproval } from "@/ai/schemas/institution";
@@ -47,7 +47,7 @@ export async function adaptReviewedScenarioWithCodex(
     };
   });
   const response = await provider.responses.parse({
-    model: OPENAI_MODEL,
+    model: getOpenAIModel(),
     instructions: `Select the reviewed rehearsal whose judgment pattern best fits the teaching brief. Then write a concise title and tagline that remain faithful to that selected rehearsal's existing task, actions, evidence, and outcomes. Do not invent a new task, institution fact, service, person, action, or policy. Do not use any protected term. Return only the selected template ID, title, and tagline.`,
     input: JSON.stringify({
       teachingBrief: request.brief,

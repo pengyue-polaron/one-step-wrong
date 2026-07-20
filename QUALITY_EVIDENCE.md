@@ -12,6 +12,7 @@ This document maps product claims to reproducible repository evidence. It tracks
 | Approved-source lineage survives fictionalization | Scenario Studio source-to-scenario trace from approved profile to published setting | Verified |
 | Every declared outcome is legally reachable | `src/engine/simulation/coverage.ts`, generation rejection tests, and Studio outcome-coverage preview | Verified |
 | Bounded adaptive dialogue | `src/ai/simulation/turn.ts`, minimum-context, leakage, invalid-event, and timeout tests | Verified with mocked provider output |
+| OpenAI-compatible provider configuration | HTTPS-only base URL validation, explicit model selection, OpenRouter server-side Web Search mapping, approved-domain filters, and same-response citation checks | Verified in adapter tests; live behavior requires provider acceptance check |
 | Free text cannot perform high-impact actions | Studio browser tests and simulation physics tests | Verified |
 | Explicit actions, trigger-bound recovery, contained final state, outcomes, and replay | `src/engine/simulation/physics.ts`, schema and prerequisite tests, and complete safe/incident browser routes | Verified |
 | A first verification channel is chosen under pressure and each alternative has distinct evidence | `src/fixtures/voiceYouKnow.ts`, exclusive-action physics, simulation tests, desktop and mobile evidence-board flows | Verified |

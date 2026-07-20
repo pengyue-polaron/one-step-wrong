@@ -73,6 +73,71 @@ describe("Institution Research Agent adapter", () => {
     expect(institutionResearchInstructions).toContain("authenticated portals");
   });
 
+  it("uses OpenRouter's server-side web search and same-response citations when configured", async () => {
+    const previousBaseURL = process.env.OPENAI_BASE_URL;
+    const previousModel = process.env.OPENAI_MODEL;
+    process.env.OPENAI_BASE_URL = "https://openrouter.ai/api/v1";
+    process.env.OPENAI_MODEL = "openai/gpt-5.6-terra";
+    try {
+      const source = reviewedNyuInstitutionProfile.sources[0];
+      const fact = reviewedNyuInstitutionProfile.facts.find((item) => item.sourceIds.some((id) => id === source.id));
+      expect(fact).toBeDefined();
+      const raw = {
+        id: reviewedNyuInstitutionProfile.id,
+        displayName: reviewedNyuInstitutionProfile.displayName,
+        officialDomains: ["nyu.edu"],
+        protectedTerms: reviewedNyuInstitutionProfile.protectedTerms,
+        facts: [{ ...fact!, note: fact!.note ?? null }],
+        sources: [{
+          id: source.id,
+          url: source.url,
+          title: source.title,
+          publisher: source.publisher,
+          authority: source.authority,
+          supportsFactIds: [fact!.id],
+        }],
+        unresolvedFields: [],
+        researchWarnings: [],
+      };
+      const parse = vi.fn().mockResolvedValue({
+        output_parsed: raw,
+        output: [{
+          type: "message",
+          content: [{
+            type: "output_text",
+            text: source.url,
+            annotations: [{ type: "url_citation", url: source.url }],
+          }],
+        }],
+      });
+      const provider = { responses: { parse } } as unknown as InstitutionResearchProvider;
+      await researchInstitution(
+        institutionResearchRequestSchema.parse({
+          institutionName: "New York University",
+          officialDomains: ["nyu.edu"],
+        }),
+        provider,
+      );
+      const call = parse.mock.calls[0][0];
+      expect(call.model).toBe("openai/gpt-5.6-terra");
+      expect(call.tools).toEqual([{
+        type: "openrouter:web_search",
+        parameters: {
+          engine: "auto",
+          max_results: 5,
+          search_context_size: "low",
+          allowed_domains: ["nyu.edu"],
+        },
+      }]);
+      expect(call).not.toHaveProperty("include");
+    } finally {
+      if (previousBaseURL === undefined) delete process.env.OPENAI_BASE_URL;
+      else process.env.OPENAI_BASE_URL = previousBaseURL;
+      if (previousModel === undefined) delete process.env.OPENAI_MODEL;
+      else process.env.OPENAI_MODEL = previousModel;
+    }
+  });
+
   it("requires an authorization confirmation for exact-brand research", () => {
     const result = institutionResearchRequestSchema.safeParse({
       institutionName: "New York University",

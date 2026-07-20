@@ -1,7 +1,7 @@
 import type OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { OPENAI_MODEL } from "@/ai/openai/server";
+import { getOpenAIModel } from "@/ai/openai/server";
 import { getAdaptiveProvider } from "@/ai/providers/server";
 import { buildScenarioArchitectInput, scenarioArchitectInstructions } from "@/ai/prompts/scenarioArchitect";
 import { institutionProfileSchema, validateProfileForApproval } from "@/ai/schemas/institution";
@@ -70,7 +70,7 @@ export async function generateScenario(
   if (!provider) throw new Error("Adaptive generation is not configured.");
 
   const response = await provider.responses.parse({
-    model: OPENAI_MODEL,
+    model: getOpenAIModel(),
     instructions: scenarioArchitectInstructions,
     input: buildScenarioArchitectInput(request.profile, request.brief),
     text: { format: zodTextFormat(scenarioPackageOutputSchema, "scenario_package") },

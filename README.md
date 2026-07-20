@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-146%20unit%20%2B%2023%20E2E-456b52" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-150%20unit%20%2B%2023%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -218,6 +218,16 @@ OPENAI_API_KEY=your_key_here
 
 Never prefix this key with `NEXT_PUBLIC_`.
 
+The same server adapter can use an HTTPS OpenAI-compatible Responses endpoint. For OpenRouter, keep the key server-only and configure the provider-qualified model explicitly:
+
+```dotenv
+OPENAI_API_KEY=your_openrouter_key
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=openai/gpt-5.6-terra
+```
+
+When OpenRouter is selected, institution research uses its server-side Web Search tool with the approved-domain allowlist. Structured source URLs are still rejected unless they appear as citations in that same response. OpenRouter's Responses and Web Search interfaces are currently beta, so `npm run verify:live` remains the production acceptance check.
+
 When the app has a canonical public origin, also set `SITE_URL` so Open Graph and other absolute metadata resolve to that origin:
 
 ```dotenv
@@ -373,7 +383,7 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 146 schema, API, state, and component tests plus 23 browser tests. It covers the three reviewed rehearsals, Studio review and editing, action and recovery rules, all four endings, Evidence Coach citations, facilitator reporting, accessibility checks, production builds, desktop layouts, and 390x844 phone flows. See [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for the claim-to-test map.
+The current suite contains 150 schema, API, state, and component tests plus 23 browser tests. It covers the three reviewed rehearsals, Studio review and editing, action and recovery rules, all four endings, Evidence Coach citations, facilitator reporting, accessibility checks, production builds, desktop layouts, and 390x844 phone flows. See [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for the claim-to-test map.
 
 ## Safety and Privacy
 

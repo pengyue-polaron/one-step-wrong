@@ -10,7 +10,7 @@
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="测试" src="https://img.shields.io/badge/tests-146%20unit%20%2B%2023%20E2E-456b52" />
+  <img alt="测试" src="https://img.shields.io/badge/tests-150%20unit%20%2B%2023%20E2E-456b52" />
   <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
   <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
 </p>
@@ -218,6 +218,16 @@ OPENAI_API_KEY=your_key_here
 
 不要给这个密钥添加 `NEXT_PUBLIC_` 前缀。
 
+同一个服务端适配器也支持使用 HTTPS 的 OpenAI-compatible Responses 端点。使用 OpenRouter 时，Key 仍然只能放在服务端，并显式配置带提供商前缀的模型：
+
+```dotenv
+OPENAI_API_KEY=your_openrouter_key
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=openai/gpt-5.6-terra
+```
+
+选择 OpenRouter 后，学校研究会使用它的服务端 Web Search，并继续应用审核域名白名单。结构化来源 URL 只有同时出现在同一次响应的引用中才会被接受。OpenRouter 的 Responses 和 Web Search 接口目前仍为 beta，因此生产验收仍以 `npm run verify:live` 为准。
+
 应用拥有正式公开地址后，还应设置 `SITE_URL`，让 Open Graph 等绝对地址元数据指向正确来源：
 
 ```dotenv
@@ -373,7 +383,7 @@ npm run build
 npm run test:e2e
 ```
 
-当前测试集包含 146 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖三个审核演练、Studio 审核与编辑、动作和恢复规则、四种结局、Evidence Coach 引用、教师报告、无障碍检查、生产构建、桌面布局和 390x844 手机流程。产品主张与测试的对应关系见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)。
+当前测试集包含 150 个 schema、API、状态与组件测试，以及 23 个浏览器测试。覆盖三个审核演练、Studio 审核与编辑、动作和恢复规则、四种结局、Evidence Coach 引用、教师报告、无障碍检查、生产构建、桌面布局和 390x844 手机流程。产品主张与测试的对应关系见 [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md)。
 
 ## 安全与隐私
 

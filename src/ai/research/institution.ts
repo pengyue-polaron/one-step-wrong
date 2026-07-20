@@ -9,7 +9,7 @@ import {
   type InstitutionProfile,
 } from "@/ai/schemas/institution";
 import { buildInstitutionResearchInput, institutionResearchInstructions } from "@/ai/prompts/institutionResearch";
-import { getOpenAIClient, OPENAI_MODEL } from "@/ai/openai/server";
+import { getOpenAIClient, getOpenAIModel, isOpenRouterConfigured } from "@/ai/openai/server";
 
 export const institutionResearchRequestSchema = z
   .object({
@@ -128,18 +128,28 @@ export async function researchInstitution(
   if (!provider) throw new Error("OpenAI is not configured.");
 
   const domains = request.officialDomains.map(normalizeDomain);
-  const response = await provider.responses.parse({
-    model: OPENAI_MODEL,
-    instructions: institutionResearchInstructions,
-    input: buildInstitutionResearchInput({ ...request, officialDomains: domains }),
-    tools: [
-      {
+  const openRouter = isOpenRouterConfigured();
+  const tools = openRouter
+    ? ([{
+        type: "openrouter:web_search",
+        parameters: {
+          engine: "auto",
+          max_results: 5,
+          search_context_size: "low",
+          ...(domains.length ? { allowed_domains: domains } : {}),
+        },
+      }] as unknown as OpenAI.Responses.Tool[])
+    : ([{
         type: "web_search",
         search_context_size: "low",
         ...(domains.length ? { filters: { allowed_domains: domains } } : {}),
-      },
-    ],
-    include: ["web_search_call.action.sources"],
+      }] satisfies OpenAI.Responses.Tool[]);
+  const response = await provider.responses.parse({
+    model: getOpenAIModel(),
+    instructions: institutionResearchInstructions,
+    input: buildInstitutionResearchInput({ ...request, officialDomains: domains }),
+    tools,
+    ...(!openRouter ? { include: ["web_search_call.action.sources" as const] } : {}),
     text: { format: zodTextFormat(researchOutputSchema, "institution_research") },
   });
 

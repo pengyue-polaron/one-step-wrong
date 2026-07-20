@@ -1,7 +1,7 @@
 import type OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { OPENAI_MODEL } from "@/ai/openai/server";
+import { getOpenAIModel } from "@/ai/openai/server";
 import { getAdaptiveProvider } from "@/ai/providers/server";
 import { idSchema } from "@/ai/schemas/common";
 import { institutionProfileSchema } from "@/ai/schemas/institution";
@@ -135,7 +135,7 @@ export async function answerEvidenceQuestion(
 
   try {
     const response = await provider.responses.parse({
-      model: OPENAI_MODEL,
+      model: getOpenAIModel(),
       instructions: `You are the Evidence Coach for a completed digital-judgment rehearsal. Answer the learner's question using only the supplied recorded trace, revealed evidence, approved facts, and transfer rules. Explain what a verification channel did and did not establish. Do not add events, actions, policies, attack instructions, or facts. Do not shame or score the learner. Cite only listed evidenceIds and sourceFactIds. Keep the answer under 120 words.`,
       input: JSON.stringify({
         question: request.question,

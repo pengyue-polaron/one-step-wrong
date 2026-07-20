@@ -24,17 +24,17 @@ const localScenarioPlanSchema = z.object({
   tagline: shortTextSchema,
 });
 
-export type LocalScenarioAdaptationProvider = Pick<OpenAI, "responses">;
+export type ScenarioAdaptationProvider = Pick<OpenAI, "responses">;
 
-export async function adaptReviewedScenarioWithCodex(
+export async function adaptReviewedScenario(
   request: z.infer<typeof scenarioGenerationRequestSchema>,
-  provider: LocalScenarioAdaptationProvider | null = getAdaptiveProvider(),
+  provider: ScenarioAdaptationProvider | null = getAdaptiveProvider(),
 ) {
   const approval = validateProfileForApproval(request.profile);
   if (!approval.success || request.profile.approval.status !== "approved") {
     throw new Error("Institution profile must be approved before generation.");
   }
-  if (!provider) throw new Error("Local adaptive generation is not configured.");
+  if (!provider) throw new Error("Reviewed-scenario adaptation is not configured.");
 
   const candidates = reviewedScenarioIds.map((id) => {
     const scenario = reviewedScenarioRegistry[id].scenario;
@@ -57,7 +57,7 @@ export async function adaptReviewedScenarioWithCodex(
     text: { format: zodTextFormat(localScenarioPlanSchema, "local_scenario_plan") },
   }, { timeout: 30_000 });
   const plan = response.output_parsed;
-  if (!plan) throw new Error("Local Codex returned no scenario plan.");
+  if (!plan) throw new Error("The adaptive provider returned no scenario plan.");
 
   const selected = structuredClone(getReviewedScenario(plan.templateId).scenario);
   if (selected.sourceProfileId !== request.profile.id) {

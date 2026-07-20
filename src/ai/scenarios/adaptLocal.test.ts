@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { adaptReviewedScenarioWithCodex, type LocalScenarioAdaptationProvider } from "@/ai/scenarios/adaptLocal";
+import { adaptReviewedScenario, type ScenarioAdaptationProvider } from "@/ai/scenarios/adaptLocal";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 
 const brief = {
@@ -16,12 +16,12 @@ const brief = {
 function providerFor(output: unknown) {
   return {
     responses: { parse: vi.fn().mockResolvedValue({ output_parsed: output }) },
-  } as unknown as LocalScenarioAdaptationProvider;
+  } as unknown as ScenarioAdaptationProvider;
 }
 
-describe("local Codex reviewed-scenario adaptation", () => {
+describe("reviewed-scenario adaptation", () => {
   it("matches a brief to a reviewed topology and revalidates its bounded copy", async () => {
-    const result = await adaptReviewedScenarioWithCodex(
+    const result = await adaptReviewedScenario(
       { profile: reviewedNyuInstitutionProfile, brief, useFixture: false, reviewedScenarioId: "the-voice-you-know" },
       providerFor({
         templateId: "sharing-scope",
@@ -37,7 +37,7 @@ describe("local Codex reviewed-scenario adaptation", () => {
   });
 
   it("rejects protected institution terms in adapted labels", async () => {
-    await expect(adaptReviewedScenarioWithCodex(
+    await expect(adaptReviewedScenario(
       { profile: reviewedNyuInstitutionProfile, brief, useFixture: false, reviewedScenarioId: "the-voice-you-know" },
       providerFor({
         templateId: "sharing-scope",

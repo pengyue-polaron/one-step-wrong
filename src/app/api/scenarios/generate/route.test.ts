@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/scenarios/generate/route";
-import { adaptReviewedScenarioWithCodex } from "@/ai/scenarios/adaptLocal";
+import { adaptReviewedScenario } from "@/ai/scenarios/adaptLocal";
 import type { InstitutionProfile } from "@/ai/schemas/institution";
 import { reviewedNyuInstitutionProfile } from "@/fixtures/institutionProfile";
 import { voiceYouKnowScenario } from "@/fixtures/voiceYouKnow";
 
 vi.mock("@/ai/scenarios/adaptLocal", () => ({
-  adaptReviewedScenarioWithCodex: vi.fn(),
+  adaptReviewedScenario: vi.fn(),
 }));
 
 const brief = {
@@ -104,7 +104,7 @@ describe("POST /api/scenarios/generate", () => {
     try {
       delete process.env.OPENAI_API_KEY;
       process.env.CODEX_LOCAL_PROVIDER = "1";
-      vi.mocked(adaptReviewedScenarioWithCodex).mockResolvedValueOnce({
+      vi.mocked(adaptReviewedScenario).mockResolvedValueOnce({
         scenario: voiceYouKnowScenario,
         templateId: "the-voice-you-know",
       });
@@ -130,6 +130,41 @@ describe("POST /api/scenarios/generate", () => {
       else process.env.OPENAI_API_KEY = previousKey;
       if (previousCodex === undefined) delete process.env.CODEX_LOCAL_PROVIDER;
       else process.env.CODEX_LOCAL_PROVIDER = previousCodex;
+    }
+  });
+
+  it("uses bounded reviewed-scenario adaptation with OpenRouter", async () => {
+    const previousKey = process.env.OPENAI_API_KEY;
+    const previousBaseURL = process.env.OPENAI_BASE_URL;
+    try {
+      process.env.OPENAI_API_KEY = "test-key";
+      process.env.OPENAI_BASE_URL = "https://openrouter.ai/api/v1";
+      vi.mocked(adaptReviewedScenario).mockResolvedValueOnce({
+        scenario: voiceYouKnowScenario,
+        templateId: "the-voice-you-know",
+      });
+
+      const response = await POST(
+        new Request("http://localhost/api/scenarios/generate", {
+          method: "POST",
+          body: JSON.stringify({
+            profile: reviewedNyuInstitutionProfile,
+            brief,
+            useFixture: false,
+          }),
+        }),
+      );
+      const result = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(result.provenance).toBe("live-generation");
+      expect(result.adaptiveRuntime).toBe("openai-api");
+      expect(result.scenario.id).toBe("the-voice-you-know");
+    } finally {
+      if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
+      else process.env.OPENAI_API_KEY = previousKey;
+      if (previousBaseURL === undefined) delete process.env.OPENAI_BASE_URL;
+      else process.env.OPENAI_BASE_URL = previousBaseURL;
     }
   });
 

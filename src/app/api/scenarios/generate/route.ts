@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { scenarioGenerationRequestSchema, generateScenario } from "@/ai/scenarios/generate";
-import { adaptReviewedScenarioWithCodex } from "@/ai/scenarios/adaptLocal";
+import { isOpenRouterConfigured } from "@/ai/openai/server";
+import { adaptReviewedScenario } from "@/ai/scenarios/adaptLocal";
 import { getAdaptiveProviderKind, hasAdaptiveProvider } from "@/ai/providers/server";
 import { getReviewedScenario } from "@/fixtures/reviewedScenarioRegistry";
 import { readBoundedJson } from "@/app/api/request";
@@ -43,15 +44,16 @@ export async function POST(request: Request) {
 
   try {
     const adaptiveRuntime = getAdaptiveProviderKind();
-    const localAdaptation = adaptiveRuntime === "local-codex"
-      ? await adaptReviewedScenarioWithCodex(parsed.data)
+    const boundedAdaptation = adaptiveRuntime === "local-codex" || isOpenRouterConfigured()
+      ? await adaptReviewedScenario(parsed.data)
       : null;
-    const scenario = localAdaptation?.scenario ?? await generateScenario(parsed.data);
+    const scenario = boundedAdaptation?.scenario ?? await generateScenario(parsed.data);
+    const provenance = adaptiveRuntime === "local-codex" ? "local-adaptation" : "live-generation";
     return NextResponse.json({
       scenario,
-      provenance: localAdaptation ? "local-adaptation" : "live-generation",
+      provenance,
       adaptiveRuntime,
-      notice: localAdaptation
+      notice: boundedAdaptation
         ? "A reviewed scenario was adapted to this brief and passed all path checks."
         : "The new rehearsal is ready for review.",
     });

@@ -1,6 +1,9 @@
 node_modules/
 .next/
 .next-playwright/
+.open-next/
+.wrangler/
+cloudflare-env.d.ts
 coverage/
 playwright-report/
 test-results/
@@ -11,3 +14,4 @@ pilot/local/
 .DS_Store
 .env*
 !.env.example
+.dev.vars*

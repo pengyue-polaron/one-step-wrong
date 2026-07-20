@@ -194,7 +194,7 @@ The primary Codex development thread is `019f66ce-a05a-7573-b1b3-b57c5051fa10`. 
 
 ### Requirements
 
-- Node.js 20.9 or newer
+- Node.js 22.12 or newer
 - npm 10 or newer
 
 ### Run locally

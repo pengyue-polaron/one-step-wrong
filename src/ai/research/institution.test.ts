@@ -77,7 +77,7 @@ describe("Institution Research Agent adapter", () => {
     const previousBaseURL = process.env.OPENAI_BASE_URL;
     const previousModel = process.env.OPENAI_MODEL;
     process.env.OPENAI_BASE_URL = "https://openrouter.ai/api/v1";
-    process.env.OPENAI_MODEL = "openai/gpt-5.6-terra";
+    process.env.OPENAI_MODEL = "openai/gpt-oss-120b";
     try {
       const source = reviewedNyuInstitutionProfile.sources[0];
       const fact = reviewedNyuInstitutionProfile.facts.find((item) => item.sourceIds.some((id) => id === source.id));
@@ -119,7 +119,7 @@ describe("Institution Research Agent adapter", () => {
         provider,
       );
       const call = parse.mock.calls[0][0];
-      expect(call.model).toBe("openai/gpt-5.6-terra");
+      expect(call.model).toBe("openai/gpt-oss-120b");
       expect(call.tools).toEqual([{
         type: "openrouter:web_search",
         parameters: {

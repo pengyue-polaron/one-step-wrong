@@ -223,7 +223,7 @@ OPENAI_API_KEY=your_key_here
 ```dotenv
 OPENAI_API_KEY=your_openrouter_key
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
-OPENAI_MODEL=openai/gpt-5.6-terra
+OPENAI_MODEL=openai/gpt-oss-120b
 ```
 
 选择 OpenRouter 后，学校研究会使用它的服务端 Web Search，并继续应用审核域名白名单。结构化来源 URL 只有同时出现在同一次响应的引用中才会被接受。OpenRouter 的 Responses 和 Web Search 接口目前仍为 beta，因此生产验收仍以 `npm run verify:live` 为准。

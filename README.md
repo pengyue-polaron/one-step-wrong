@@ -223,7 +223,7 @@ The same server adapter can use an HTTPS OpenAI-compatible Responses endpoint. F
 ```dotenv
 OPENAI_API_KEY=your_openrouter_key
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
-OPENAI_MODEL=openai/gpt-5.6-terra
+OPENAI_MODEL=openai/gpt-oss-120b
 ```
 
 When OpenRouter is selected, institution research uses its server-side Web Search tool with the approved-domain allowlist. Structured source URLs are still rejected unless they appear as citations in that same response. OpenRouter's Responses and Web Search interfaces are currently beta, so `npm run verify:live` remains the production acceptance check.

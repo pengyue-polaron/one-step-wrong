@@ -36,9 +36,9 @@ describe("OpenAI server configuration", () => {
 
   it("supports an HTTPS OpenAI-compatible endpoint and model", () => {
     process.env.OPENAI_BASE_URL = "https://openrouter.ai/api/v1/";
-    process.env.OPENAI_MODEL = "openai/gpt-5.6-terra";
+    process.env.OPENAI_MODEL = "openai/gpt-oss-120b";
     expect(getOpenAIBaseURL()).toBe("https://openrouter.ai/api/v1");
-    expect(getOpenAIModel()).toBe("openai/gpt-5.6-terra");
+    expect(getOpenAIModel()).toBe("openai/gpt-oss-120b");
     expect(isOpenRouterConfigured()).toBe(true);
   });
 

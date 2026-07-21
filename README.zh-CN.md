@@ -5,7 +5,8 @@
   <a href="./README.zh-CN.md"><strong>简体中文</strong></a>
 </p>
 
-[![CI](https://github.com/pengyue-polaron/one-step-wrong/actions/workflows/ci.yml/badge.svg)](https://github.com/pengyue-polaron/one-step-wrong/actions/workflows/ci.yml)
+![Node.js 22.12+](https://img.shields.io/badge/Node.js-22.12%2B-339933?logo=nodedotjs&logoColor=white)
+![npm 10+](https://img.shields.io/badge/npm-10%2B-CB3837?logo=npm&logoColor=white)
 
 **一台训练数字判断力的“飞行模拟器”。**
 

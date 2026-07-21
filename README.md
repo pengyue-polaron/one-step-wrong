@@ -5,201 +5,78 @@
   <a href="./README.zh-CN.md">简体中文</a>
 </p>
 
-<p>
-  <img alt="CI" src="https://github.com/pengyue-polaron/one-step-wrong/actions/workflows/ci.yml/badge.svg" />
-  <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-111827?logo=next.js" />
-  <img alt="React 19" src="https://img.shields.io/badge/React-19-1f6f8b?logo=react" />
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-151%20unit%20%2B%2023%20E2E-456b52" />
-  <img alt="OpenAI Responses API" src="https://img.shields.io/badge/OpenAI-Responses%20API-276a69" />
-  <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-6b7280" />
-</p>
+[![CI](https://github.com/pengyue-polaron/one-step-wrong/actions/workflows/ci.yml/badge.svg)](https://github.com/pengyue-polaron/one-step-wrong/actions/workflows/ci.yml)
 
-**One Step Wrong** is a flight simulator for digital judgment. Learners enter ordinary student tasks, make choices inside believable tools, encounter delayed consequences, and review how their actions shaped the result. Educators can use **Scenario Studio** to turn approved school guidance and a teaching brief into a playable rehearsal.
+**A flight simulator for digital judgment.**
 
-It is not a quiz. Choices are not labeled safe, risky, correct, or recommended before the outcome.
+One Step Wrong places students inside believable digital tasks where convenient choices can create delayed consequences. Learners act first, recover the affected layers, then review the causal chain and apply the same judgment in a new situation.
 
-**Live reviewed experience:** [one-step-wrong.pengyue.space](https://one-step-wrong.pengyue.space). The complete reviewed path works without an API key.
+It is not a quiz. Choices are never labeled safe, risky, correct, or recommended before the outcome.
 
-![The case library with three reviewed interactive rehearsals and two archive chapters](./artifacts/screenshots/case-library.png)
+**[Try the live experience](https://one-step-wrong.pengyue.space)** · **[Watch the 2:38 demo](https://youtu.be/4Tbf2Icpybw)**
 
-The library presents the three reviewed rehearsals as a clear 01–03 learning path, then separates the earlier archive cases and their session-only completion state.
+The complete reviewed learning path works without an API key.
 
-## Try the Complete Loop
+![The case library with three reviewed rehearsals and a separate archive](./artifacts/screenshots/case-library.png)
 
-No API key is required for the reviewed product path:
+## What it does
 
-1. Open [`/rehearsal`](http://localhost:3000/rehearsal) and make at least one task decision.
-2. Finish the rehearsal and inspect the causal review.
-3. Select **Test in a new situation** before reading the built-in transfer rule.
-4. Ask Evidence Coach about evidence discovered during the run.
-5. Open the facilitator report to see the action sequence, final state, discussion path, and approved source guidance.
+- Embeds unmarked decisions inside ordinary student workflows.
+- Lets pressure and convenience feel real before consequences appear.
+- Models containment as specific actions across payment, access, account, content, and reporting layers.
+- Reconstructs what happened in a causal debrief instead of reducing the experience to a score.
+- Tests transfer with a second, different situation before revealing the teaching rule.
+- Gives facilitators a discussion-ready report grounded in the learner's recorded actions.
 
-Educators can then open [`/studio`](http://localhost:3000/studio), select **Use example institution**, approve the reviewed profile, and select **Use example rehearsal** to see the complete authoring-to-facilitation workflow without external credentials.
+**Scenario Studio** lets an educator combine approved public guidance with a teaching brief, review the resulting institution profile and scenario, and launch a playable rehearsal. Publicly shared scenarios use fictional institutions and generic tools by default.
 
-## Why This Project
+## Reviewed learning path
 
-Most security training explains the answer before learners feel the pressure that makes a convenient option attractive. This project reverses that order:
-
-1. Give the player a normal task and a credible deadline.
-2. Present unmarked choices inside the task itself.
-3. Let the convenient path work before its wider effects appear.
-4. Require separate recovery actions for account, device, content, and social impact.
-5. Reconstruct the causal chain in the debrief.
-
-## Scenario Studio
-
-Open [`/studio`](http://localhost:3000/studio) to build a school-aware rehearsal from public guidance and a teaching brief:
-
-1. Research a school from public official sources, or load the reviewed NYU source profile.
-2. Review citations, conflicts, warnings, and unanswered questions before approving the institution context.
-3. Define the audience, ordinary task, pressure, threat, and learning objective.
-4. See how approved facts are used in the fictionalized student setting, then review the roles, actions, recovery steps, and possible endings.
-5. Enter the rehearsal and make task and checking decisions inside the workspace.
-6. Review the choices, evidence, consequences, and recovery from that run.
-7. Apply the same rule to a different task.
-
-Learners can start **The Voice You Know** at [`/rehearsal`](http://localhost:3000/rehearsal), **Sharing Scope** at [`/rehearsal/sharing-scope`](http://localhost:3000/rehearsal/sharing-scope), or **Recovery Window** at [`/rehearsal/recovery-window`](http://localhost:3000/rehearsal/recovery-window). Evidence Coach answers follow-up questions from evidence discovered during the run and approved school guidance. The facilitator report collects the action sequence, ending state, evidence, discussion prompts, and source links in one printable view.
-
-Adaptive generation and dialogue are optional. Critical task actions and endings always come from the learner's recorded choices. Without a Platform API key, the direct rehearsals and **Use example...** path still work; during development, an authenticated Codex session can match a brief to a reviewed scenario, adapt its title and tagline, and provide dialogue and review. Live source research still requires the Platform API.
-
-> **Conversation can adapt. Completed actions determine the consequences.**
-
-The three reviewed rehearsals use fictional Northbridge University and contain no real person, payment detail, private document, or campus action. See [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md) for the product direction, [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for reproducible evidence, and [`AGENTS.md`](./AGENTS.md) for architecture and safety boundaries.
-
-For a ready-to-run 10–35 minute classroom or workshop format, use the bilingual [`FACILITATOR_GUIDE.md`](./FACILITATOR_GUIDE.md).
-
-The included NYU profile cites public pages for [Brightspace](https://engineering.nyu.edu/academics/teaching-innovation/learning-management-system), [Duo and file sharing](https://tisch.nyu.edu/cit/information-technology/faq), [Google Workspace](https://shanghai.nyu.edu/page/google-workspace-nyu), [wireless access](https://library.nyu.edu/services/computing/on-campus/wifi/), [spoofed-sender guidance and phishing reporting](https://cims.nyu.edu/dynamic/systems/userservices/mail/), and [student reimbursement documentation](https://www.stern.nyu.edu/portal-partners/budget/students). No university-wide payment-change callback rule was found, so the profile leaves that question open. Fictionalized publication changes protected names, domains, and platforms while preserving the source links.
-
-Brand-safe fictionalization is the default. Authorized exact-brand research requires an explicit permission confirmation, and that confirmation is carried in the validated Institution Profile. When an official domain is supplied, model output cannot replace it; institution evidence must remain on that domain, use HTTPS, receive a server-authored access time, and match a URL returned by the same Responses Web Search call.
-
-## Playable Cases
-
-| Case | Student task | Security boundary | Experience |
+| Order | Rehearsal | Student task | Judgment being practiced |
 | --- | --- | --- | --- |
-| **The Voice You Know** | Finalize a guest-speaker reimbursement while a familiar voice requests a payment change. | Independent verification, payment state, workspace access, and layered recovery. | Reviewed agentic rehearsal; responsive. |
-| **Sharing Scope** | Give three documentary teammates enough access to check interview quotations. | Named audience, permission level, transferable links, content restoration, and disclosure. | Reviewed agentic rehearsal; responsive. |
-| **Recovery Window** | Give an evening producer access to correct a live broadcast schedule. | Task access, account-recovery authority, device binding, session review, and revocation. | Reviewed agentic rehearsal; responsive. |
-| **Final Submission** | Restore connectivity and submit an assignment to NYU Brightspace before the deadline. | Wireless identity, domains, configuration profiles, and account recovery. | Deep desktop simulation, 1100 px minimum width. |
-| **Was That You?** | Join an advising meeting while repeated Duo requests arrive. | User-initiated login, device and location matching, sessions, recovery methods, and reporting. | Responsive decision chapter. |
+| **01** | **The Voice You Know** | Complete a guest-speaker reimbursement while a familiar voice requests a payment change. | Independent verification, payment state, workspace access, and layered recovery. |
+| **02** | **Sharing Scope** | Give documentary teammates enough access to review interview quotations. | Named audiences, permission scope, transferable links, content restoration, and disclosure. |
+| **03** | **Recovery Window** | Give an evening producer access to correct a live broadcast schedule. | Task access versus account-recovery authority, device binding, session review, and revocation. |
 
-Each case has an ordinary objective, an unmarked decision, a delayed consequence where appropriate, individual response actions, multiple endings, and a replayable causal debrief. Archive completion lasts only for the current browser session; reviewed rehearsals do not persist learner state.
-
-## Screenshots
-
-### Scenario Studio
-
-![Reviewed NYU Institution Profile with citations, confidence, and an open question](./artifacts/screenshots/studio-profile.png)
+The earlier **Final Submission** and **Was That You?** chapters remain available in a separate archive. Archive completion is session-only and is not presented as progress through the reviewed path.
 
 <table>
   <tr>
-    <td width="50%"><img alt="Validated Scenario Studio package" src="./artifacts/screenshots/studio-preview.png" /></td>
-    <td width="50%"><img alt="Live role rehearsal" src="./artifacts/screenshots/studio-live.png" /></td>
+    <td width="50%"><img alt="Scenario Studio validated package preview" src="./artifacts/screenshots/studio-preview.png" /></td>
+    <td width="50%"><img alt="Live role rehearsal with explicit learner actions" src="./artifacts/screenshots/studio-live.png" /></td>
   </tr>
   <tr>
-    <td align="center">Validated world, roles, and critical actions</td>
-    <td align="center">Action-unlocked channels with explicit learner actions</td>
+    <td align="center">Educator review before launch</td>
+    <td align="center">Decisions inside the task workspace</td>
   </tr>
 </table>
 
-![Competing verification channels reveal different evidence during the rehearsal](./artifacts/screenshots/studio-evidence.png)
+## Where GPT-5.6 helps
 
-![Studio review based on the learner's recorded actions](./artifacts/screenshots/studio-debrief.png)
+GPT-5.6 powers the optional adaptive layer through the OpenAI Responses API:
 
-![Evidence Coach explaining what a completed verification channel did and did not establish](./artifacts/screenshots/studio-coach.png)
+1. Researches public institution guidance with source evidence.
+2. Compiles an approved profile and teaching brief into a schema-validated scenario.
+3. Produces bounded role dialogue using fixed identities, knowledge, channels, and allowed events.
+4. Selects debrief material from the recorded action trace.
+5. Answers Evidence Coach questions using only discovered evidence and approved source facts.
 
-![New-context transfer check showing whether the judgment carried forward](./artifacts/screenshots/studio-transfer.png)
+The model never performs critical actions, changes payment or access state, chooses an ending, or evaluates the learner's transfer choice. Those outcomes come from the deterministic simulation engine in [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts). Every model-shaped response crosses the runtime contracts in [`src/ai/schemas`](./src/ai/schemas).
 
-![Facilitator report connecting rehearsal evidence, transfer, and approved guidance](./artifacts/screenshots/facilitator-report.png)
+> Conversation can adapt. Completed actions determine the consequences.
 
-### Decisions in context
+## Formative user test
 
-<table>
-  <tr>
-    <td width="50%"><img alt="Sharing Scope public-link incident in the Campus Drive workspace" src="./artifacts/screenshots/sharing-scope-incident.png" /></td>
-    <td width="50%"><img alt="Unexpected Duo request decision" src="./artifacts/screenshots/duo-request.png" /></td>
-  </tr>
-  <tr>
-    <td align="center">Audience and permission scope inside the task workspace</td>
-    <td align="center">Duo login verification</td>
-  </tr>
-</table>
+Twenty undergraduate students tested the system in a formative evaluation:
 
-### Causal debrief
+- **100%** said it was valuable for university security education.
+- **95%** reported learning something new.
 
-![Sharing Scope debrief connecting the link choice, discovered activity, layered recovery, and transfer](./artifacts/screenshots/sharing-scope-debrief.png)
+These are self-reported results from one small convenience sample. They are useful early product evidence, not a controlled measure of learning efficacy. The aggregate-only pilot protocol and analyzer live in [`pilot/`](./pilot/).
 
-### Account recovery authority
+## Run locally
 
-![Recovery Window after a handoff device creates recovery authority and a new session](./artifacts/screenshots/recovery-window-incident.png)
-
-### Responsive chapters
-
-<table>
-  <tr>
-    <td width="50%"><img alt="Case library on a phone" src="./artifacts/screenshots/mobile-case-library.png" /></td>
-    <td width="50%"><img alt="Recovery Window task workspace on a phone" src="./artifacts/screenshots/mobile-recovery-window.png" /></td>
-  </tr>
-  <tr>
-    <td width="50%"><img alt="Sharing Scope conversation workspace on a phone" src="./artifacts/screenshots/mobile-sharing-conversation.png" /></td>
-    <td width="50%"><img alt="Facilitator report on a phone" src="./artifacts/screenshots/mobile-facilitator-report.png" /></td>
-  </tr>
-</table>
-
-## Tech Stack
-
-- Next.js 16, React 19, and strict TypeScript
-- OpenAI Responses API with Structured Outputs and Web Search
-- OpenAI Codex SDK for development-only scenario matching, copy adaptation, dialogue, and review
-- Zod runtime schemas and cross-reference validation for all model output
-- State-space exploration that checks every declared scenario outcome is reachable
-- Native CSS design system with case-specific institutional palettes
-- Lucide React icons
-- Pure reducers and simulation physics for deterministic story progression
-- Vitest and React Testing Library for state and component tests
-- Playwright and Axe for complete user flows, keyboard focus, automated accessibility, and responsive layout checks
-- Aggregate-only formative pilot tooling with no learner-level records
-
-The case library and all three complete reviewed rehearsals work locally. Scenario Studio uses narrowly scoped Next.js server routes. `OPENAI_API_KEY` enables the complete adaptive path, including source-backed research and full scenario compilation. An explicitly enabled local Codex session can instead select the closest reviewed topology, adapt its title and tagline, and provide dialogue and review during development; it never fabricates institution-research citations or rewrites the validated action logic. There is no database, analytics, account system, persistence, or production campus-service integration.
-
-## Technical Evidence
-
-AI is used for five tasks:
-
-1. Research public official institution guidance with source evidence.
-2. Compile an approved profile and teaching brief into a validated scenario package.
-3. Produce role dialogue within fixed identities, knowledge, channels, and allowed events.
-4. Select only validated review elements from the recorded action trace.
-5. Answer follow-up questions using discovered evidence and approved source facts.
-
-It does not perform critical actions, change payment, access, or content state, choose an ending, or evaluate the learner's transfer action. Those decisions remain in [`src/engine/simulation/physics.ts`](./src/engine/simulation/physics.ts). Runtime validation lives in [`src/ai/schemas`](./src/ai/schemas), model adapters live in [`src/ai`](./src/ai), and browser requests pass through server routes in [`src/app/api`](./src/app/api).
-
-Before a generated rehearsal can launch, [`src/engine/simulation/coverage.ts`](./src/engine/simulation/coverage.ts) tests its possible action combinations through the same rules used during play. The reviewed voice scenario checks 248 combinations, Sharing Scope checks 29, and Recovery Window checks 46. Generation stops if any ending cannot be reached; the educator preview shows one playable path to each ending.
-
-Recovery actions appear only after their incident is visible, and each affected layer has its own response. In the flagship, approving payment first appears to work; a later status check reveals the changed route, and containment requires a separate finance hold. Conversation channels open only after the learner reaches them, and later replies stay with the selected role.
-
-Each reviewed rehearsal ends with a second situation that asks the learner to use the same rule in a different task. It is a formative check, not proof of learning impact.
-
-Run `npm run verify:ai` for the model-boundary and API suite. With a local server and `OPENAI_API_KEY`, run `npm run verify:live` to require live results from research, generation, role dialogue, review, and Evidence Coach. With the development-only Codex adapter enabled, run `npm run verify:codex` to check scenario matching, copy adaptation, dialogue, review, and Evidence Coach. Research remains unavailable in this mode.
-
-## Development Process
-
-The product direction stayed with the maintainer: practice instead of quiz mechanics, unmarked choices, delayed consequences, deterministic high-impact actions, source review before publication, fictionalized learner-facing institutions, and no learner tracking. These decisions define the learning model and the trust boundary.
-
-Codex was used as an implementation partner across the repository. It accelerated architecture work, scenario and reducer implementation, schema and guardrail coverage, responsive fixes, browser-flow testing, accessibility review, copy editing, and documentation. The maintainer repeatedly reviewed the running product from learner and facilitator perspectives, selected the product tradeoffs, rejected immersion-breaking safety copy, and kept model output outside canonical state changes.
-
-GPT-5.6 contributes to the optional adaptive paths: source-backed institution research through the Responses API, validated scenario generation, bounded role dialogue, trace-selected debrief material, and evidence-grounded coaching. Every model-shaped response crosses a Zod boundary, and the deterministic simulation engine remains authoritative for actions, consequences, recovery, transfer, and endings.
-
-The primary Codex development thread is `019f66ce-a05a-7573-b1b3-b57c5051fa10`. Dated commits and the reproducible checks in [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) provide the corresponding implementation record.
-
-## Quick Start
-
-### Requirements
-
-- Node.js 22.12 or newer
-- npm 10 or newer
-
-### Run locally
+Requirements: Node.js 22.12+ and npm 10+.
 
 ```bash
 git clone https://github.com/pengyue-polaron/one-step-wrong.git
@@ -208,33 +85,22 @@ npm ci
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Add `?dev=1` to expose the development-only story checkpoint panel.
+Open [http://localhost:3000](http://localhost:3000). The reviewed rehearsals and the **Use example...** Studio path run without external credentials.
 
-Adaptive research, generation, dialogue, and review are optional. For the complete Platform path, create `.env.local` from [`.env.example`](./.env.example) and set the server-only key:
+### Enable the OpenAI Platform path
 
-```bash
+Create `.env.local` from [`.env.example`](./.env.example) and add a server-only key:
+
+```dotenv
 OPENAI_API_KEY=your_key_here
+SITE_URL=http://localhost:3000
 ```
 
-Never prefix this key with `NEXT_PUBLIC_`.
+Never expose the key through a `NEXT_PUBLIC_*` variable. `OPENAI_API_KEY` enables source-backed research, full scenario generation, adaptive dialogue, debrief selection, and Evidence Coach.
 
-The same server adapter can use an HTTPS OpenAI-compatible Responses endpoint. For OpenRouter, keep the key server-only and configure the provider-qualified model explicitly:
+### Optional development-only Codex path
 
-```dotenv
-OPENAI_API_KEY=your_openrouter_key
-OPENAI_BASE_URL=https://openrouter.ai/api/v1
-OPENAI_MODEL=openai/gpt-oss-120b
-```
-
-When OpenRouter is selected, institution research uses its server-side Web Search tool with the approved-domain allowlist. Structured source URLs are still rejected unless they appear as citations in that same response. Scenario authoring uses bounded reviewed-scenario matching and title/tagline adaptation; deterministic actions, evidence, recovery, and endings are never generated by the compatible provider. Direct OpenAI Platform configuration retains full schema-generated authoring. OpenRouter's Responses and Web Search interfaces are currently beta, so `npm run verify:live` remains the production acceptance check.
-
-When the app has a canonical public origin, also set `SITE_URL` so Open Graph and other absolute metadata resolve to that origin:
-
-```dotenv
-SITE_URL=https://example.com
-```
-
-For a local alternative without Platform API access, sign in to Codex and explicitly enable the development adapter:
+An authenticated local Codex session can match a brief to a reviewed scenario and provide bounded copy, dialogue, and review during development:
 
 ```bash
 codex login
@@ -242,137 +108,30 @@ codex login
 
 ```dotenv
 CODEX_LOCAL_PROVIDER=1
-# Optional; omit this to use the signed-in account's default Codex model.
-CODEX_LOCAL_MODEL=gpt-5.6-sol
 ```
 
-Model availability is account-specific. The adapter uses the Codex SDK as a local structured-output process; it is ignored when `NODE_ENV=production`, runs without web search in a temporary read-only workspace, and must not be exposed through a public or multi-user server. In this mode, start with **Use example institution**, then **Create rehearsal** to match the brief to one of the three validated judgment patterns and adapt its visible framing. Source-backed institution research and unconstrained topology generation still require `OPENAI_API_KEY`.
-
-For the first Playwright run:
-
-```bash
-npx playwright install chromium
-```
-
-### Run the production container
-
-The image uses Next.js standalone output and runs as an unprivileged user. It remains fully playable through the explicit reviewed-example path when no API key is supplied.
-
-```bash
-docker build -t one-step-wrong .
-docker run --rm -p 3000:3000 one-step-wrong
-```
-
-To enable the optional server-side adaptive paths, inject the key at runtime rather than building it into the image:
-
-```bash
-docker run --rm -p 3000:3000 \
-  -e OPENAI_API_KEY="$OPENAI_API_KEY" \
-  one-step-wrong
-```
-
-### Deploy to Cloudflare Workers
-
-The repository includes an OpenNext adapter and Wrangler configuration for the production Worker. Build with the canonical origin available to Next.js, then deploy the generated Worker:
-
-```bash
-SITE_URL=https://one-step-wrong.pengyue.space npm run build:cloudflare
-npx wrangler deploy
-```
-
-Production deploys use the reviewed no-key path by default. Add `OPENAI_API_KEY` only as a server-side Worker secret; never add it to `wrangler.jsonc`, a build variable, or a `NEXT_PUBLIC_*` value. The Cloudflare Worker is connected to `main` through Workers Builds with `npm run build:cloudflare` followed by `npx wrangler deploy`.
-
-Forks should replace the Worker name, `SITE_URL`, and custom-domain route in [`wrangler.jsonc`](./wrangler.jsonc). If authoritative DNS is hosted outside Cloudflare, point the chosen hostname at the enabled `workers.dev` hostname rather than changing unrelated records.
-
-## Available Scripts
-
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the Next.js development server. |
-| `npm run build` | Create an optimized production build. |
-| `npm run build:cloudflare` | Build the OpenNext Worker bundle. |
-| `npm run start` | Serve the production build. |
-| `npm run preview` | Build and preview the Cloudflare Worker locally. |
-| `npm run deploy` | Build and deploy with Wrangler. |
-| `npm run cf-typegen` | Generate local Cloudflare environment types. |
-| `npm run lint` | Run ESLint across the repository. |
-| `npm run typecheck` | Check TypeScript without emitting files. |
-| `npm test` | Run the Vitest state and component suite once. |
-| `npm run test:watch` | Run Vitest in watch mode. |
-| `npm run test:e2e` | Run the Playwright browser suite. |
-| `npm run verify:ai` | Run the focused AI schema, guardrail, adapter, and API suite. |
-| `npm run verify:codex` | Require live local Codex matching/adaptation, dialogue, debrief, and coaching from a running development server. |
-| `npm run verify:live` | Require live provenance across every adaptive path on a running server. |
-| `npm run pilot:analyze -- <file>` | Validate and summarize aggregate-only pilot counts. |
+This fallback is disabled in production and cannot perform institution research. The Platform API remains the complete adaptive path.
 
 ## Architecture
 
 ```text
 src/
-  app/
-    api/                            Server-only research, generation, turn, debrief, coach routes
-    rehearsal/                      Direct learner routes for reviewed rehearsals
-    studio/                         Educator workflow, protected label editor, and shared rehearsal UI
-  ai/
-    schemas/                        Runtime contracts, cross-references, safety validation
-    providers/                      Platform selection and isolated local Codex adapter
-    research/                       Institution Research Agent adapter
-    scenarios/                      Scenario Architect adapter
-    simulation/                     Director and role-turn validation
-    debrief/                        Trace-based review and Evidence Coach adapters
-  fixtures/                         Reviewed profile/scenario bundles and dialogue content
-  product/
-    Game.tsx                        Session-level case selection and completion
-    CaseLibrary.tsx                 Playable first screen
-    caseRegistry.ts                 Legacy chapter registry
-    reviewedRehearsals.ts           Lightweight reviewed-rehearsal catalog
-  cases/
-    types.ts                        Shared case-module contract
-    final-submission/               Deep desktop case: UI, state, content, tests
-    shared-draft/                   Archived earlier sharing prototype
-    unexpected-push/                Duo definition and scene
-  engine/decision/
-    DecisionCaseRunner.tsx          Shared flow orchestration
-    reducer.ts                      Pure state transitions and ending selection
-    components/                     Shared chapter chrome and choices
-    views/                          Outcome, response, and debrief screens
-  engine/simulation/               State transitions, action traces, transfer, and ending checks
-  components/ui/                    Reusable button primitives only
-  styles/                           Tokens, shared styles, and case-library styles
-  tests/e2e/                        Browser flows, accessibility, and responsive checks
-pilot/                              Aggregate-only formative pilot protocol
-artifacts/screenshots/              Accepted product screenshots
+  app/studio/          Educator authoring, review, rehearsal, and reporting
+  app/rehearsal/       Direct learner routes for reviewed rehearsals
+  app/api/             Bounded server-only OpenAI routes
+  ai/                  Prompts, providers, runtime schemas, and guardrails
+  fixtures/            Reviewed institution/scenario bundles
+  engine/simulation/   Deterministic actions, consequences, traces, and endings
+  product/             Case library and reviewed learning-path catalog
+  cases/               Case-owned content, state, UI, and tests
+  tests/e2e/            Browser flows, accessibility, and layout checks
 ```
 
-Legacy chapters depend on a small `CaseModule` contract: case metadata plus a runner component. Reviewed agentic rehearsals are atomic profile/scenario bundles selected by ID and rendered through one shared interface. Scenario Studio is a separate authoring route and does not replace the playable case library.
+The trust boundary is deliberate: models may propose validated language and event IDs, while typed learner actions are the only way to mutate canonical state. There is no database, learner account, analytics system, or real campus-service integration.
 
-The three chapter models are intentional:
+See [`PRODUCT_PLAN.md`](./PRODUCT_PLAN.md) for the product and AI architecture, [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for the claim-to-test map, and [`FACILITATOR_GUIDE.md`](./FACILITATOR_GUIDE.md) for a 10–35 minute classroom format.
 
-- **Decision chapters** use `intro → decision → outcome → response? → debrief` and provide data plus a case-owned scene.
-- **Deep simulations** own their state machine and interface while still entering through the same registry.
-- **Agentic simulations** accept only runtime-validated declarative packages. Model dialogue is conversational state; explicit typed actions alone can change canonical state.
-
-See [`AGENTS.md`](./AGENTS.md) for architecture rules, content constraints, and the completion checklist.
-
-## Extending the Library
-
-For a reviewed agentic rehearsal:
-
-1. Add a validated scenario fixture and pair it atomically with its approved profile in `src/fixtures/reviewedScenarioRegistry.ts`.
-2. Register learner-facing metadata in `src/product/reviewedRehearsals.ts` and expose it through the shared static route.
-3. Add schema, reachability, physics, direct-route, browser-flow, responsive, and screenshot coverage.
-
-For a legacy decision or deep chapter:
-
-1. Create `src/cases/<case-id>/` with a summary, definition or state model, scene, and tests.
-2. Use the decision engine for a focused flow; use a dedicated reducer only for multiple tools, free navigation, or a long incident chain.
-3. Export a `CaseRunnerProps` runner and register it once in `src/product/caseRegistry.ts`.
-
-Do not add case-specific branching to the product shell.
-
-## Quality Gates
-
-Before a change is ready:
+## Quality gates
 
 ```bash
 npm run lint
@@ -383,33 +142,25 @@ npm run build
 npm run test:e2e
 ```
 
-The current suite contains 151 schema, API, state, and component tests plus 23 browser tests. It covers the three reviewed rehearsals, Studio review and editing, action and recovery rules, all four endings, Evidence Coach citations, facilitator reporting, accessibility checks, production builds, desktop layouts, and 390x844 phone flows. See [`QUALITY_EVIDENCE.md`](./QUALITY_EVIDENCE.md) for the claim-to-test map.
+The current suite includes 151 schema, API, state, and component tests plus 23 browser tests. It covers the three reviewed rehearsals, all declared endings, recovery rules, Evidence Coach citations, transfer checks, keyboard access, Axe checks, and layouts from 390×844 through 1920×1080.
 
-## Safety and Privacy
+## Safety and privacy
 
-- Credentials and personal details are fixed, read-only story data.
-- Authoring and dialogue data remains transient. It is sent only to the explicit server route being used and is never persisted by this application.
-- No real Wi-Fi, account, certificate, download, or device API is used.
-- Real service names and domains appear only as inert interface text.
-- Live institution research is limited to public documentation through OpenAI Web Search; the app never logs in to or invokes campus services.
-- OpenAI credentials remain server-only and requests are bounded. The local Codex adapter uses isolated temporary runtime state and is never a source-research substitute. Invalid dialogue or review output stays on same-scenario reviewed content; research and generation failures return clear errors without replacing educator input.
+- OpenAI credentials stay server-side; prompts, dialogue, and traces are not logged by the application.
+- Authoring inputs and learner dialogue remain transient and are not persisted to cookies, local storage, analytics, or a database.
+- Critical state changes are explicit typed actions handled by deterministic code.
+- Institution research is limited to public official sources and never accesses authenticated portals or real campus services.
+- Reviewed scenarios use fictional Northbridge University, generic products, and fixed story data.
 
-These guarantees belong in code and tests, not as immersion-breaking disclaimers inside the game.
+## Known limitations
 
-## Contributing
+- Source-backed research and full scenario generation require a valid OpenAI Platform API key and network access.
+- The archived **Final Submission** simulation requires a desktop viewport at least 1100 px wide.
+- There is no login, saved progress, multiplayer collaboration, runtime localization, or real campus integration.
+- The user test is formative and self-reported; a larger controlled study would be needed to measure learning impact.
 
-Focused issues and pull requests are welcome. Preserve the product rules in `AGENTS.md`, keep case-specific code within its owning module, and include tests proportional to the changed behavior. For visual changes, attach before/after screenshots at relevant desktop and mobile sizes. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the working agreement and [`SECURITY.md`](./SECURITY.md) for private vulnerability reporting guidance.
+## Contributing and license
 
-Repository media provenance is documented in [`ASSET_NOTES.md`](./ASSET_NOTES.md). Before changing repository visibility, follow [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md).
-
-## Known Limitations
-
-- **Final Submission** is intentionally desktop-only because its multi-window workspace needs at least 1100 px.
-- Desktop windows have fixed positions and cannot be freely dragged or resized.
-- Final Submission synthesizes short interface sounds, and The Voice You Know includes one local synthetic voice note. No real voice is cloned and no runtime text-to-speech service is called.
-- There is no login, database, saved progress, collaboration system, runtime localization framework, or real campus integration.
-- Source-backed live research and full topology generation require a valid Platform API key and network access. Local Codex can match and adapt a reviewed topology and supply the runtime adaptive paths during development; the explicit reviewed-example path remains the portable baseline.
-
-## License
+Contributions are welcome. Read [`CONTRIBUTING.md`](./CONTRIBUTING.md), report vulnerabilities through [`SECURITY.md`](./SECURITY.md), and review [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md) before a public release.
 
 Licensed under the [MIT License](./LICENSE).

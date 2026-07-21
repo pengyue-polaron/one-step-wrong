@@ -7,8 +7,10 @@ cloudflare-env.d.ts
 coverage/
 playwright-report/
 test-results/
-artifacts/demo/*.mp4
-artifacts/demo/*.webm
+# Local demo-production sources and exports.
+/DEMO_VIDEO_SCRIPT.md
+/artifacts/demo/
+/scripts/demo/
 pilot/local/
 *.tsbuildinfo
 .DS_Store

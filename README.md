@@ -1,10 +1,5 @@
 # One Step Wrong
 
-<p>
-  <a href="./README.md"><strong>English</strong></a> ·
-  <a href="./README.zh-CN.md">简体中文</a>
-</p>
-
 ![Node.js 22.12+](https://img.shields.io/badge/Node.js-22.12%2B-339933?logo=nodedotjs&logoColor=white)
 ![npm 10+](https://img.shields.io/badge/npm-10%2B-CB3837?logo=npm&logoColor=white)
 

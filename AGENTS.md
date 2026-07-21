@@ -10,7 +10,7 @@ The first screen is always the playable case library. Do not replace it with a l
 
 Keep the three reviewed rehearsals in an explicit 01–03 learning order. Present earlier cases as a separate archive, and never describe archive-only session completion as progress across the whole library.
 
-The default product language is English. Keep `README.zh-CN.md` as the complete Chinese documentation counterpart; do not introduce a runtime localization framework unless the product scope explicitly expands to multilingual delivery.
+The default product and repository language is English; do not introduce a runtime localization framework unless the product scope explicitly expands to multilingual delivery.
 
 ## Brand Identity
 
@@ -253,7 +253,6 @@ The browser suite currently covers 1366×768, 1440×900, 1920×1080, and 390×84
 ## Documentation
 
 - `README.md` is the English canonical README.
-- `README.zh-CN.md` is the Simplified Chinese counterpart.
 - `PRODUCT_PLAN.md` is the canonical product story and implementation brief.
 - `QUALITY_EVIDENCE.md` maps product claims to working code and automated evidence.
 - Keep their structure, commands, screenshots, architecture, test counts, and limitations synchronized.
